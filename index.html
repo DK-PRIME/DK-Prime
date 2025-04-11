@@ -1,104 +1,91 @@
-<!DOCTYPE html>
-<html lang="uk">
+
+<!DOCTYPE html><html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>DK PRIME | DVA KUMA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ДК ПРАЙМ | ДВА КУМА</title>
   <style>
     body {
       background-color: #0e0e0e;
       color: #fff;
       font-family: Arial, sans-serif;
       text-align: center;
-      margin: 0;
-      padding: 0;
+      padding-top: 30px;
     }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 30px 20px;
-    }
-    img.logo {
-      max-width: 250px;
+    img {
+      max-width: 200px;
       margin-bottom: 20px;
-      border-radius: 10px;
     }
     h1 {
+      font-size: 2.5em;
       color: #f4c430;
-      margin: 10px 0;
-      font-size: 2em;
+      margin: 0;
     }
     h2 {
+      font-size: 1.5em;
       color: #fff;
-      font-size: 1.3em;
-      margin-bottom: 20px;
+      margin: 5px 0 20px;
     }
-    .description {
-      font-size: 1.1em;
-      margin-bottom: 30px;
+    p {
+      max-width: 600px;
+      margin: 0 auto 20px;
+      font-size: 1em;
       color: #ccc;
     }
     .button {
       background-color: #f4c430;
       color: #000;
       padding: 10px 20px;
+      margin: 10px;
       border: none;
-      font-size: 1em;
-      margin: 10px 5px;
       border-radius: 5px;
+      font-size: 1em;
       cursor: pointer;
     }
     .gallery {
-      margin-top: 40px;
+      margin: 40px 0;
     }
     .gallery img {
       width: 100px;
-      margin: 10px;
-      border-radius: 10px;
-      transition: transform 0.2s;
-    }
-    .gallery img:hover {
-      transform: scale(1.05);
+      height: auto;
+      margin: 5px;
     }
     .contact-form {
-      margin-top: 40px;
+      margin-top: 60px;
+      padding: 30px 0 10px;
+      background-color: #0a0a0a;
     }
     .contact-form input,
     .contact-form textarea {
       width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
+      max-width: 300px;
+      padding: 8px;
+      margin: 6px 0;
+      border-radius: 4px;
       border: none;
-      font-size: 1em;
+      font-size: 0.9em;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="logo.png" alt="DK Prime Logo" class="logo">
-    <h1>DK PRIME</h1>
-    <h2>DVA KUMA</h2>
-    <p class="description">
-      DK Prime — сучасний бренд приманок і рибного харчування, створений для справжніх поціновувачів карпфішингу.
-    </p>
-    <button class="button" onclick="window.location.href='https://t.me/your_channel'">Telegram</button>
-    <button class="button" onclick="window.location.href='https://youtube.com/your_channel'">YouTube</button>
-
-    <div class="gallery">
-      <h2>Галерея</h2>
-      <img src="https://via.placeholder.com/150" alt="Sample Photo 1">
-      <img src="https://via.placeholder.com/150" alt="Sample Photo 2">
-      <img src="https://via.placeholder.com/150" alt="Sample Photo 3">
-    </div>
-
-    <div class="contact-form">
-      <h2>Зв’язатися з нами</h2>
-      <input type="text" placeholder="Ваше ім’я">
-      <input type="email" placeholder="Email">
-      <textarea rows="4" placeholder="Ваше повідомлення"></textarea>
-      <br>
-      <button class="button">Надіслати</button>
-    </div>
-  </div>
+  <img src="logo.png" alt="DK Prime Logo">
+  <h1>DK PRIME</h1>
+  <h2>DVA KUMA</h2>
+  <p>DK Prime — сучасний бренд приманок і рибного харчування, створений для справжніх поціновувачів карпфішингу.</p>
+  <a href="#" class="button">Telegram</a>
+  <a href="#" class="button">YouTube</a>  <div class="gallery">
+    <h2>Галерея</h2>
+    <img src="https://via.placeholder.com/100" alt="Sample Photo 1">
+    <img src="https://via.placeholder.com/100" alt="Sample Photo 2">
+    <img src="https://via.placeholder.com/100" alt="Sample Photo 3">
+  </div>  <footer class="contact-form">
+    <h2 style="font-size: 1.1em; margin-bottom: 10px;">Зв’язатися з нами</h2>
+    <input type="text" placeholder="Ім’я">
+    <input type="email" placeholder="Email">
+    <textarea rows="3" placeholder="Повідомлення"></textarea>
+    <br>
+    <button class="button" style="margin-top: 5px;">Надіслати</button>
+    <p style="font-size: 0.8em; color: #777; margin-top: 10px;">@DK Prime, 2025</p>
+  </footer>
 </body>
 </html>
