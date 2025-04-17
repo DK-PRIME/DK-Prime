@@ -14,10 +14,8 @@
     input, textarea { padding: 0.5em; border: 1px solid #ccc; border-radius: 5px; }
     button { padding: 0.7em; background: #222; color: white; border: none; border-radius: 5px; cursor: pointer; }
     .social-buttons a { margin: 0 10px; text-decoration: none; color: white; font-weight: bold; }
-    .product-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-    .product { background: white; padding: 1em; border-radius: 10px; width: 200px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .product img { width: 100%; border-radius: 8px; }
-    .product h3 { margin-top: 0.5em; font-size: 1.1em; }
+    .product-link { display: inline-block; padding: 1em 2em; background: #333; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 20px; }
+    .product-link:hover { background: #555; }
   </style>
 </head>
 <body>  <header>
@@ -32,24 +30,7 @@
     <p>DK Prime — сучасний бренд приманок і рибного харчування, створений для справжніх поціновувачів карпфішингу.</p>
   </section>  <section>
     <h2>Прикормки</h2>
-    <div class="product-grid">
-      <div class="product">
-        <img src="boilies.jpg" alt="Варені бойли">
-        <h3>Варені бойли</h3>
-      </div>
-      <div class="product">
-        <img src="popup.jpg" alt="Поп-апи">
-        <h3>Поп-апи</h3>
-      </div>
-      <div class="product">
-        <img src="liquid.jpg" alt="Бустери/Ліквіди">
-        <h3>Бустери / Ліквіди</h3>
-      </div>
-      <div class="product">
-        <img src="tiger.jpg" alt="Tiger Nuts">
-        <h3>Tiger Nuts</h3>
-      </div>
-    </div>
+    <a href="products.html" class="product-link">Переглянути всі товари</a>
   </section>  <section>
     <h2>Галерея</h2>
     <div class="gallery">
