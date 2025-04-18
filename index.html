@@ -3,54 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Продукція – DK Prime</title>
+  <title>DK Prime</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f8f8f8; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f5; }
     header, footer { background: #222; color: white; padding: 1em; text-align: center; }
-    h1 { margin-bottom: 0.2em; }
-    .products { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 2em; }
-    .product { background: white; padding: 1em; border-radius: 10px; width: 280px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
-    .product img { width: 100%; border-radius: 8px; height: auto; }
-    .product h3 { margin-top: 0.5em; }
-    .product p { margin: 0.5em 0; font-weight: bold; }
-    .product a { display: inline-block; padding: 0.5em 1em; background: #4CAF50; color: white; border-radius: 5px; text-decoration: none; margin-top: 0.5em; }
-    .product a:hover { background: #388e3c; }
+    section { padding: 2em; text-align: center; }
+    .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .gallery img { width: 200px; height: auto; border-radius: 8px; }
+    form { display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto; }
+    input, textarea { padding: 0.5em; border: 1px solid #ccc; border-radius: 5px; }
+    button { padding: 0.7em; background: #222; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .social-buttons a { margin: 0 10px; text-decoration: none; color: white; font-weight: bold; }
+    .product-link { display: inline-block; padding: 1em 2em; background: #333; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 20px; }
+    .product-link:hover { background: #555; }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Наша продукція</h1>
-    <p><a href="/" style="color: #aaa; text-decoration: underline;">Повернутися на головну</a></p>
+    <img src="logo.png" alt="DK Prime Logo" style="height: 80px;">
+    <h1>Преміум приманки для справжніх карпятників</h1>
+    <div class="social-buttons">
+      <a href="https://t.me/dkprime" target="_blank">Telegram</a>
+      <a href="https://youtube.com/@dkprime" target="_blank">YouTube</a>
+    </div>
   </header>
 
-  <section class="products">
+  <section>
+    <h2>Про нас</h2>
+    <p>DK Prime — сучасний бренд приманок і рибного харчування, створений для справжніх поціновувачів карпфішингу.</p>
+  </section>
 
-    <div class="product">
-      <img src="killer-krill.jpg" alt="Killer Krill Pop-Up">
-      <h3>Killer Krill Pop-Up 8–10mm</h3>
-      <p>Тип: поп-апи</p>
-      <p>Ціна: 160 грн</p>
-      <a href="https://invite.viber.com/?g=83sw0WeRkVQzg-D81XrQOxQU1ka4ljrF" target="_blank">Замовити у Viber</a>
+  <section>
+    <h2>Прикормки</h2>
+    <a href="products.html" class="product-link">Переглянути всі товари</a>
+  </section>
+
+  <section>
+    <h2>Галерея</h2>
+    <div class="gallery">
+      <img src="photo1.jpg" alt="Риболовля 1">
+      <img src="photo2.jpg" alt="Риболовля 2">
+      <img src="photo3.jpg" alt="Процес виготовлення">
     </div>
+  </section>
 
-    <div class="product">
-      <img src="kraken-squid.jpg" alt="Kraken Squid Liquid">
-      <h3>Kraken Squid Liquid 250ml</h3>
-      <p>Тип: ліквід</p>
-      <p>Ціна: 190 грн</p>
-      <a href="https://invite.viber.com/?g=83sw0WeRkVQzg-D81XrQOxQU1ka4ljrF" target="_blank">Замовити у Viber</a>
-    </div>
-
-    <div class="product">
-      <img src="turbo-tiger.jpg" alt="Turbo Tiger Nuts">
-      <h3>Turbo Tiger Nuts варені бойли 24mm</h3>
-      <p>Тип: варені бойли</p>
-      <p>Ціна: 280 грн</p>
-      <a href="https://invite.viber.com/?g=83sw0WeRkVQzg-D81XrQOxQU1ka4ljrF" target="_blank">Замовити у Viber</a>
-    </div>
-
+  <section>
+    <h2>Зв'язатися зі мною</h2>
+    <form>
+      <input type="text" placeholder="Ваше ім'я">
+      <input type="tel" placeholder="Номер телефону">
+      <textarea rows="4" placeholder="Ваше повідомлення"></textarea>
+      <button type="submit">Надіслати</button>
+    </form>
   </section>
 
   <footer>
