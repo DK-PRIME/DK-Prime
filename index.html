@@ -2,26 +2,30 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <title>DK PRIME — Коропове харчування</title>
+  <title>DK PRIME — Carp Food Lab</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="DK PRIME — сучасне коропове харчування. Поп-апи, бойли, пелетс, метод-мікси, ліквіди. Швидка доставка по Україні." />
+  <meta name="description"
+        content="DK PRIME — сучасний бренд коропового харчування. Преміальні суміші, бойли, пелетс та поп-апи, створені під реальні турніри STOLAR CARP." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg: #050608;
-      --bg-soft: #10131a;
-      --accent: #ffc400;
-      --accent-dark: #ff8a00;
-      --text: #f5f5f5;
+      --bg-main: #020617;
+      --bg-soft: #050816;
+      --bg-card: #070d1e;
+      --accent: #facc15;
+      --accent-soft: #f97316;
+      --accent-soft2: #a855f7;
+      --text: #f9fafb;
       --muted: #9ca3af;
-      --danger: #ef4444;
-      --radius-lg: 18px;
-      --shadow-soft: 0 18px 45px rgba(0,0,0,0.55);
-      --transition: all 0.2s ease;
+      --border-soft: rgba(148, 163, 184, 0.45);
+      --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.75);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --transition: all 0.22s ease;
     }
 
     * {
@@ -31,8 +35,12 @@
     }
 
     body {
+      min-height: 100vh;
       font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: radial-gradient(circle at top, #151a26 0, #050608 55%);
+      background:
+        radial-gradient(circle at 0% 0%, #1f2937 0, transparent 52%),
+        radial-gradient(circle at 100% 0%, #581c87 0, transparent 52%),
+        radial-gradient(circle at 50% 120%, #0f172a 0, #020617 60%);
       color: var(--text);
       line-height: 1.6;
     }
@@ -55,57 +63,62 @@
     }
 
     .container {
-      width: min(1200px, 100%);
+      width: min(1180px, 100%);
       margin: 0 auto;
       padding: 0 16px;
     }
 
-    /* HEADER */
+    /* ====== HEADER ====== */
+
     header {
       position: sticky;
       top: 0;
-      z-index: 50;
+      z-index: 40;
       backdrop-filter: blur(18px);
-      background: rgba(5, 6, 8, 0.96);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+      background: linear-gradient(to bottom, rgba(2, 6, 23, 0.96), rgba(2, 6, 23, 0.85));
+      border-bottom: 1px solid rgba(15, 23, 42, 0.9);
     }
 
     .header-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 16px;
       padding: 10px 0;
-      gap: 12px;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .logo-mark {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #ffffff 0, #fde68a 25%, #ea580c 70%, #0b0f19 100%);
+      background:
+        radial-gradient(circle at 20% 20%, #ffffff 0, #fef3c7 15%, transparent 50%),
+        conic-gradient(from 210deg, #facc15, #f97316, #a855f7, #0ea5e9);
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
       font-size: 18px;
-      box-shadow: 0 0 22px rgba(234, 179, 8, 0.8);
+      box-shadow: 0 0 26px rgba(250, 204, 21, 0.9);
+      color: #020617;
     }
 
     .logo-text {
       display: flex;
       flex-direction: column;
+      gap: 2px;
     }
 
     .logo-text span:first-child {
+      font-size: 15px;
       font-weight: 700;
-      letter-spacing: 0.07em;
-      font-size: 14px;
+      letter-spacing: 0.15em;
     }
 
     .logo-text span:last-child {
@@ -126,12 +139,11 @@
       border-radius: 999px;
       color: var(--muted);
       transition: var(--transition);
-      white-space: nowrap;
     }
 
     nav a:hover {
+      background: rgba(15, 23, 42, 0.8);
       color: var(--text);
-      background: rgba(148, 163, 184, 0.18);
     }
 
     .header-right {
@@ -140,138 +152,104 @@
       gap: 10px;
     }
 
-    .cta-small {
+    .cta-pill {
       padding: 7px 14px;
       border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      background: radial-gradient(circle at 0 0, #fef9c3 0, #facc15 40%, #f97316 95%);
       color: #111827;
       font-size: 13px;
       font-weight: 600;
-      box-shadow: 0 10px 30px rgba(234, 179, 8, 0.4);
+      box-shadow: 0 14px 38px rgba(250, 204, 21, 0.65);
       transition: var(--transition);
       white-space: nowrap;
     }
 
-    .cta-small:hover {
+    .cta-pill:hover {
       transform: translateY(-1px);
-      box-shadow: 0 14px 40px rgba(234, 179, 8, 0.55);
+      box-shadow: 0 18px 50px rgba(250, 204, 21, 0.85);
     }
 
-    .cart-btn {
-      position: relative;
-      width: 36px;
-      height: 36px;
+    .ghost-link {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 6px 10px;
       border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: rgba(15, 23, 42, 0.8);
       transition: var(--transition);
     }
 
-    .cart-btn:hover {
+    .ghost-link:hover {
+      color: var(--text);
+      border-color: rgba(148, 163, 184, 0.9);
       background: rgba(15, 23, 42, 1);
-      transform: translateY(-1px);
-    }
-
-    .cart-icon {
-      width: 18px;
-      height: 18px;
-      border-radius: 4px;
-      border: 2px solid var(--accent);
-      position: relative;
-    }
-
-    .cart-icon::before,
-    .cart-icon::after {
-      content: "";
-      position: absolute;
-      width: 2px;
-      height: 6px;
-      background: var(--accent);
-      top: -6px;
-      border-radius: 10px;
-    }
-
-    .cart-icon::before { left: 4px; }
-    .cart-icon::after { right: 4px; }
-
-    .cart-badge {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      background: var(--danger);
-      color: #fff;
-      font-size: 10px;
-      padding: 1px 5px;
-      border-radius: 999px;
-      font-weight: 600;
-      min-width: 18px;
-      text-align: center;
     }
 
     .burger {
       display: none;
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.45);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: rgba(15, 23, 42, 0.9);
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 4px;
-      background: rgba(15, 23, 42, 0.9);
     }
 
     .burger span {
-      width: 16px;
+      width: 18px;
       height: 2px;
       border-radius: 10px;
       background: var(--text);
     }
 
-    /* HERO */
+    /* ====== HERO ====== */
+
     .hero {
-      padding: 32px 0 40px;
+      padding: 30px 0 36px;
     }
 
     .hero-inner {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 32px;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: 28px;
       align-items: center;
     }
 
-    .badge-top {
+    .hero-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       padding: 4px 10px 4px 4px;
       border-radius: 999px;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.6);
       font-size: 11px;
       color: var(--muted);
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
-    .badge-dot {
+    .hero-dot {
       width: 26px;
       height: 26px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #fff 0, #fde68a 25%, #ea580c 70%, #0b0f19 100%);
-      box-shadow: 0 0 20px rgba(234, 179, 8, 0.9);
+      background:
+        radial-gradient(circle at 30% 20%, #fff 0, #fef9c3 10%, transparent 60%),
+        conic-gradient(from 220deg, #bef264, #facc15, #f97316, #22c55e);
+      box-shadow: 0 0 20px rgba(250, 204, 21, 0.9);
     }
 
     .hero-title {
       font-size: clamp(26px, 4vw, 34px);
-      font-weight: 700;
+      font-weight: 800;
+      letter-spacing: 0.03em;
       margin-bottom: 10px;
     }
 
     .hero-title span {
-      background: linear-gradient(120deg, var(--accent), var(--accent-dark));
+      background: linear-gradient(120deg, #facc15, #f97316, #a855f7);
       -webkit-background-clip: text;
       color: transparent;
     }
@@ -279,7 +257,7 @@
     .hero-sub {
       font-size: 14px;
       color: var(--muted);
-      max-width: 480px;
+      max-width: 520px;
       margin-bottom: 18px;
     }
 
@@ -287,26 +265,26 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
-    .btn-primary {
+    .btn-main {
       padding: 10px 22px;
       border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      background: radial-gradient(circle at 0 0, #fef9c3 0, #facc15 45%, #f97316 100%);
       color: #111827;
       font-weight: 600;
       font-size: 14px;
-      box-shadow: 0 18px 45px rgba(234, 179, 8, 0.55);
+      box-shadow: 0 20px 55px rgba(250, 204, 21, 0.7);
       transition: var(--transition);
     }
 
-    .btn-primary:hover {
+    .btn-main:hover {
       transform: translateY(-2px);
-      box-shadow: 0 22px 55px rgba(234, 179, 8, 0.7);
+      box-shadow: 0 24px 65px rgba(250, 204, 21, 0.9);
     }
 
-    .btn-outline {
+    .btn-ghost {
       padding: 9px 18px;
       border-radius: 999px;
       border: 1px solid rgba(148, 163, 184, 0.55);
@@ -316,7 +294,7 @@
       transition: var(--transition);
     }
 
-    .btn-outline:hover {
+    .btn-ghost:hover {
       color: var(--text);
       border-color: rgba(148, 163, 184, 0.9);
       background: rgba(15, 23, 42, 1);
@@ -341,101 +319,228 @@
       width: 6px;
       height: 6px;
       border-radius: 999px;
-      background: radial-gradient(circle, var(--accent), var(--accent-dark));
-      box-shadow: 0 0 10px rgba(234, 179, 8, 0.8);
+      background: radial-gradient(circle, #facc15, #f97316);
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.9);
     }
 
-    /* SIMPLE CARD RIGHT */
+    /* HERO CARD */
+
     .hero-card {
-      background: radial-gradient(circle at 10% 0, rgba(250, 204, 21, 0.18) 0, rgba(15, 23, 42, 0.95) 35%);
-      border-radius: 26px;
-      padding: 20px;
-      box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(148, 163, 184, 0.35);
       position: relative;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 0 0, rgba(250, 204, 21, 0.18), transparent 55%),
+        radial-gradient(circle at 120% 0, rgba(129, 140, 248, 0.26), transparent 55%),
+        linear-gradient(145deg, #020617, #020617, #0b1120);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 18px 16px;
       overflow: hidden;
     }
 
-    .hero-card h3 {
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(250, 204, 21, 0.19), transparent 70%);
+      right: -60px;
+      top: -80px;
+      filter: blur(2px);
+    }
+
+    .hero-card-head {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .hero-card-title {
       font-size: 16px;
-      margin-bottom: 6px;
+      font-weight: 600;
     }
 
-    .hero-card p {
-      font-size: 13px;
+    .hero-card-badge {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 197, 94, 0.7);
+      background: rgba(22, 163, 74, 0.16);
+      color: #bbf7d0;
+    }
+
+    .hero-card-body {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .jar {
+      width: 100px;
+      height: 130px;
+      border-radius: 22px;
+      background: linear-gradient(160deg, #020617, #020617, #111827);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 14px;
+    }
+
+    .jar::before {
+      content: "METHOD MIX";
+      position: absolute;
+      top: 10px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 9px;
+      color: var(--accent);
+      letter-spacing: 0.18em;
+    }
+
+    .jar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 0, rgba(248, 250, 252, 0.28), transparent 55%),
+        linear-gradient(160deg, rgba(248, 250, 252, 0.06), transparent 60%);
+      mix-blend-mode: screen;
+    }
+
+    .jar-label {
+      width: 80%;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #020617, #020617, #1e293b);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .jar-label span:first-child {
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      font-weight: 600;
+    }
+
+    .jar-label span:last-child {
       color: var(--muted);
-      margin-bottom: 10px;
+      letter-spacing: 0.12em;
     }
 
-    .hero-card ul {
+    .hero-card-list {
       font-size: 12px;
       color: var(--muted);
-      padding-left: 16px;
+      list-style: none;
     }
 
-    .hero-card ul li { margin-bottom: 4px; }
+    .hero-card-list li {
+      margin-bottom: 4px;
+    }
 
-    /* BENEFITS */
-    .benefits {
-      padding: 8px 0 20px;
+    .hero-card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .hero-price {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .hero-old {
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: line-through;
+      margin-left: 6px;
+    }
+
+    .hero-discount {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(248, 113, 113, 0.7);
+      background: rgba(248, 113, 113, 0.16);
+      color: #fecaca;
+    }
+
+    /* ====== BENEFITS ====== */
+
+    .section {
+      padding: 20px 0 24px;
     }
 
     .benefits-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      gap: 12px;
-      font-size: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
     }
 
     .benefit-card {
-      background: rgba(15, 23, 42, 0.88);
-      border-radius: 14px;
-      padding: 10px 12px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.96));
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      padding: 11px 12px;
       display: flex;
-      gap: 10px;
       align-items: flex-start;
+      gap: 10px;
     }
 
     .benefit-icon {
-      width: 24px;
-      height: 24px;
+      width: 26px;
+      height: 26px;
       border-radius: 999px;
-      background: radial-gradient(circle, var(--accent), var(--accent-dark));
+      background: radial-gradient(circle, #facc15, #f97316);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 15px;
       color: #111827;
       flex-shrink: 0;
     }
 
     .benefit-title {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
 
     .benefit-text {
-      color: var(--muted);
       font-size: 11px;
+      color: var(--muted);
     }
 
-    /* CATALOG */
-    .section {
-      padding: 22px 0;
-    }
+    /* ====== CATALOG ====== */
 
     .section-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      margin-bottom: 14px;
-      gap: 12px;
+      gap: 14px;
+      margin-bottom: 16px;
     }
 
     .section-title {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 600;
     }
 
@@ -454,7 +559,7 @@
     .filter-btn {
       padding: 6px 11px;
       border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
+      border: 1px solid rgba(148, 163, 184, 0.45);
       background: rgba(15, 23, 42, 0.9);
       color: var(--muted);
       transition: var(--transition);
@@ -469,18 +574,103 @@
 
     .catalog-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 16px;
     }
 
     .product-card {
-      background: rgba(15, 23, 42, 0.95);
-      border-radius: 16px;
-      padding: 10px 11px 12px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      box-shadow: 0 14px 34px rgba(0,0,0,0.45);
+      background: rgba(7, 12, 26, 0.96);
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.75);
+      padding: 12px 12px 13px;
       display: flex;
       flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.18);
+      color: #bbf7d0;
+      border: 1px solid rgba(34, 197, 94, 0.7);
+    }
+
+    .product-head {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .product-pill {
+      width: 70px;
+      height: 90px;
+      border-radius: 18px;
+      background: linear-gradient(150deg, #020617, #020617, #1f2937);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    .product-pill::before {
+      content: attr(data-type);
+      position: absolute;
+      top: 7px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+    }
+
+    .product-pill::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 0, rgba(248, 250, 252, 0.26), transparent 55%),
+        linear-gradient(160deg, rgba(248, 250, 252, 0.06), transparent 60%);
+      mix-blend-mode: screen;
+    }
+
+    .product-pill-label {
+      width: 80%;
+      height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #020617, #111827);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      text-transform: uppercase;
+    }
+
+    .product-pill-label span:first-child {
+      color: var(--accent);
+      letter-spacing: 0.16em;
+    }
+
+    .product-pill-label span:last-child {
+      color: var(--muted);
+    }
+
+    .product-main {
+      flex: 1;
     }
 
     .product-title {
@@ -492,20 +682,19 @@
     .product-desc {
       font-size: 11px;
       color: var(--muted);
-      margin-bottom: 7px;
-      min-height: 32px;
+      margin-bottom: 6px;
     }
 
     .product-meta {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
       font-size: 11px;
       margin-bottom: 7px;
     }
 
     .product-price-main {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
     }
 
@@ -524,17 +713,17 @@
       flex: 1;
       padding: 7px 9px;
       border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      background: radial-gradient(circle at 0 0, #fef9c3 0, #facc15 45%, #f97316 100%);
       color: #111827;
       font-size: 12px;
       font-weight: 600;
-      box-shadow: 0 12px 30px rgba(234, 179, 8, 0.5);
+      box-shadow: 0 14px 38px rgba(250, 204, 21, 0.7);
       transition: var(--transition);
     }
 
     .btn-add:hover {
       transform: translateY(-1px);
-      box-shadow: 0 14px 34px rgba(234, 179, 8, 0.6);
+      box-shadow: 0 18px 48px rgba(250, 204, 21, 0.85);
     }
 
     .btn-one-click {
@@ -542,24 +731,31 @@
       color: var(--muted);
       padding: 5px 8px;
       border-radius: 999px;
-      border: 1px dashed rgba(148, 163, 184, 0.45);
-      background: rgba(15, 23, 42, 0.95);
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.96);
       white-space: nowrap;
+      transition: var(--transition);
     }
 
-    /* ABOUT / CONTACTS */
+    .btn-one-click:hover {
+      border-style: solid;
+      color: var(--text);
+    }
+
+    /* ====== ABOUT + CONTACTS ====== */
+
     .split {
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-      gap: 20px;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 18px;
     }
 
     .card {
-      background: rgba(15, 23, 42, 0.95);
+      background: rgba(7, 11, 23, 0.96);
       border-radius: 18px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
+      border: 1px solid rgba(148, 163, 184, 0.5);
       padding: 16px 16px 18px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.8);
     }
 
     .card h3 {
@@ -574,20 +770,20 @@
     }
 
     .card ul {
-      padding-left: 16px;
+      padding-left: 18px;
       font-size: 12px;
       color: var(--muted);
     }
 
     .card ul li {
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
 
     .contacts-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-      margin-top: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
       font-size: 12px;
     }
 
@@ -598,29 +794,39 @@
 
     .contact-item-text {
       color: var(--muted);
-      font-size: 12px;
     }
+
+    /* FOOTER */
 
     footer {
-      padding: 16px 0 22px;
+      margin-top: 26px;
+      border-top: 1px solid rgba(15, 23, 42, 0.9);
+      padding: 14px 0 18px;
       font-size: 11px;
       color: var(--muted);
-      border-top: 1px solid rgba(31, 41, 55, 0.9);
-      margin-top: 26px;
+      background: rgba(2, 6, 23, 0.96);
     }
 
-    footer .footer-inner {
+    .footer-inner {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-between;
       gap: 10px;
+      justify-content: space-between;
       align-items: center;
     }
 
-    @media (max-width: 800px) {
+    /* RESPONSIVE */
+
+    @media (max-width: 920px) {
       .hero-inner {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
       }
+      .hero-card {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 800px) {
       nav {
         display: none;
       }
@@ -628,251 +834,321 @@
         display: flex;
       }
     }
+
+    @media (max-width: 640px) {
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero {
+        padding-top: 22px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <div class="container header-inner">
-      <a href="#top" class="logo">
-        <div class="logo-mark">DK</div>
-        <div class="logo-text">
-          <span>DK PRIME</span>
-          <span>carp food lab</span>
-        </div>
-      </a>
-
-      <nav>
-        <a href="#catalog">Каталог</a>
-        <a href="#about">Про бренд</a>
-        <a href="#contacts">Контакти</a>
-      </nav>
-
-      <div class="header-right">
-        <a href="tel:+380000000000" class="cta-small">+38 (0ХХ) ХХХ-ХХ-ХХ</a>
-        <button class="cart-btn" type="button">
-          <div class="cart-icon"></div>
-          <span class="cart-badge">0</span>
-        </button>
-        <button class="burger" type="button">
-          <span></span><span></span><span></span>
-        </button>
+<header>
+  <div class="container header-inner">
+    <a href="#top" class="logo">
+      <div class="logo-mark">DK</div>
+      <div class="logo-text">
+        <span>DK PRIME</span>
+        <span>carp food lab</span>
       </div>
-    </div>
-  </header>
+    </a>
 
-  <main id="top">
-    <!-- HERO -->
-    <section class="hero">
-      <div class="container hero-inner">
+    <nav>
+      <a href="#catalog">Каталог</a>
+      <a href="#about">Про бренд</a>
+      <a href="#contacts">Контакти</a>
+    </nav>
+
+    <div class="header-right">
+      <a href="tel:+380000000000" class="ghost-link">+38 (0ХХ) ХХХ-ХХ-ХХ</a>
+      <a href="#catalog" class="cta-pill">В каталог</a>
+      <button class="burger" type="button" aria-label="Меню">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div>
+        <div class="hero-badge">
+          <div class="hero-dot"></div>
+          Розроблено під турніри STOLAR CARP
+        </div>
+
+        <h1 class="hero-title">
+          Коропове харчування <span>DK PRIME</span> для тих, хто ловить не випадково.
+        </h1>
+
+        <p class="hero-sub">
+          Преміальні суміші, пелетс і поп-апи, створені під реальні водойми. Ніяких казок
+          — тільки рецепти, які пройшли бойове хрещення на змаганнях.
+        </p>
+
+        <div class="hero-actions">
+          <button class="btn-main" type="button" onclick="scrollToCatalog()">Перейти в каталог</button>
+          <a href="#about" class="btn-ghost">Дізнатись, як ми готуємо</a>
+        </div>
+
+        <div class="hero-meta">
+          <span>Тестовано на STOLAR CARP</span>
+          <span>Працює у холодній та теплій воді</span>
+          <span>Відправка по всій Україні</span>
+        </div>
+      </div>
+
+      <aside class="hero-card" aria-label="Хітовий набір DK PRIME">
+        <div class="hero-card-head">
+          <div>
+            <div class="hero-card-title">Стартовий сет «Tournament Ready»</div>
+          </div>
+          <div class="hero-card-badge">Хіт турнірів</div>
+        </div>
+
+        <div class="hero-card-body">
+          <div class="jar">
+            <div class="jar-label">
+              <span>DK PRIME</span>
+              <span>method series</span>
+            </div>
+          </div>
+          <div>
+            <ul class="hero-card-list">
+              <li>Флет-мікс Kraken — 1 кг</li>
+              <li>Пелетс Killer Krill — 1 кг</li>
+              <li>Поп-апи Tiger Fruit — 2 баночки</li>
+            </ul>
+            <div class="hero-card-meta">
+              <div>
+                <span class="hero-price">590 ₴</span>
+                <span class="hero-old">650 ₴</span>
+              </div>
+              <span class="hero-discount">Сет для перших стартів</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section class="section">
+    <div class="container benefits-grid">
+      <article class="benefit-card">
+        <div class="benefit-icon">🧪</div>
         <div>
-          <div class="badge-top">
-            <div class="badge-dot"></div>
-            Український бренд коропового харчування
-          </div>
-
-          <h1 class="hero-title">
-            DK PRIME — <span>їжа для коропа</span>, якій можна довіряти.
-          </h1>
-
-          <p class="hero-sub">
-            Суміші для флету, бойли, поп-апи та пелетс, розроблені разом із реальними
-            спортсменами-карп’ятниками. Жодної «води», тільки робочі рецепти.
-          </p>
-
-          <div class="hero-actions">
-            <button class="btn-primary" type="button" onclick="scrollToCatalog()">
-              Перейти в каталог
-            </button>
-            <a href="#about" class="btn-outline">Як ми готуємо корми</a>
-          </div>
-
-          <div class="hero-meta">
-            <span>Тестовано на турнірах STOLAR CARP</span>
-            <span>Доставка по всій Україні</span>
+          <div class="benefit-title">Формули з практики</div>
+          <div class="benefit-text">
+            Рецепти збирались не з інтернету, а з турнірного досвіду. Кожен мікс має свою логіку.
           </div>
         </div>
+      </article>
 
-        <aside class="hero-card">
-          <h3>Стартовий набір DK PRIME</h3>
-          <p>Готовий сет для флет-методу: пелетс, мікс, поп-апи. Просто відкрий і лови.</p>
-          <ul>
-            <li>Пелетс 2–4 мм — 1 кг</li>
-            <li>Флет-мікс — 1 кг</li>
-            <li>Поп-апи 8–10 мм — 2 баночки</li>
-          </ul>
-        </aside>
-      </div>
-    </section>
-
-    <!-- BENEFITS -->
-    <section class="benefits">
-      <div class="container benefits-grid">
-        <div class="benefit-card">
-          <div class="benefit-icon">💧</div>
-          <div>
-            <div class="benefit-title">Висока розчинність</div>
-            <div class="benefit-text">Працює у холодній та теплій воді, стабільна «хмара» навколо точки.</div>
+      <article class="benefit-card">
+        <div class="benefit-icon">💧</div>
+        <div>
+          <div class="benefit-title">Розчинність і «шлейф»</div>
+          <div class="benefit-text">
+            Склад підібраний так, щоб не забивати кормушку і давати стабільну хмару навколо точки.
           </div>
         </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">🎯</div>
-          <div>
-            <div class="benefit-title">Реальні рецепти</div>
-            <div class="benefit-text">Формули, протестовані на комерційних водоймах та турнірах.</div>
+      </article>
+
+      <article class="benefit-card">
+        <div class="benefit-icon">🇺🇦</div>
+        <div>
+          <div class="benefit-title">Зроблено в Україні</div>
+          <div class="benefit-text">
+            Локальне виробництво, швидка логістика і підтримка наших рибалок та майстрів.
           </div>
         </div>
-        <div class="benefit-card">
-          <div class="benefit-icon">🇺🇦</div>
-          <div>
-            <div class="benefit-title">Made in Ukraine</div>
-            <div class="benefit-text">Підтримуємо українських рибалок і виробників сировини.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CATALOG -->
-    <section id="catalog" class="section">
-      <div class="container">
-        <div class="section-header">
-          <div>
-            <h2 class="section-title">Каталог DK PRIME</h2>
-            <p class="section-sub">Базові позиції. Потім можна розширити під свій асортимент.</p>
-          </div>
-          <div class="filters">
-            <button class="filter-btn active" data-filter="all">Усе</button>
-            <button class="filter-btn" data-filter="method">Флет / метод</button>
-            <button class="filter-btn" data-filter="pellets">Пелетс</button>
-            <button class="filter-btn" data-filter="popup">Поп-апи</button>
-          </div>
-        </div>
-
-        <div class="catalog-grid" id="products">
-          <!-- METHOD -->
-          <article class="product-card" data-type="method">
-            <h3 class="product-title">DK PRIME METHOD MIX «Kraken»</h3>
-            <p class="product-desc">Аромат: спеції + скопекс. Для швидкої рибалки і турнірів.</p>
-            <div class="product-meta">
-              <div>
-                <span class="product-price-main">220 ₴</span>
-              </div>
-              <span class="product-weight">1 кг</span>
-            </div>
-            <div class="product-bottom">
-              <button class="btn-add" type="button">Додати в список</button>
-              <button class="btn-one-click" type="button">Замовити в 1 клік</button>
-            </div>
-          </article>
-
-          <!-- PELLETS -->
-          <article class="product-card" data-type="pellets">
-            <h3 class="product-title">DK PRIME PELLETS «Killer Krill»</h3>
-            <p class="product-desc">Суміш пелетсу різної фракції на базі борошна криля.</p>
-            <div class="product-meta">
-              <div>
-                <span class="product-price-main">260 ₴</span>
-              </div>
-              <span class="product-weight">1 кг</span>
-            </div>
-            <div class="product-bottom">
-              <button class="btn-add" type="button">Додати в список</button>
-              <button class="btn-one-click" type="button">Замовити в 1 клік</button>
-            </div>
-          </article>
-
-          <!-- POP-UP -->
-          <article class="product-card" data-type="popup">
-            <h3 class="product-title">DK PRIME POP-UP «Tiger Fruit»</h3>
-            <p class="product-desc">Яскраві поп-апи з фруктовим ароматом. Чітко тримають гачок.</p>
-            <div class="product-meta">
-              <div>
-                <span class="product-price-main">190 ₴</span>
-              </div>
-              <span class="product-weight">40 г</span>
-            </div>
-            <div class="product-bottom">
-              <button class="btn-add" type="button">Додати в список</button>
-              <button class="btn-one-click" type="button">Замовити в 1 клік</button>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ABOUT + CONTACTS -->
-    <section id="about" class="section">
-      <div class="container split">
-        <article class="card">
-          <h3>Про DK PRIME</h3>
-          <p>
-            DK PRIME — бренд, який виріс із турнірів STOLAR CARP. Ми готуємо корми так,
-            щоб ними хотілося ловити самим, а не просто «щось продати».
-          </p>
-          <ul>
-            <li>Робочі суміші для флет-методу і класичного карпфішингу.</li>
-            <li>Реальні відгуки й тести на водоймах Львівщини.</li>
-            <li>Можливість зробити мікс під вашу водойму чи команду.</li>
-          </ul>
-        </article>
-
-        <article id="contacts" class="card">
-          <h3>Замовлення і контакти</h3>
-          <p>Поки що продаємо в ручному режимі — через месенджери. Далі можна буде прикрутити кошик.</p>
-          <div class="contacts-grid">
-            <div>
-              <div class="contact-item-title">Телефон / Viber</div>
-              <div class="contact-item-text">+38 (0ХХ) ХХХ-ХХ-ХХ</div>
-            </div>
-            <div>
-              <div class="contact-item-title">Telegram</div>
-              <div class="contact-item-text">@dkprime_shop</div>
-            </div>
-            <div>
-              <div class="contact-item-title">Instagram</div>
-              <div class="contact-item-text">@dk_prime</div>
-            </div>
-          </div>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container footer-inner">
-      <span>© <span id="year"></span> DK PRIME. Усі права захищені.</span>
-      <span>Зроблено з любов’ю до коропа 🐟</span>
+      </article>
     </div>
-  </footer>
+  </section>
 
-  <script>
-    function scrollToCatalog() {
-      const el = document.getElementById('catalog');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
+  <!-- CATALOG -->
+  <section id="catalog" class="section">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Каталог DK PRIME</h2>
+          <p class="section-sub">Базові позиції. Далі можна розширити асортимент під твої продукти.</p>
+        </div>
+        <div class="filters">
+          <button class="filter-btn active" data-filter="all" type="button">Усе</button>
+          <button class="filter-btn" data-filter="method" type="button">Флет / method</button>
+          <button class="filter-btn" data-filter="pellets" type="button">Пелетс</button>
+          <button class="filter-btn" data-filter="popup" type="button">Поп-апи</button>
+        </div>
+      </div>
 
-    document.getElementById('year').textContent = new Date().getFullYear();
+      <div class="catalog-grid" id="products">
+        <!-- PRODUCT 1 -->
+        <article class="product-card" data-type="method">
+          <span class="product-tag">Хіт</span>
+          <div class="product-head">
+            <div class="product-pill" data-type="METHOD">
+              <div class="product-pill-label">
+                <span>KRaken</span>
+                <span>spicy cream</span>
+              </div>
+            </div>
+            <div class="product-main">
+              <h3 class="product-title">METHOD MIX «Kraken»</h3>
+              <p class="product-desc">
+                Потужна спеція + вершковий фон. Для активної риби та швидких турнірних сесій.
+              </p>
+              <div class="product-meta">
+                <div class="product-price-main">220 ₴</div>
+                <div class="product-weight">1 кг</div>
+              </div>
+            </div>
+          </div>
+          <div class="product-bottom">
+            <button class="btn-add" type="button">Додати в список</button>
+            <button class="btn-one-click" type="button">1 клік у Telegram</button>
+          </div>
+        </article>
 
-    // фільтри
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const products = document.querySelectorAll('.product-card');
+        <!-- PRODUCT 2 -->
+        <article class="product-card" data-type="pellets">
+          <span class="product-tag">Новинка</span>
+          <div class="product-head">
+            <div class="product-pill" data-type="PELLETS">
+              <div class="product-pill-label">
+                <span>Killer</span>
+                <span>krill</span>
+              </div>
+            </div>
+            <div class="product-main">
+              <h3 class="product-title">PELLETS «Killer Krill»</h3>
+              <p class="product-desc">
+                Суміш міксу та крупнішого пелетсу на базі криля. Джерело жирів та протеїну.
+              </p>
+              <div class="product-meta">
+                <div class="product-price-main">260 ₴</div>
+                <div class="product-weight">1 кг</div>
+              </div>
+            </div>
+          </div>
+          <div class="product-bottom">
+            <button class="btn-add" type="button">Додати в список</button>
+            <button class="btn-one-click" type="button">1 клік у Telegram</button>
+          </div>
+        </article>
 
-    filterButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const type = btn.dataset.filter;
-        filterButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        <!-- PRODUCT 3 -->
+        <article class="product-card" data-type="popup">
+          <span class="product-tag">Топ по відбору</span>
+          <div class="product-head">
+            <div class="product-pill" data-type="POP-UP">
+              <div class="product-pill-label">
+                <span>Tiger</span>
+                <span>fruit</span>
+              </div>
+            </div>
+            <div class="product-main">
+              <h3 class="product-title">POP-UP «Tiger Fruit»</h3>
+              <p class="product-desc">
+                Яскраві поп-апи з фруктовим ароматом. Добре тримають гачок і не «злипаються».
+              </p>
+              <div class="product-meta">
+                <div class="product-price-main">190 ₴</div>
+                <div class="product-weight">40 г</div>
+              </div>
+            </div>
+          </div>
+          <div class="product-bottom">
+            <button class="btn-add" type="button">Додати в список</button>
+            <button class="btn-one-click" type="button">1 клік у Telegram</button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
 
-        products.forEach(card => {
-          if (type === 'all' || card.dataset.type === type) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
-          }
-        });
+  <!-- ABOUT + CONTACTS -->
+  <section id="about" class="section">
+    <div class="container split">
+      <article class="card">
+        <h3>Про бренд DK PRIME</h3>
+        <p>
+          DK PRIME виріс із бажання робити корми «як для себе»: без дешевого наповнювача і
+          маркетингової казки. Кожен продукт проходить тест на водоймах Львівщини та турнірах STOLAR CARP.
+        </p>
+        <ul>
+          <li>Працюємо з реальними відгуками команд і капітанів.</li>
+          <li>Поступово розширюємо лінійку під флет, класичний карпфішинг і фідер.</li>
+          <li>Можемо зібрати мікс під твою водойму або команду.</li>
+        </ul>
+      </article>
+
+      <article id="contacts" class="card">
+        <h3>Як замовити</h3>
+        <p>Поки що ми продаємо в ручному режимі — через месенджери. Далі можна буде прикрутити повний кошик.</p>
+        <div class="contacts-grid">
+          <div>
+            <div class="contact-item-title">Телефон / Viber</div>
+            <div class="contact-item-text">+38 (0ХХ) ХХХ-ХХ-ХХ</div>
+          </div>
+          <div>
+            <div class="contact-item-title">Telegram</div>
+            <div class="contact-item-text">@dkprime_shop</div>
+          </div>
+          <div>
+            <div class="contact-item-title">Instagram</div>
+            <div class="contact-item-text">@dk_prime</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <span>© <span id="year"></span> DK PRIME — Carp Food Lab.</span>
+    <span>Зроблено з любов’ю до коропа 🐟</span>
+  </div>
+</footer>
+
+<script>
+  // рік у футері
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // скрол до каталогу
+  function scrollToCatalog() {
+    const el = document.getElementById('catalog');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // фільтр каталогу
+  const filterButtons = document.querySelectorAll('.filter-btn');
+  const products = document.querySelectorAll('.product-card');
+
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.filter;
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      products.forEach(card => {
+        if (type === 'all' || card.dataset.type === type) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
       });
     });
-  </script>
+  });
+</script>
 </body>
 </html>
