@@ -2,11 +2,10 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <title>CARP FOOD SHOP — Коропове харчування</title>
+  <title>DK PRIME — Коропове харчування</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Інтернет-магазин коропового харчування. Поп-апи, бойли, пелетс, метод-мікси, ліквіди. Швидка доставка по Україні." />
+  <meta name="description" content="DK PRIME — сучасне коропове харчування. Поп-апи, бойли, пелетс, метод-мікси, ліквіди. Швидка доставка по Україні." />
 
-  <!-- Шрифт (можеш змінити на свій) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -52,6 +51,7 @@
       border: none;
       cursor: pointer;
       font: inherit;
+      background: none;
     }
 
     .container {
@@ -60,13 +60,13 @@
       padding: 0 16px;
     }
 
-    /* ===== HEADER ===== */
+    /* HEADER */
     header {
       position: sticky;
       top: 0;
       z-index: 50;
       backdrop-filter: blur(18px);
-      background: rgba(5, 6, 8, 0.92);
+      background: rgba(5, 6, 8, 0.96);
       border-bottom: 1px solid rgba(148, 163, 184, 0.25);
     }
 
@@ -137,16 +137,7 @@
     .header-right {
       display: flex;
       align-items: center;
-      gap: 12px;
-    }
-
-    .phone-pill {
-      font-size: 13px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      color: var(--accent);
-      display: none;
+      gap: 10px;
     }
 
     .cta-small {
@@ -203,13 +194,8 @@
       border-radius: 10px;
     }
 
-    .cart-icon::before {
-      left: 4px;
-    }
-
-    .cart-icon::after {
-      right: 4px;
-    }
+    .cart-icon::before { left: 4px; }
+    .cart-icon::after { right: 4px; }
 
     .cart-badge {
       position: absolute;
@@ -226,11 +212,11 @@
     }
 
     .burger {
+      display: none;
       width: 32px;
       height: 32px;
       border-radius: 999px;
       border: 1px solid rgba(148, 163, 184, 0.45);
-      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -245,7 +231,7 @@
       background: var(--text);
     }
 
-    /* ===== HERO ===== */
+    /* HERO */
     .hero {
       padding: 32px 0 40px;
     }
@@ -359,6 +345,7 @@
       box-shadow: 0 0 10px rgba(234, 179, 8, 0.8);
     }
 
+    /* SIMPLE CARD RIGHT */
     .hero-card {
       background: radial-gradient(circle at 10% 0, rgba(250, 204, 21, 0.18) 0, rgba(15, 23, 42, 0.95) 35%);
       border-radius: 26px;
@@ -369,158 +356,26 @@
       overflow: hidden;
     }
 
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      width: 220px;
-      height: 220px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(250, 204, 21, 0.16), transparent 70%);
-      right: -40px;
-      top: -60px;
-      filter: blur(2px);
-    }
-
-    .hero-card-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 18px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-card-title {
+    .hero-card h3 {
       font-size: 16px;
-      font-weight: 600;
+      margin-bottom: 6px;
     }
 
-    .hero-card-badge {
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(22, 163, 74, 0.12);
-      border: 1px solid rgba(34, 197, 94, 0.4);
-      font-size: 11px;
-      color: #bbf7d0;
-    }
-
-    .hero-product {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero-product-jar {
-      width: 90px;
-      height: 120px;
-      border-radius: 22px;
-      background: linear-gradient(160deg, #020617, #111827);
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-bottom: 12px;
-    }
-
-    .hero-product-jar::before {
-      content: "METHOD";
-      position: absolute;
-      top: 10px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 10px;
-      letter-spacing: 0.2em;
-      color: var(--accent);
-      opacity: 0.85;
-    }
-
-    .hero-product-jar::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 20% 0, rgba(248, 250, 252, 0.26), transparent 55%),
-        linear-gradient(150deg, rgba(248, 250, 252, 0.05), transparent 55%);
-      mix-blend-mode: screen;
-    }
-
-    .hero-product-label {
-      width: 80%;
-      height: 40px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #020617, #1f2937);
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      text-transform: uppercase;
-    }
-
-    .hero-product-label span:first-child {
-      color: var(--accent);
-      letter-spacing: 0.2em;
-      font-weight: 600;
-    }
-
-    .hero-product-label span:last-child {
-      color: var(--muted);
-      letter-spacing: 0.12em;
-    }
-
-    .hero-product-info {
-      flex: 1;
+    .hero-card p {
       font-size: 13px;
-    }
-
-    .hero-product-info p {
       color: var(--muted);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
-    .hero-product-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+    .hero-card ul {
       font-size: 12px;
-    }
-
-    .hero-price {
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .hero-old-price {
-      font-size: 11px;
-      text-decoration: line-through;
       color: var(--muted);
-      margin-left: 6px;
+      padding-left: 16px;
     }
 
-    .hero-discount {
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(239, 68, 68, 0.12);
-      color: #fecaca;
-      border: 1px solid rgba(248, 113, 113, 0.6);
-      font-size: 10px;
-    }
+    .hero-card ul li { margin-bottom: 4px; }
 
-    .hero-tagline {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 10px;
-    }
-
-    /* ===== BENEFITS ===== */
+    /* BENEFITS */
     .benefits {
       padding: 8px 0 20px;
     }
@@ -566,7 +421,7 @@
       font-size: 11px;
     }
 
-    /* ===== CATALOG ===== */
+    /* CATALOG */
     .section {
       padding: 22px 0;
     }
@@ -626,121 +481,19 @@
       box-shadow: 0 14px 34px rgba(0,0,0,0.45);
       display: flex;
       flex-direction: column;
-      position: relative;
-    }
-
-    .product-badges {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      z-index: 1;
-    }
-
-    .badge {
-      font-size: 9px;
-      padding: 2px 7px;
-      border-radius: 999px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-    }
-
-    .badge-hit {
-      background: rgba(34, 197, 94, 0.16);
-      color: #bbf7d0;
-      border: 1px solid rgba(34, 197, 94, 0.6);
-    }
-
-    .badge-new {
-      background: rgba(59, 130, 246, 0.2);
-      color: #bfdbfe;
-      border: 1px solid rgba(59, 130, 246, 0.7);
-    }
-
-    .badge-sale {
-      background: rgba(248, 113, 113, 0.16);
-      color: #fecaca;
-      border: 1px solid rgba(248, 113, 113, 0.7);
-    }
-
-    .product-image-wrap {
-      height: 150px;
-      border-radius: 12px;
-      background:
-        radial-gradient(circle at 20% 0, rgba(248, 250, 252, 0.3), transparent 55%),
-        linear-gradient(160deg, #020617, #111827);
-      margin-bottom: 10px;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .product-jar {
-      width: 70px;
-      height: 100px;
-      border-radius: 18px;
-      background: linear-gradient(160deg, #020617, #111827);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      position: relative;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-bottom: 10px;
-    }
-
-    .product-jar::before {
-      content: attr(data-label-top);
-      position: absolute;
-      top: 7px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 8px;
-      letter-spacing: 0.16em;
-      color: var(--accent);
-      opacity: 0.85;
-    }
-
-    .product-jar-label {
-      width: 80%;
-      height: 32px;
-      border-radius: 9px;
-      background: linear-gradient(135deg, #020617, #1f2937);
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      text-transform: uppercase;
-    }
-
-    .product-jar-label span:first-child {
-      color: var(--accent);
-      letter-spacing: 0.16em;
-    }
-
-    .product-jar-label span:last-child {
-      color: var(--muted);
     }
 
     .product-title {
       font-size: 13px;
       font-weight: 600;
       margin-bottom: 3px;
-      min-height: 32px;
     }
 
     .product-desc {
       font-size: 11px;
       color: var(--muted);
       margin-bottom: 7px;
-      min-height: 36px;
+      min-height: 32px;
     }
 
     .product-meta {
@@ -756,13 +509,6 @@
       font-weight: 700;
     }
 
-    .product-price-old {
-      font-size: 11px;
-      color: var(--muted);
-      text-decoration: line-through;
-      margin-left: 5px;
-    }
-
     .product-weight {
       font-size: 11px;
       color: var(--muted);
@@ -770,9 +516,7 @@
 
     .product-bottom {
       display: flex;
-      justify-content: space-between;
       gap: 8px;
-      align-items: center;
       margin-top: auto;
     }
 
@@ -803,12 +547,7 @@
       white-space: nowrap;
     }
 
-    .btn-one-click:hover {
-      border-style: solid;
-      color: var(--text);
-    }
-
-    /* ===== ABOUT / BLOG / CONTACTS ===== */
+    /* ABOUT / CONTACTS */
     .split {
       display: grid;
       grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
@@ -844,51 +583,6 @@
       margin-bottom: 4px;
     }
 
-    .tag-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      font-size: 10px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .tag-pill span {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: radial-gradient(circle, var(--accent), var(--accent-dark));
-      box-shadow: 0 0 10px rgba(234, 179, 8, 0.8);
-    }
-
-    .blog-list {
-      display: grid;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .blog-item {
-      padding: 8px 10px;
-      border-radius: 12px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      font-size: 12px;
-    }
-
-    .blog-item-title {
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-
-    .blog-item-meta {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
     .contacts-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -899,4 +593,286 @@
 
     .contact-item-title {
       font-weight: 600;
-      margin-bottom: 
+      margin-bottom: 2px;
+    }
+
+    .contact-item-text {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    footer {
+      padding: 16px 0 22px;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid rgba(31, 41, 55, 0.9);
+      margin-top: 26px;
+    }
+
+    footer .footer-inner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+
+    @media (max-width: 800px) {
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+      nav {
+        display: none;
+      }
+      .burger {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="container header-inner">
+      <a href="#top" class="logo">
+        <div class="logo-mark">DK</div>
+        <div class="logo-text">
+          <span>DK PRIME</span>
+          <span>carp food lab</span>
+        </div>
+      </a>
+
+      <nav>
+        <a href="#catalog">Каталог</a>
+        <a href="#about">Про бренд</a>
+        <a href="#contacts">Контакти</a>
+      </nav>
+
+      <div class="header-right">
+        <a href="tel:+380000000000" class="cta-small">+38 (0ХХ) ХХХ-ХХ-ХХ</a>
+        <button class="cart-btn" type="button">
+          <div class="cart-icon"></div>
+          <span class="cart-badge">0</span>
+        </button>
+        <button class="burger" type="button">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-inner">
+        <div>
+          <div class="badge-top">
+            <div class="badge-dot"></div>
+            Український бренд коропового харчування
+          </div>
+
+          <h1 class="hero-title">
+            DK PRIME — <span>їжа для коропа</span>, якій можна довіряти.
+          </h1>
+
+          <p class="hero-sub">
+            Суміші для флету, бойли, поп-апи та пелетс, розроблені разом із реальними
+            спортсменами-карп’ятниками. Жодної «води», тільки робочі рецепти.
+          </p>
+
+          <div class="hero-actions">
+            <button class="btn-primary" type="button" onclick="scrollToCatalog()">
+              Перейти в каталог
+            </button>
+            <a href="#about" class="btn-outline">Як ми готуємо корми</a>
+          </div>
+
+          <div class="hero-meta">
+            <span>Тестовано на турнірах STOLAR CARP</span>
+            <span>Доставка по всій Україні</span>
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          <h3>Стартовий набір DK PRIME</h3>
+          <p>Готовий сет для флет-методу: пелетс, мікс, поп-апи. Просто відкрий і лови.</p>
+          <ul>
+            <li>Пелетс 2–4 мм — 1 кг</li>
+            <li>Флет-мікс — 1 кг</li>
+            <li>Поп-апи 8–10 мм — 2 баночки</li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <!-- BENEFITS -->
+    <section class="benefits">
+      <div class="container benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-icon">💧</div>
+          <div>
+            <div class="benefit-title">Висока розчинність</div>
+            <div class="benefit-text">Працює у холодній та теплій воді, стабільна «хмара» навколо точки.</div>
+          </div>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🎯</div>
+          <div>
+            <div class="benefit-title">Реальні рецепти</div>
+            <div class="benefit-text">Формули, протестовані на комерційних водоймах та турнірах.</div>
+          </div>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🇺🇦</div>
+          <div>
+            <div class="benefit-title">Made in Ukraine</div>
+            <div class="benefit-text">Підтримуємо українських рибалок і виробників сировини.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATALOG -->
+    <section id="catalog" class="section">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Каталог DK PRIME</h2>
+            <p class="section-sub">Базові позиції. Потім можна розширити під свій асортимент.</p>
+          </div>
+          <div class="filters">
+            <button class="filter-btn active" data-filter="all">Усе</button>
+            <button class="filter-btn" data-filter="method">Флет / метод</button>
+            <button class="filter-btn" data-filter="pellets">Пелетс</button>
+            <button class="filter-btn" data-filter="popup">Поп-апи</button>
+          </div>
+        </div>
+
+        <div class="catalog-grid" id="products">
+          <!-- METHOD -->
+          <article class="product-card" data-type="method">
+            <h3 class="product-title">DK PRIME METHOD MIX «Kraken»</h3>
+            <p class="product-desc">Аромат: спеції + скопекс. Для швидкої рибалки і турнірів.</p>
+            <div class="product-meta">
+              <div>
+                <span class="product-price-main">220 ₴</span>
+              </div>
+              <span class="product-weight">1 кг</span>
+            </div>
+            <div class="product-bottom">
+              <button class="btn-add" type="button">Додати в список</button>
+              <button class="btn-one-click" type="button">Замовити в 1 клік</button>
+            </div>
+          </article>
+
+          <!-- PELLETS -->
+          <article class="product-card" data-type="pellets">
+            <h3 class="product-title">DK PRIME PELLETS «Killer Krill»</h3>
+            <p class="product-desc">Суміш пелетсу різної фракції на базі борошна криля.</p>
+            <div class="product-meta">
+              <div>
+                <span class="product-price-main">260 ₴</span>
+              </div>
+              <span class="product-weight">1 кг</span>
+            </div>
+            <div class="product-bottom">
+              <button class="btn-add" type="button">Додати в список</button>
+              <button class="btn-one-click" type="button">Замовити в 1 клік</button>
+            </div>
+          </article>
+
+          <!-- POP-UP -->
+          <article class="product-card" data-type="popup">
+            <h3 class="product-title">DK PRIME POP-UP «Tiger Fruit»</h3>
+            <p class="product-desc">Яскраві поп-апи з фруктовим ароматом. Чітко тримають гачок.</p>
+            <div class="product-meta">
+              <div>
+                <span class="product-price-main">190 ₴</span>
+              </div>
+              <span class="product-weight">40 г</span>
+            </div>
+            <div class="product-bottom">
+              <button class="btn-add" type="button">Додати в список</button>
+              <button class="btn-one-click" type="button">Замовити в 1 клік</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT + CONTACTS -->
+    <section id="about" class="section">
+      <div class="container split">
+        <article class="card">
+          <h3>Про DK PRIME</h3>
+          <p>
+            DK PRIME — бренд, який виріс із турнірів STOLAR CARP. Ми готуємо корми так,
+            щоб ними хотілося ловити самим, а не просто «щось продати».
+          </p>
+          <ul>
+            <li>Робочі суміші для флет-методу і класичного карпфішингу.</li>
+            <li>Реальні відгуки й тести на водоймах Львівщини.</li>
+            <li>Можливість зробити мікс під вашу водойму чи команду.</li>
+          </ul>
+        </article>
+
+        <article id="contacts" class="card">
+          <h3>Замовлення і контакти</h3>
+          <p>Поки що продаємо в ручному режимі — через месенджери. Далі можна буде прикрутити кошик.</p>
+          <div class="contacts-grid">
+            <div>
+              <div class="contact-item-title">Телефон / Viber</div>
+              <div class="contact-item-text">+38 (0ХХ) ХХХ-ХХ-ХХ</div>
+            </div>
+            <div>
+              <div class="contact-item-title">Telegram</div>
+              <div class="contact-item-text">@dkprime_shop</div>
+            </div>
+            <div>
+              <div class="contact-item-title">Instagram</div>
+              <div class="contact-item-text">@dk_prime</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>© <span id="year"></span> DK PRIME. Усі права захищені.</span>
+      <span>Зроблено з любов’ю до коропа 🐟</span>
+    </div>
+  </footer>
+
+  <script>
+    function scrollToCatalog() {
+      const el = document.getElementById('catalog');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // фільтри
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const products = document.querySelectorAll('.product-card');
+
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.filter;
+        filterButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        products.forEach(card => {
+          if (type === 'all' || card.dataset.type === type) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
