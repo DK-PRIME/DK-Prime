@@ -579,7 +579,7 @@
         let teamData = null;
 
         if (role === "member") {
-          // Спочатку шукаємо команду по коду
+          // шукаємо команду по коду
           const teamsRef = collection(db, "teams");
           const q = query(teamsRef, where("joinCode", "==", joinCode));
           const snap = await getDocs(q);
@@ -592,11 +592,10 @@
           teamData = docSnap.data();
         }
 
-        // Створюємо акаунт
+        // створюємо акаунт
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         const user = cred.user;
 
-        // оновлюємо displayName
         await updateProfile(user, { displayName: name });
 
         const userRef = doc(db, "users", user.uid);
@@ -649,6 +648,7 @@
         let msg = "Помилка реєстрації.";
         if (err.code === "auth/email-already-in-use") msg = "Такий email вже використовується. Спробуй увійти.";
         if (err.code === "auth/invalid-email") msg = "Невірний формат email.";
+        if (err.code === "auth/weak-password") msg = "Пароль надто слабкий. Спробуй інший.";
         setStatus(registerStatus, msg, "error");
       } finally {
         setLoading(false);
@@ -657,16 +657,21 @@
 
     // ---------- ВИХІД ----------
     btnLogout.addEventListener("click", async () => {
-      await signOut(auth);
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.error(err);
+      }
     });
 
-    // ---------- СЛУХАЧ СТАНУ ----------
+    // ---------- СТАН АВТЕНТИФІКАЦІЇ ----------
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        await ensureUserDocIfMissing(user);
         await loadUserInfo(user);
       } else {
         userBlock.style.display = "none";
+        userInfoBox.style.display = "none";
+        userEmailEl.textContent = "";
       }
     });
   </script>
