@@ -75,9 +75,7 @@
       margin-bottom: 16px;
     }
 
-    .field {
-      margin-bottom: 12px;
-    }
+    .field { margin-bottom: 12px; }
 
     label {
       display: block;
@@ -86,9 +84,7 @@
     }
 
     input[type="email"],
-    input[type="password"],
-    input[type="text"],
-    input[type="tel"] {
+    input[type="password"] {
       width: 100%;
       padding: 10px 11px;
       border-radius: 10px;
@@ -135,36 +131,6 @@
       box-shadow: 0 12px 30px rgba(0,0,0,0.9);
     }
 
-    .btn-secondary {
-      background-image: none;
-      background: transparent;
-      border: 1px solid rgba(255,255,255,0.12);
-      color: var(--text);
-      box-shadow: none;
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .row > * { flex: 1; }
-
-    .small {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-
-    .linkish {
-      color: var(--accent);
-      cursor: pointer;
-    }
-
-    .linkish:hover {
-      text-decoration: underline;
-    }
-
     .tabs {
       display: flex;
       border-radius: 999px;
@@ -190,6 +156,12 @@
       font-weight: 600;
     }
 
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
     .status {
       margin-top: 10px;
       font-size: 13px;
@@ -198,79 +170,17 @@
     .status.error { color: var(--error); }
     .status.success { color: var(--success); }
 
-    /* TEAM SECTION */
-
-    .section-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin: 16px 0 6px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      font-size: 11px;
-      background: rgba(255,255,255,0.06);
+    #userSection {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      font-size: 13px;
       color: var(--muted);
     }
 
-    .pill span {
-      font-size: 9px;
-    }
-
-    .radio-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
-    }
-
-    .radio-pill {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.04);
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .radio-pill input {
-      margin: 0;
-    }
-
-    .badge-role {
-      font-size: 11px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      background: rgba(71,216,120,0.12);
-      color: var(--success);
-    }
-
-    #teamInfoBox {
-      font-size: 13px;
-      background: rgba(0,0,0,0.4);
-      border-radius: 14px;
-      padding: 10px 11px;
-      border: 1px solid rgba(255,255,255,0.06);
-      margin-top: 8px;
-    }
-
-    #teamInfoBox code {
-      font-family: "JetBrains Mono", monospace;
-      font-size: 12px;
-      background: rgba(0,0,0,0.7);
-      padding: 1px 5px;
-      border-radius: 6px;
-    }
-
-    @media (max-width: 420px) {
-      .card { padding: 16px 14px 18px; }
-      h1 { font-size: 20px; }
+    #userEmail {
+      font-weight: 600;
+      color: var(--text);
     }
   </style>
 </head>
@@ -290,119 +200,48 @@
         Один тестовий акаунт для перевірки входу, реєстрації та команд DK Prime на Firebase.
       </div>
 
-      <!-- AUTH TABS -->
+      <!-- Вкладки -->
       <div class="tabs">
         <div class="tab active" id="tabLogin">Увійти</div>
         <div class="tab" id="tabRegister">Створити акаунт</div>
       </div>
 
-      <!-- AUTH FORM -->
+      <!-- Форма -->
       <div id="authSection">
         <div class="field">
           <label for="email">Email</label>
           <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
         </div>
+
         <div class="field">
           <label for="password">Пароль (мінімум 6 символів)</label>
           <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
         </div>
 
         <button class="btn" id="btnLogin">Увійти</button>
-        <button class="btn btn-secondary" id="btnRegister" style="display:none;">Зареєструвати акаунт</button>
+        <button class="btn" id="btnRegister" style="display:none;">Створити акаунт</button>
 
         <div class="small">
-          Після входу ти зможеш створити тестову команду або приєднатися до існуючої за кодом.
+          Після входу ти зможеш створити тестову команду або приєднатися до існуючої за кодом (це зробимо наступним кроком).
         </div>
 
-        <div class="status" id="authStatus"></div>
+        <div class="status" id="statusText"></div>
       </div>
 
-      <!-- LOGGED-IN SECTION -->
+      <!-- Блок інформації, коли користувач залогінений -->
       <div id="userSection" style="display:none;">
-        <div class="row" style="align-items:center; margin-bottom:6px;">
-          <div>
-            <div style="font-size:13px; color:var(--muted);">Залогінений як</div>
-            <div id="userEmail" style="font-size:14px; font-weight:600;"></div>
-          </div>
-          <button class="btn btn-secondary" id="btnLogout" style="max-width:130px;">Вийти</button>
+        <div>Залогінений як: <span id="userEmail"></span></div>
+        <div class="small">
+          Зараз ми тільки тестуємо вхід/реєстрацію. Логіку команд додамо окремо.
         </div>
-
-        <div class="status success" id="userStatus" style="display:none;"></div>
-
-        <!-- TEAM SETUP -->
-        <div id="teamSection">
-          <div class="section-title">Тестова команда</div>
-
-          <div id="noTeamBlock">
-            <div class="small" style="margin-bottom:8px;">
-              Зараз ти ще не в команді. Обери, що хочеш протестувати:
-            </div>
-
-            <div class="radio-row">
-              <label class="radio-pill">
-                <input type="radio" name="teamMode" value="captain" checked>
-                <span>Я капітан — створити команду</span>
-              </label>
-              <label class="radio-pill">
-                <input type="radio" name="teamMode" value="member">
-                <span>Я учасник — приєднатися за кодом</span>
-              </label>
-            </div>
-
-            <div id="captainFields">
-              <div class="field">
-                <label for="teamName">Назва нової тестової команди</label>
-                <input id="teamName" type="text" placeholder="Наприклад, DK Два Кума TEST">
-              </div>
-              <button class="btn" id="btnCreateTeam">Створити команду</button>
-              <div class="small">
-                Ти будеш капітаном тестової команди та зможеш запрошувати учасників за кодом.
-              </div>
-            </div>
-
-            <div id="memberFields" style="display:none;">
-              <div class="field">
-                <label for="joinCode">Код команди від капітана</label>
-                <input id="joinCode" type="text" placeholder="Наприклад, 44E381" maxlength="10">
-              </div>
-              <button class="btn" id="btnJoinTeam">Долучитися до команди</button>
-              <div class="small">
-                Введи код, який дав капітан. Після цього ти побачиш свою тестову команду.
-              </div>
-            </div>
-
-            <div class="status" id="teamStatus"></div>
-          </div>
-
-          <!-- WHEN USER HAS TEAM -->
-          <div id="hasTeamBlock" style="display:none;">
-            <div id="teamInfoBox">
-              <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
-                <div>
-                  <div style="font-size:12px; color:var(--muted);">Твоя тестова команда</div>
-                  <div id="teamNameView" style="font-size:15px; font-weight:600;"></div>
-                </div>
-                <div id="roleBadge" class="badge-role">Капітан</div>
-              </div>
-
-              <div style="margin-top:6px; font-size:12px;">
-                Код для запрошення учасників:
-                <code id="teamCodeView"></code>
-              </div>
-            </div>
-
-            <div class="small" style="margin-top:6px;">
-              Це лише тест. У бойовому режимі тут буде сторінка <strong>“Моя команда”</strong> і перехід до реєстрації на етапи.
-            </div>
-          </div>
-        </div>
+        <button class="btn" id="btnLogout" style="margin-top:10px;">Вийти</button>
       </div>
     </div>
   </div>
 
-  <!-- FIREBASE -->
+  <!-- Firebase + логіка -->
   <script type="module">
-    // --- Firebase SDK imports ---
+    // Імпорт SDK Firebase
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import {
       getAuth,
@@ -412,20 +251,7 @@
       signOut
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-    import {
-      getFirestore,
-      doc,
-      getDoc,
-      setDoc,
-      collection,
-      addDoc,
-      query,
-      where,
-      getDocs,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-
-    // Тест використовує той самий Firebase-проєкт stolar-carp
+    // Конфіг твого проекту
     const firebaseConfig = {
       apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
       authDomain: "stolar-carp.firebaseapp.com",
@@ -436,47 +262,42 @@
       measurementId: "G-VWC07QNS7P"
     };
 
+    // Ініціалізація
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
-    // ---- DOM ----
+    // DOM елементи
     const tabLogin = document.getElementById("tabLogin");
     const tabRegister = document.getElementById("tabRegister");
     const btnLogin = document.getElementById("btnLogin");
     const btnRegister = document.getElementById("btnRegister");
-    const authStatus = document.getElementById("authStatus");
+    const statusText = document.getElementById("statusText");
 
     const emailInput = document.getElementById("email");
     const passInput = document.getElementById("password");
 
-    const authSection = document.getElementById("authSection");
     const userSection = document.getElementById("userSection");
     const userEmailEl = document.getElementById("userEmail");
-    const userStatus = document.getElementById("userStatus");
     const btnLogout = document.getElementById("btnLogout");
 
-    const noTeamBlock = document.getElementById("noTeamBlock");
-    const hasTeamBlock = document.getElementById("hasTeamBlock");
-    const teamStatus = document.getElementById("teamStatus");
-    const teamNameView = document.getElementById("teamNameView");
-    const teamCodeView = document.getElementById("teamCodeView");
-    const roleBadge = document.getElementById("roleBadge");
+    function setStatus(msg, type = "") {
+      statusText.textContent = msg || "";
+      statusText.className = "status " +
+        (type === "error" ? "error" : type === "success" ? "success" : "");
+    }
 
-    const captainFields = document.getElementById("captainFields");
-    const memberFields = document.getElementById("memberFields");
-    const teamNameInput = document.getElementById("teamName");
-    const joinCodeInput = document.getElementById("joinCode");
-    const btnCreateTeam = document.getElementById("btnCreateTeam");
-    const btnJoinTeam = document.getElementById("btnJoinTeam");
+    function setLoading(isLoading) {
+      btnLogin.disabled = isLoading;
+      btnRegister.disabled = isLoading;
+    }
 
-    // ----- TABS -----
+    // Перемикач вкладок
     tabLogin.addEventListener("click", () => {
       tabLogin.classList.add("active");
       tabRegister.classList.remove("active");
       btnLogin.style.display = "";
       btnRegister.style.display = "none";
-      authStatus.textContent = "";
+      setStatus("");
     });
 
     tabRegister.addEventListener("click", () => {
@@ -484,199 +305,79 @@
       tabLogin.classList.remove("active");
       btnLogin.style.display = "none";
       btnRegister.style.display = "";
-      authStatus.textContent = "";
+      setStatus("");
     });
 
-    // ----- AUTH HELPERS -----
-    function setAuthLoading(loading) {
-      btnLogin.disabled = loading;
-      btnRegister.disabled = loading;
-    }
-
-    function showAuthError(message) {
-      authStatus.textContent = message;
-      authStatus.className = "status error";
-    }
-
-    function showAuthSuccess(message) {
-      authStatus.textContent = message;
-      authStatus.className = "status success";
-    }
-
-    // ----- USER DOC -----
-    async function ensureUserDoc(user) {
-      const ref = doc(db, "users", user.uid);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) {
-        await setDoc(ref, {
-          email: user.email,
-          displayName: user.displayName || "",
-          phone: null,
-          teamId: null,
-          role: "member",
-          canApplyForTeam: false,
-          createdAt: serverTimestamp()
-        });
-      }
-    }
-
-    async function getUserData(uid) {
-      const ref = doc(db, "users", uid);
-      const snap = await getDoc(ref);
-      return snap.exists() ? snap.data() : null;
-    }
-
-    // ----- AUTH LOGIC -----
-
+    // Вхід
     btnLogin.addEventListener("click", async () => {
       const email = emailInput.value.trim();
       const pass = passInput.value.trim();
+
       if (!email || !pass) {
-        showAuthError("Введи email і пароль.");
+        setStatus("Введи email і пароль.", "error");
         return;
       }
-      setAuthLoading(true);
+
+      setLoading(true);
       try {
-        const cred = await signInWithEmailAndPassword(auth, email, pass);
-        await ensureUserDoc(cred.user);
-        showAuthSuccess("Успішний вхід у тестовий акаунт.");
+        await signInWithEmailAndPassword(auth, email, pass);
+        setStatus("Успішний вхід.", "success");
       } catch (err) {
         console.error(err);
         let msg = "Помилка входу.";
-        if (err.code === "auth/user-not-found") msg = "Користувача не знайдено. Спробуй зареєструватися.";
+        if (err.code === "auth/user-not-found") msg = "Користувача не знайдено. Спробуй створити акаунт.";
         if (err.code === "auth/wrong-password") msg = "Невірний пароль.";
         if (err.code === "auth/invalid-email") msg = "Невірний формат email.";
-        showAuthError(msg);
+        setStatus(msg, "error");
       } finally {
-        setAuthLoading(false);
+        setLoading(false);
       }
     });
 
+    // Реєстрація
     btnRegister.addEventListener("click", async () => {
       const email = emailInput.value.trim();
       const pass = passInput.value.trim();
+
       if (!email || !pass) {
-        showAuthError("Введи email і пароль.", "error");
+        setStatus("Введи email і пароль.", "error");
         return;
       }
       if (pass.length < 6) {
-        showAuthError("Пароль має містити щонайменше 6 символів.", "error");
+        setStatus("Пароль має бути мінімум 6 символів.", "error");
         return;
       }
-      setAuthLoading(true);
+
+      setLoading(true);
       try {
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        await ensureUserDoc(cred.user);
-        showAuthSuccess("Тестовий акаунт створено. Ти залогінений.");
+        await createUserWithEmailAndPassword(auth, email, pass);
+        setStatus("Акаунт створено. Ти вже залогінений.", "success");
       } catch (err) {
         console.error(err);
         let msg = "Помилка реєстрації.";
         if (err.code === "auth/email-already-in-use") msg = "Такий email вже використовується. Спробуй увійти.";
         if (err.code === "auth/invalid-email") msg = "Невірний формат email.";
-        showAuthError(msg);
+        setStatus(msg, "error");
       } finally {
-        setAuthLoading(false);
+        setLoading(false);
       }
     });
 
+    // Вихід
     btnLogout.addEventListener("click", async () => {
       await signOut(auth);
     });
 
-    // ----- TEAM HELPERS -----
-
-    function setTeamStatus(message, type = "normal") {
-      teamStatus.textContent = message || "";
-      teamStatus.className = "status " + (type === "error" ? "error" : type === "success" ? "success" : "");
-    }
-
-    function randomCode(length = 6) {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let out = "";
-      for (let i = 0; i < length; i++) {
-        out += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return out;
-    }
-
-    async function createTeamForUser(user, teamName) {
-      const userRef = doc(db, "users", user.uid);
-      const userData = await getUserData(user.uid);
-      if (userData && userData.teamId) {
-        setTeamStatus("Ти вже в команді.", "error");
-        return;
-      }
-
-      const joinCode = randomCode(6);
-      const teamsRef = collection(db, "teams");
-      const newTeamRef = await addDoc(teamsRef, {
-        name: teamName,
-        captainUid: user.uid,
-        joinCode,
-        createdAt: serverTimestamp()
-      });
-
-      await setDoc(userRef, {
-        teamId: newTeamRef.id,
-        role: "captain",
-        canApplyForTeam: true
-      }, { merge: true });
-
-      setTeamStatus("Тестову команду створено. Код для учасників: " + joinCode, "success");
-    }
-
-    async function joinTeamByCode(user, code) {
-      const userRef = doc(db, "users", user.uid);
-      const userData = await getUserData(user.uid);
-      if (userData && userData.teamId) {
-        setTeamStatus("Ти вже в команді.", "error");
-        return;
-      }
-
-      const teamsRef = collection(db, "teams");
-      const q = query(teamsRef, where("joinCode", "==", code.toUpperCase()));
-      const snap = await getDocs(q);
-      if (snap.empty) {
-        setTeamStatus("Тестову команду з таким кодом не знайдено.", "error");
-        return;
-      }
-
-      const teamDoc = snap.docs[0];
-
-      await setDoc(userRef, {
-        teamId: teamDoc.id,
-        role: "member",
-        canApplyForTeam: false
-      }, { merge: true });
-
-      setTeamStatus("Ти успішно приєднався до тестової команди.", "success");
-    }
-
-    async function renderTeamState(user) {
-      const data = await getUserData(user.uid);
-      if (!data || !data.teamId) {
-        noTeamBlock.style.display = "";
-        hasTeamBlock.style.display = "none";
-        return;
-      }
-
-      // є команда
-      noTeamBlock.style.display = "none";
-      hasTeamBlock.style.display = "";
-
-      const teamRef = doc(db, "teams", data.teamId);
-      const teamSnap = await getDoc(teamRef);
-      if (teamSnap.exists()) {
-        const team = teamSnap.data();
-        teamNameView.textContent = team.name;
-        teamCodeView.textContent = team.joinCode;
+    // Слухаємо стан авторизації
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userSection.style.display = "";
+        userEmailEl.textContent = user.email || "";
       } else {
-        teamNameView.textContent = "(тестову команду не знайдено)";
-        teamCodeView.textContent = "—";
+        userSection.style.display = "none";
+        userEmailEl.textContent = "";
       }
-
-      roleBadge.textContent = data.role === "captain" ? "Капітан" : "Учасник";
-      if (data.role === "captain") {
-        roleBadge.style.background = "rgba(71,216,120,0.12)";
-        roleBadge.style.color = "var(--success)";
-      } els
+    });
+  </script>
+</body>
+</html>
