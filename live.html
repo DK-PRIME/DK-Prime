@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live | STOLAR CARP</title>
+
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script defer src="assets/js/config.js"></script>
+  <script type="module" src="assets/js/stolarcarp-firebase.js"></script>
+
+  <style>
+    .zone-title{text-align:center;margin:40px 0 10px;}
+    table{width:100%;border-collapse:collapse;}
+    th,td{border:1px solid rgba(255,255,255,.2);padding:6px;text-align:center;}
+    th{background:#111827;}
+  </style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="container header__row">
+    <a class="logo" href="index.html">STOLAR CARP</a>
+  </div>
+</header>
+
+<main class="main container">
+
+  <h2 class="zone-title">Зона A</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Етап</th><th>Команда</th>
+        <th>К1</th><th>В1</th>
+        <th>К2</th><th>В2</th>
+        <th>К3</th><th>В3</th>
+        <th>К4</th><th>В4</th>
+        <th>К-сть</th><th>Вага</th>
+        <th>BigFish</th><th>Місце</th>
+      </tr>
+    </thead>
+    <tbody id="zoneA"></tbody>
+  </table>
+
+  <h2 class="zone-title">Зона B</h2>
+  <table><tbody id="zoneB"></tbody></table>
+
+  <h2 class="zone-title">Зона C</h2>
+  <table><tbody id="zoneC"></tbody></table>
+
+</main>
+
+<script type="module">
+import { StolarCarp } from "./assets/js/stolarcarp-firebase.js";
+
+async function refresh(){
+  await StolarCarp.renderZoneTable("A", document.getElementById("zoneA"));
+  await StolarCarp.renderZoneTable("B", document.getElementById("zoneB"));
+  await StolarCarp.renderZoneTable("C", document.getElementById("zoneC"));
+}
+
+refresh();
+setInterval(refresh, 15000); // автооновлення кожні 15 секунд
+</script>
+
+</body>
+</html>
