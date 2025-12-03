@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <title>STOLAR CARP – Акаунт</title>
+  <title>DK Prime – Тестовий акаунт</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
@@ -277,17 +277,17 @@
 <body>
   <div class="shell">
     <div class="logo">
-      <div class="logo-badge">SC</div>
+      <div class="logo-badge">DK</div>
       <div>
-        <div style="font-size:13px; color:var(--muted); letter-spacing:.08em;">STOLAR CARP</div>
-        <div style="font-size:12px; color:var(--muted);">Акаунт &amp; команда</div>
+        <div style="font-size:13px; color:var(--muted); letter-spacing:.08em;">DK PRIME TEST</div>
+        <div style="font-size:12px; color:var(--muted);">Тестовий акаунт &amp; команда</div>
       </div>
     </div>
 
     <div class="card">
-      <h1>Вхід / реєстрація</h1>
+      <h1>Тестовий акаунт DK Prime</h1>
       <div class="subtitle">
-        Один акаунт для участі у всіх етапах STOLAR CARP.
+        Один тестовий акаунт для перевірки входу, реєстрації та команд DK Prime на Firebase.
       </div>
 
       <!-- AUTH TABS -->
@@ -311,7 +311,7 @@
         <button class="btn btn-secondary" id="btnRegister" style="display:none;">Зареєструвати акаунт</button>
 
         <div class="small">
-          Після входу ти зможеш створити команду або приєднатися до існуючої.
+          Після входу ти зможеш створити тестову команду або приєднатися до існуючої за кодом.
         </div>
 
         <div class="status" id="authStatus"></div>
@@ -331,11 +331,11 @@
 
         <!-- TEAM SETUP -->
         <div id="teamSection">
-          <div class="section-title">Команда</div>
+          <div class="section-title">Тестова команда</div>
 
           <div id="noTeamBlock">
             <div class="small" style="margin-bottom:8px;">
-              Зараз ти ще не в команді. Обери варіант:
+              Зараз ти ще не в команді. Обери, що хочеш протестувати:
             </div>
 
             <div class="radio-row">
@@ -351,12 +351,12 @@
 
             <div id="captainFields">
               <div class="field">
-                <label for="teamName">Назва нової команди</label>
-                <input id="teamName" type="text" placeholder="Наприклад, ДК Два Кума">
+                <label for="teamName">Назва нової тестової команди</label>
+                <input id="teamName" type="text" placeholder="Наприклад, DK Два Кума TEST">
               </div>
               <button class="btn" id="btnCreateTeam">Створити команду</button>
               <div class="small">
-                Будеш капітаном команди та зможеш запрошувати учасників за кодом.
+                Ти будеш капітаном тестової команди та зможеш запрошувати учасників за кодом.
               </div>
             </div>
 
@@ -367,7 +367,7 @@
               </div>
               <button class="btn" id="btnJoinTeam">Долучитися до команди</button>
               <div class="small">
-                Введи код, який дав капітан. Після цього ти побачиш свою команду та зможеш брати участь у реєстрації.
+                Введи код, який дав капітан. Після цього ти побачиш свою тестову команду.
               </div>
             </div>
 
@@ -379,7 +379,7 @@
             <div id="teamInfoBox">
               <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
                 <div>
-                  <div style="font-size:12px; color:var(--muted);">Твоя команда</div>
+                  <div style="font-size:12px; color:var(--muted);">Твоя тестова команда</div>
                   <div id="teamNameView" style="font-size:15px; font-weight:600;"></div>
                 </div>
                 <div id="roleBadge" class="badge-role">Капітан</div>
@@ -392,7 +392,7 @@
             </div>
 
             <div class="small" style="margin-top:6px;">
-              Незабаром тут зʼявиться посилання на сторінку <strong>“Моя команда”</strong> та швидкий перехід до реєстрації на етапи.
+              Це лише тест. У бойовому режимі тут буде сторінка <strong>“Моя команда”</strong> і перехід до реєстрації на етапи.
             </div>
           </div>
         </div>
@@ -425,8 +425,7 @@
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
-    // ⚠️ Якщо у тебе вже є firebase-config.js з цими даними —
-    // можна винести цей обʼєкт туди і просто імпортувати.
+    // Тест використовує той самий Firebase-проєкт stolar-carp
     const firebaseConfig = {
       apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
       authDomain: "stolar-carp.firebaseapp.com",
@@ -540,7 +539,7 @@
       try {
         const cred = await signInWithEmailAndPassword(auth, email, pass);
         await ensureUserDoc(cred.user);
-        showAuthSuccess("Успішний вхід.");
+        showAuthSuccess("Успішний вхід у тестовий акаунт.");
       } catch (err) {
         console.error(err);
         let msg = "Помилка входу.";
@@ -557,18 +556,18 @@
       const email = emailInput.value.trim();
       const pass = passInput.value.trim();
       if (!email || !pass) {
-        showAuthError("Введи email і пароль.");
+        showAuthError("Введи email і пароль.", "error");
         return;
       }
       if (pass.length < 6) {
-        showAuthError("Пароль має містити щонайменше 6 символів.");
+        showAuthError("Пароль має містити щонайменше 6 символів.", "error");
         return;
       }
       setAuthLoading(true);
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         await ensureUserDoc(cred.user);
-        showAuthSuccess("Акаунт створено. Ти залогінений.");
+        showAuthSuccess("Тестовий акаунт створено. Ти залогінений.");
       } catch (err) {
         console.error(err);
         let msg = "Помилка реєстрації.";
@@ -623,7 +622,7 @@
         canApplyForTeam: true
       }, { merge: true });
 
-      setTeamStatus("Команду створено. Код для учасників: " + joinCode, "success");
+      setTeamStatus("Тестову команду створено. Код для учасників: " + joinCode, "success");
     }
 
     async function joinTeamByCode(user, code) {
@@ -638,7 +637,7 @@
       const q = query(teamsRef, where("joinCode", "==", code.toUpperCase()));
       const snap = await getDocs(q);
       if (snap.empty) {
-        setTeamStatus("Команду з таким кодом не знайдено.", "error");
+        setTeamStatus("Тестову команду з таким кодом не знайдено.", "error");
         return;
       }
 
@@ -650,7 +649,7 @@
         canApplyForTeam: false
       }, { merge: true });
 
-      setTeamStatus("Ти успішно приєднався до команди.", "success");
+      setTeamStatus("Ти успішно приєднався до тестової команди.", "success");
     }
 
     async function renderTeamState(user) {
@@ -672,7 +671,7 @@
         teamNameView.textContent = team.name;
         teamCodeView.textContent = team.joinCode;
       } else {
-        teamNameView.textContent = "(команду не знайдено)";
+        teamNameView.textContent = "(тестову команду не знайдено)";
         teamCodeView.textContent = "—";
       }
 
@@ -680,90 +679,4 @@
       if (data.role === "captain") {
         roleBadge.style.background = "rgba(71,216,120,0.12)";
         roleBadge.style.color = "var(--success)";
-      } else {
-        roleBadge.style.background = "rgba(247,183,51,0.15)";
-        roleBadge.style.color = "var(--accent)";
-      }
-    }
-
-    // ----- TEAM UI -----
-
-    // перемикання капітан / учасник
-    document.querySelectorAll('input[name="teamMode"]').forEach(r => {
-      r.addEventListener("change", () => {
-        const mode = document.querySelector('input[name="teamMode"]:checked').value;
-        if (mode === "captain") {
-          captainFields.style.display = "";
-          memberFields.style.display = "none";
-        } else {
-          captainFields.style.display = "none";
-          memberFields.style.display = "";
-        }
-        setTeamStatus("");
-      });
-    });
-
-    btnCreateTeam.addEventListener("click", async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-      const name = teamNameInput.value.trim();
-      if (!name) {
-        setTeamStatus("Введи назву команди.", "error");
-        return;
-      }
-      btnCreateTeam.disabled = true;
-      try {
-        await createTeamForUser(user, name);
-        await renderTeamState(user);
-        teamNameInput.value = "";
-      } catch (err) {
-        console.error(err);
-        setTeamStatus("Помилка при створенні команди.", "error");
-      } finally {
-        btnCreateTeam.disabled = false;
-      }
-    });
-
-    btnJoinTeam.addEventListener("click", async () => {
-      const user = auth.currentUser;
-      if (!user) return;
-      const code = joinCodeInput.value.trim().toUpperCase();
-      if (!code) {
-        setTeamStatus("Введи код команди.", "error");
-        return;
-      }
-      btnJoinTeam.disabled = true;
-      try {
-        await joinTeamByCode(user, code);
-        await renderTeamState(user);
-        joinCodeInput.value = "";
-      } catch (err) {
-        console.error(err);
-        setTeamStatus("Помилка при приєднанні до команди.", "error");
-      } finally {
-        btnJoinTeam.disabled = false;
-      }
-    });
-
-    // ----- AUTH STATE LISTENER -----
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // залогінений
-        authSection.style.display = "none";
-        userSection.style.display = "";
-        userEmailEl.textContent = user.email || "";
-        userStatus.style.display = "block";
-        userStatus.textContent = "Ти залогінений. Тепер налаштуй команду.";
-        await ensureUserDoc(user);
-        await renderTeamState(user);
-      } else {
-        // не залогінений
-        authSection.style.display = "";
-        userSection.style.display = "none";
-        authStatus.textContent = "";
-        teamStatus.textContent = "";
-      }
-    });
-  </script>
-</body>
-</html>
+      } els
