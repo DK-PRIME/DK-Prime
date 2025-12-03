@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>STOLAR CARP – Акаунт</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #05070b;
+      --card: #161922;
+      --accent: #f7b733;
+      --accent2: #fc4a1a;
+      --text: #f5f5f5;
+      --muted: #a0a4b8;
+      --error: #ff6363;
+      --success: #47d878;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151827 0, #020308 60%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .logo-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #f7b733, #fc4a1a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.04), rgba(0,0,0,0.7));
+      border-radius: 20px;
+      padding: 20px 18px 22px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.05);
+      backdrop-filter: blur(18px);
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0 0 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 10px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(3,4,10,0.9);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: #6c7185;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(247,183,51,0.4);
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 6px;
+      background-image: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.9);
+    }
+
+    .btn-secondary {
+      background-image: none;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .row > * { flex: 1; }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .linkish {
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .linkish:hover {
+      text-decoration: underline;
+    }
+
+    .tabs {
+      display: flex;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 3px;
+      margin-bottom: 14px;
+      background: rgba(4,6,14,0.9);
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 7px 0;
+      font-size: 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #000;
+      font-weight: 600;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .status.error { color: var(--error); }
+    .status.success { color: var(--success); }
+
+    /* TEAM SECTION */
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 16px 0 6px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+    }
+
+    .pill span {
+      font-size: 9px;
+    }
+
+    .radio-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .radio-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .radio-pill input {
+      margin: 0;
+    }
+
+    .badge-role {
+      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(71,216,120,0.12);
+      color: var(--success);
+    }
+
+    #teamInfoBox {
+      font-size: 13px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 14px;
+      padding: 10px 11px;
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-top: 8px;
+    }
+
+    #teamInfoBox code {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      background: rgba(0,0,0,0.7);
+      padding: 1px 5px;
+      border-radius: 6px;
+    }
+
+    @media (max-width: 420px) {
+      .card { padding: 16px 14px 18px; }
+      h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="logo">
+      <div class="logo-badge">SC</div>
+      <div>
+        <div style="font-size:13px; color:var(--muted); letter-spacing:.08em;">STOLAR CARP</div>
+        <div style="font-size:12px; color:var(--muted);">Акаунт &amp; команда</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h1>Вхід / реєстрація</h1>
+      <div class="subtitle">
+        Один акаунт для участі у всіх етапах STOLAR CARP.
+      </div>
+
+      <!-- AUTH TABS -->
+      <div class="tabs">
+        <div class="tab active" id="tabLogin">Увійти</div>
+        <div class="tab" id="tabRegister">Створити акаунт</div>
+      </div>
+
+      <!-- AUTH FORM -->
+      <div id="authSection">
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="password">Пароль (мінімум 6 символів)</label>
+          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <button class="btn" id="btnLogin">Увійти</button>
+        <button class="btn btn-secondary" id="btnRegister" style="display:none;">Зареєструвати акаунт</button>
+
+        <div class="small">
+          Після входу ти зможеш створити команду або приєднатися до існуючої.
+        </div>
+
+        <div class="status" id="authStatus"></div>
+      </div>
+
+      <!-- LOGGED-IN SECTION -->
+      <div id="userSection" style="display:none;">
+        <div class="row" style="align-items:center; margin-bottom:6px;">
+          <div>
+            <div style="font-size:13px; color:var(--muted);">Залогінений як</div>
+            <div id="userEmail" style="font-size:14px; font-weight:600;"></div>
+          </div>
+          <button class="btn btn-secondary" id="btnLogout" style="max-width:130px;">Вийти</button>
+        </div>
+
+        <div class="status success" id="userStatus" style="display:none;"></div>
+
+        <!-- TEAM SETUP -->
+        <div id="teamSection">
+          <div class="section-title">Команда</div>
+
+          <div id="noTeamBlock">
+            <div class="small" style="margin-bottom:8px;">
+              Зараз ти ще не в команді. Обери варіант:
+            </div>
+
+            <div class="radio-row">
+              <label class="radio-pill">
+                <input type="radio" name="teamMode" value="captain" checked>
+                <span>Я капітан — створити команду</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="teamMode" value="member">
+                <span>Я учасник — приєднатися за кодом</span>
+              </label>
+            </div>
+
+            <div id="captainFields">
+              <div class="field">
+                <label for="teamName">Назва нової команди</label>
+                <input id="teamName" type="text" placeholder="Наприклад, ДК Два Кума">
+              </div>
+              <button class="btn" id="btnCreateTeam">Створити команду</button>
+              <div class="small">
+                Будеш капітаном команди та зможеш запрошувати учасників за кодом.
+              </div>
+            </div>
+
+            <div id="memberFields" style="display:none;">
+              <div class="field">
+                <label for="joinCode">Код команди від капітана</label>
+                <input id="joinCode" type="text" placeholder="Наприклад, 44E381" maxlength="10">
+              </div>
+              <button class="btn" id="btnJoinTeam">Долучитися до команди</button>
+              <div class="small">
+                Введи код, який дав капітан. Після цього ти побачиш свою команду та зможеш брати участь у реєстрації.
+              </div>
+            </div>
+
+            <div class="status" id="teamStatus"></div>
+          </div>
+
+          <!-- WHEN USER HAS TEAM -->
+          <div id="hasTeamBlock" style="display:none;">
+            <div id="teamInfoBox">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                <div>
+                  <div style="font-size:12px; color:var(--muted);">Твоя команда</div>
+                  <div id="teamNameView" style="font-size:15px; font-weight:600;"></div>
+                </div>
+                <div id="roleBadge" class="badge-role">Капітан</div>
+              </div>
+
+              <div style="margin-top:6px; font-size:12px;">
+                Код для запрошення учасників:
+                <code id="teamCodeView"></code>
+              </div>
+            </div>
+
+            <div class="small" style="margin-top:6px;">
+              Незабаром тут зʼявиться посилання на сторінку <strong>“Моя команда”</strong> та швидкий перехід до реєстрації на етапи.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIREBASE -->
+  <script type="module">
+    // --- Firebase SDK imports ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      collection,
+      addDoc,
+      query,
+      where,
+      getDocs,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    // ⚠️ Якщо у тебе вже є firebase-config.js з цими даними —
+    // можна винести цей обʼєкт туди і просто імпортувати.
+    const firebaseConfig = {
+      apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
+      authDomain: "stolar-carp.firebaseapp.com",
+      projectId: "stolar-carp",
+      storageBucket: "stolar-carp.firebasestorage.app",
+      messagingSenderId: "1019636788370",
+      appId: "1:1019636788370:web:af1c1ecadb683df212ca4b",
+      measurementId: "G-VWC07QNS7P"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ---- DOM ----
+    const tabLogin = document.getElementById("tabLogin");
+    const tabRegister = document.getElementById("tabRegister");
+    const btnLogin = document.getElementById("btnLogin");
+    const btnRegister = document.getElementById("btnRegister");
+    const authStatus = document.getElementById("authStatus");
+
+    const emailInput = document.getElementById("email");
+    const passInput = document.getElementById("password");
+
+    const authSection = document.getElementById("authSection");
+    const userSection = document.getElementById("userSection");
+    const userEmailEl = document.getElementById("userEmail");
+    const userStatus = document.getElementById("userStatus");
+    const btnLogout = document.getElementById("btnLogout");
+
+    const noTeamBlock = document.getElementById("noTeamBlock");
+    const hasTeamBlock = document.getElementById("hasTeamBlock");
+    const teamStatus = document.getElementById("teamStatus");
+    const teamNameView = document.getElementById("teamNameView");
+    const teamCodeView = document.getElementById("teamCodeView");
+    const roleBadge = document.getElementById("roleBadge");
+
+    const captainFields = document.getElementById("captainFields");
+    const memberFields = document.getElementById("memberFields");
+    const teamNameInput = document.getElementById("teamName");
+    const joinCodeInput = document.getElementById("joinCode");
+    const btnCreateTeam = document.getElementById("btnCreateTeam");
+    const btnJoinTeam = document.getElementById("btnJoinTeam");
+
+    // ----- TABS -----
+    tabLogin.addEventListener("click", () => {
+      tabLogin.classList.add("active");
+      tabRegister.classList.remove("active");
+      btnLogin.style.display = "";
+      btnRegister.style.display = "none";
+      authStatus.textContent = "";
+    });
+
+    tabRegister.addEventListener("click", () => {
+      tabRegister.classList.add("active");
+      tabLogin.classList.remove("active");
+      btnLogin.style.display = "none";
+      btnRegister.style.display = "";
+      authStatus.textContent = "";
+    });
+
+    // ----- AUTH HELPERS -----
+    function setAuthLoading(loading) {
+      btnLogin.disabled = loading;
+      btnRegister.disabled = loading;
+    }
+
+    function showAuthError(message) {
+      authStatus.textContent = message;
+      authStatus.className = "status error";
+    }
+
+    function showAuthSuccess(message) {
+      authStatus.textContent = message;
+      authStatus.className = "status success";
+    }
+
+    // ----- USER DOC -----
+    async function ensureUserDoc(user) {
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, {
+          email: user.email,
+          displayName: user.displayName || "",
+          phone: null,
+          teamId: null,
+          role: "member",
+          canApplyForTeam: false,
+          createdAt: serverTimestamp()
+        });
+      }
+    }
+
+    async function getUserData(uid) {
+      const ref = doc(db, "users", uid);
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data() : null;
+    }
+
+    // ----- AUTH LOGIC -----
+
+    btnLogin.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const pass = passInput.value.trim();
+      if (!email || !pass) {
+        showAuthError("Введи email і пароль.");
+        return;
+      }
+      setAuthLoading(true);
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        await ensureUserDoc(cred.user);
+        showAuthSuccess("Успішний вхід.");
+      } catch (err) {
+        console.error(err);
+        let msg = "Помилка входу.";
+        if (err.code === "auth/user-not-found") msg = "Користувача не знайдено. Спробуй зареєструватися.";
+        if (err.code === "auth/wrong-password") msg = "Невірний пароль.";
+        if (err.code === "auth/invalid-email") msg = "Невірний формат email.";
+        showAuthError(msg);
+      } finally {
+        setAuthLoading(false);
+      }
+    });
+
+    btnRegister.addEventListener("click", async () => {
+      const email = emailInput.value.trim();
+      const pass = passInput.value.trim();
+      if (!email || !pass) {
+        showAuthError("Введи email і пароль.");
+        return;
+      }
+      if (pass.length < 6) {
+        showAuthError("Пароль має містити щонайменше 6 символів.");
+        return;
+      }
+      setAuthLoading(true);
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        await ensureUserDoc(cred.user);
+        showAuthSuccess("Акаунт створено. Ти залогінений.");
+      } catch (err) {
+        console.error(err);
+        let msg = "Помилка реєстрації.";
+        if (err.code === "auth/email-already-in-use") msg = "Такий email вже використовується. Спробуй увійти.";
+        if (err.code === "auth/invalid-email") msg = "Невірний формат email.";
+        showAuthError(msg);
+      } finally {
+        setAuthLoading(false);
+      }
+    });
+
+    btnLogout.addEventListener("click", async () => {
+      await signOut(auth);
+    });
+
+    // ----- TEAM HELPERS -----
+
+    function setTeamStatus(message, type = "normal") {
+      teamStatus.textContent = message || "";
+      teamStatus.className = "status " + (type === "error" ? "error" : type === "success" ? "success" : "");
+    }
+
+    function randomCode(length = 6) {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let out = "";
+      for (let i = 0; i < length; i++) {
+        out += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return out;
+    }
+
+    async function createTeamForUser(user, teamName) {
+      const userRef = doc(db, "users", user.uid);
+      const userData = await getUserData(user.uid);
+      if (userData && userData.teamId) {
+        setTeamStatus("Ти вже в команді.", "error");
+        return;
+      }
+
+      const joinCode = randomCode(6);
+      const teamsRef = collection(db, "teams");
+      const newTeamRef = await addDoc(teamsRef, {
+        name: teamName,
+        captainUid: user.uid,
+        joinCode,
+        createdAt: serverTimestamp()
+      });
+
+      await setDoc(userRef, {
+        teamId: newTeamRef.id,
+        role: "captain",
+        canApplyForTeam: true
+      }, { merge: true });
+
+      setTeamStatus("Команду створено. Код для учасників: " + joinCode, "success");
+    }
+
+    async function joinTeamByCode(user, code) {
+      const userRef = doc(db, "users", user.uid);
+      const userData = await getUserData(user.uid);
+      if (userData && userData.teamId) {
+        setTeamStatus("Ти вже в команді.", "error");
+        return;
+      }
+
+      const teamsRef = collection(db, "teams");
+      const q = query(teamsRef, where("joinCode", "==", code.toUpperCase()));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        setTeamStatus("Команду з таким кодом не знайдено.", "error");
+        return;
+      }
+
+      const teamDoc = snap.docs[0];
+
+      await setDoc(userRef, {
+        teamId: teamDoc.id,
+        role: "member",
+        canApplyForTeam: false
+      }, { merge: true });
+
+      setTeamStatus("Ти успішно приєднався до команди.", "success");
+    }
+
+    async function renderTeamState(user) {
+      const data = await getUserData(user.uid);
+      if (!data || !data.teamId) {
+        noTeamBlock.style.display = "";
+        hasTeamBlock.style.display = "none";
+        return;
+      }
+
+      // є команда
+      noTeamBlock.style.display = "none";
+      hasTeamBlock.style.display = "";
+
+      const teamRef = doc(db, "teams", data.teamId);
+      const teamSnap = await getDoc(teamRef);
+      if (teamSnap.exists()) {
+        const team = teamSnap.data();
+        teamNameView.textContent = team.name;
+        teamCodeView.textContent = team.joinCode;
+      } else {
+        teamNameView.textContent = "(команду не знайдено)";
+        teamCodeView.textContent = "—";
+      }
+
+      roleBadge.textContent = data.role === "captain" ? "Капітан" : "Учасник";
+      if (data.role === "captain") {
+        roleBadge.style.background = "rgba(71,216,120,0.12)";
+        roleBadge.style.color = "var(--success)";
+      } else {
+        roleBadge.style.background = "rgba(247,183,51,0.15)";
+        roleBadge.style.color = "var(--accent)";
+      }
+    }
+
+    // ----- TEAM UI -----
+
+    // перемикання капітан / учасник
+    document.querySelectorAll('input[name="teamMode"]').forEach(r => {
+      r.addEventListener("change", () => {
+        const mode = document.querySelector('input[name="teamMode"]:checked').value;
+        if (mode === "captain") {
+          captainFields.style.display = "";
+          memberFields.style.display = "none";
+        } else {
+          captainFields.style.display = "none";
+          memberFields.style.display = "";
+        }
+        setTeamStatus("");
+      });
+    });
+
+    btnCreateTeam.addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      const name = teamNameInput.value.trim();
+      if (!name) {
+        setTeamStatus("Введи назву команди.", "error");
+        return;
+      }
+      btnCreateTeam.disabled = true;
+      try {
+        await createTeamForUser(user, name);
+        await renderTeamState(user);
+        teamNameInput.value = "";
+      } catch (err) {
+        console.error(err);
+        setTeamStatus("Помилка при створенні команди.", "error");
+      } finally {
+        btnCreateTeam.disabled = false;
+      }
+    });
+
+    btnJoinTeam.addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      const code = joinCodeInput.value.trim().toUpperCase();
+      if (!code) {
+        setTeamStatus("Введи код команди.", "error");
+        return;
+      }
+      btnJoinTeam.disabled = true;
+      try {
+        await joinTeamByCode(user, code);
+        await renderTeamState(user);
+        joinCodeInput.value = "";
+      } catch (err) {
+        console.error(err);
+        setTeamStatus("Помилка при приєднанні до команди.", "error");
+      } finally {
+        btnJoinTeam.disabled = false;
+      }
+    });
+
+    // ----- AUTH STATE LISTENER -----
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // залогінений
+        authSection.style.display = "none";
+        userSection.style.display = "";
+        userEmailEl.textContent = user.email || "";
+        userStatus.style.display = "block";
+        userStatus.textContent = "Ти залогінений. Тепер налаштуй команду.";
+        await ensureUserDoc(user);
+        await renderTeamState(user);
+      } else {
+        // не залогінений
+        authSection.style.display = "";
+        userSection.style.display = "none";
+        authStatus.textContent = "";
+        teamStatus.textContent = "";
+      }
+    });
+  </script>
+</body>
+</html>
