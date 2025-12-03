@@ -31,10 +31,7 @@
       padding: 16px;
     }
 
-    .shell {
-      width: 100%;
-      max-width: 480px;
-    }
+    .shell { width: 100%; max-width: 480px; }
 
     .logo {
       display: flex;
@@ -64,10 +61,7 @@
       backdrop-filter: blur(18px);
     }
 
-    h1 {
-      font-size: 22px;
-      margin: 0 0 4px;
-    }
+    h1 { font-size: 22px; margin: 0 0 4px; }
 
     .subtitle {
       font-size: 13px;
@@ -84,7 +78,9 @@
     }
 
     input[type="email"],
-    input[type="password"] {
+    input[type="password"],
+    input[type="text"],
+    input[type="tel"] {
       width: 100%;
       padding: 10px 11px;
       border-radius: 10px;
@@ -95,9 +91,7 @@
       outline: none;
     }
 
-    input::placeholder {
-      color: #6c7185;
-    }
+    input::placeholder { color: #6c7185; }
 
     input:focus {
       border-color: var(--accent);
@@ -131,6 +125,28 @@
       box-shadow: 0 12px 30px rgba(0,0,0,0.9);
     }
 
+    .btn-secondary {
+      background-image: none;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--text);
+      box-shadow: none;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .status {
+      margin-top: 8px;
+      font-size: 13px;
+    }
+
+    .status.error { color: var(--error); }
+    .status.success { color: var(--success); }
+
     .tabs {
       display: flex;
       border-radius: 999px;
@@ -156,31 +172,46 @@
       font-weight: 600;
     }
 
-    .small {
+    .radio-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .radio-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
       font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
+      cursor: pointer;
     }
 
-    .status {
-      margin-top: 10px;
+    .radio-pill input { margin: 0; }
+
+    #userInfoBox {
       font-size: 13px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 14px;
+      padding: 10px 11px;
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-top: 8px;
     }
 
-    .status.error { color: var(--error); }
-    .status.success { color: var(--success); }
-
-    #userSection {
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      font-size: 13px;
-      color: var(--muted);
+    #userInfoBox code {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      background: rgba(0,0,0,0.7);
+      padding: 1px 5px;
+      border-radius: 6px;
     }
 
-    #userEmail {
-      font-weight: 600;
-      color: var(--text);
+    @media (max-width: 420px) {
+      .card { padding: 16px 14px 18px; }
+      h1 { font-size: 20px; }
     }
   </style>
 </head>
@@ -200,58 +231,134 @@
         Один тестовий акаунт для перевірки входу, реєстрації та команд DK Prime на Firebase.
       </div>
 
-      <!-- Вкладки -->
+      <!-- Вкладки: Увійти / Створити акаунт -->
       <div class="tabs">
         <div class="tab active" id="tabLogin">Увійти</div>
         <div class="tab" id="tabRegister">Створити акаунт</div>
       </div>
 
-      <!-- Форма -->
-      <div id="authSection">
+      <!-- БЛОК ВХОДУ -->
+      <div id="loginBlock">
         <div class="field">
-          <label for="email">Email</label>
-          <input id="email" type="email" placeholder="you@example.com" autocomplete="email">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email">
         </div>
-
         <div class="field">
-          <label for="password">Пароль (мінімум 6 символів)</label>
-          <input id="password" type="password" placeholder="••••••••" autocomplete="current-password">
+          <label for="loginPassword">Пароль</label>
+          <input id="loginPassword" type="password" placeholder="••••••••" autocomplete="current-password">
         </div>
-
         <button class="btn" id="btnLogin">Увійти</button>
-        <button class="btn" id="btnRegister" style="display:none;">Створити акаунт</button>
-
         <div class="small">
-          Після входу ти зможеш створити тестову команду або приєднатися до існуючої за кодом (це зробимо наступним кроком).
+          Якщо акаунта ще немає — перейди на вкладку <strong>«Створити акаунт»</strong>.
         </div>
-
-        <div class="status" id="statusText"></div>
+        <div class="status" id="loginStatus"></div>
       </div>
 
-      <!-- Блок інформації, коли користувач залогінений -->
-      <div id="userSection" style="display:none;">
-        <div>Залогінений як: <span id="userEmail"></span></div>
-        <div class="small">
-          Зараз ми тільки тестуємо вхід/реєстрацію. Логіку команд додамо окремо.
+      <!-- БЛОК РЕЄСТРАЦІЇ -->
+      <div id="registerBlock" style="display:none;">
+        <div class="radio-row">
+          <label class="radio-pill">
+            <input type="radio" name="role" value="captain" checked>
+            <span>Я капітан (створюю команду)</span>
+          </label>
+          <label class="radio-pill">
+            <input type="radio" name="role" value="member">
+            <span>Я учасник (долучаюсь до команди)</span>
+          </label>
         </div>
-        <button class="btn" id="btnLogout" style="margin-top:10px;">Вийти</button>
+
+        <div class="field">
+          <label for="regName">Імʼя та прізвище</label>
+          <input id="regName" type="text" placeholder="Напр., Роман Дячок">
+        </div>
+
+        <div class="field">
+          <label for="regPhone">Номер телефону</label>
+          <input id="regPhone" type="tel" placeholder="+380XXXXXXXXX">
+        </div>
+
+        <!-- тільки для капітана -->
+        <div class="field" id="teamNameField">
+          <label for="regTeamName">Назва команди (для капітана)</label>
+          <input id="regTeamName" type="text" placeholder="Напр., ДК Два Кума">
+        </div>
+
+        <!-- тільки для учасника -->
+        <div class="field" id="joinCodeField" style="display:none;">
+          <label for="regJoinCode">Код від капітана</label>
+          <input id="regJoinCode" type="text" placeholder="Напр., 44E381" maxlength="10">
+        </div>
+
+        <div class="field">
+          <label for="regEmail">Email</label>
+          <input id="regEmail" type="email" placeholder="you@example.com" autocomplete="email">
+        </div>
+
+        <div class="field">
+          <label for="regPassword">Пароль (мінімум 6 символів)</label>
+          <input id="regPassword" type="password" placeholder="••••••••" autocomplete="new-password">
+        </div>
+
+        <button class="btn" id="btnRegister">Створити акаунт</button>
+
+        <div class="small">
+          • Капітан: створює команду і отримує код для учасників.<br>
+          • Учасник: вводить код від свого капітана, щоб долучитися до команди.
+        </div>
+
+        <div class="status" id="registerStatus"></div>
+      </div>
+
+      <!-- ІНФО ПРО ЗАЛОГІНЕНОГО -->
+      <div id="userBlock" style="display:none; margin-top:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <div>
+            <div style="font-size:13px; color:var(--muted);">Залогінений як</div>
+            <div id="userEmail" style="font-size:14px; font-weight:600;"></div>
+          </div>
+          <button class="btn btn-secondary" id="btnLogout" style="max-width:140px;">Вийти</button>
+        </div>
+
+        <div id="userInfoBox" style="display:none;">
+          <div id="userRoleLine"></div>
+          <div id="userTeamLine"></div>
+          <div id="userCodeLine"></div>
+        </div>
+
+        <div class="small" id="userHint" style="margin-top:6px;">
+          Після стабільних тестів тут зʼявиться перехід до «Моя команда» та реєстрації на етапи.
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Firebase + логіка -->
+  <!-- FIREBASE + ЛОГІКА -->
   <script type="module">
-    // Імпорт SDK Firebase
+    // Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
     import {
       getAuth,
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
       onAuthStateChanged,
-      signOut
+      signOut,
+      updateProfile
     } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-    // Конфіг твого проекту
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      collection,
+      addDoc,
+      query,
+      where,
+      getDocs,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+    // Твій конфіг
     const firebaseConfig = {
       apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
       authDomain: "stolar-carp.firebaseapp.com",
@@ -262,28 +369,44 @@
       measurementId: "G-VWC07QNS7P"
     };
 
-    // Ініціалізація
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    // DOM елементи
+    // ---------- DOM ----------
     const tabLogin = document.getElementById("tabLogin");
     const tabRegister = document.getElementById("tabRegister");
+    const loginBlock = document.getElementById("loginBlock");
+    const registerBlock = document.getElementById("registerBlock");
+
+    const loginEmail = document.getElementById("loginEmail");
+    const loginPassword = document.getElementById("loginPassword");
     const btnLogin = document.getElementById("btnLogin");
+    const loginStatus = document.getElementById("loginStatus");
+
     const btnRegister = document.getElementById("btnRegister");
-    const statusText = document.getElementById("statusText");
+    const registerStatus = document.getElementById("registerStatus");
+    const regName = document.getElementById("regName");
+    const regPhone = document.getElementById("regPhone");
+    const regTeamName = document.getElementById("regTeamName");
+    const regJoinCode = document.getElementById("regJoinCode");
+    const regEmail = document.getElementById("regEmail");
+    const regPassword = document.getElementById("regPassword");
+    const teamNameField = document.getElementById("teamNameField");
+    const joinCodeField = document.getElementById("joinCodeField");
 
-    const emailInput = document.getElementById("email");
-    const passInput = document.getElementById("password");
-
-    const userSection = document.getElementById("userSection");
+    const userBlock = document.getElementById("userBlock");
     const userEmailEl = document.getElementById("userEmail");
     const btnLogout = document.getElementById("btnLogout");
+    const userInfoBox = document.getElementById("userInfoBox");
+    const userRoleLine = document.getElementById("userRoleLine");
+    const userTeamLine = document.getElementById("userTeamLine");
+    const userCodeLine = document.getElementById("userCodeLine");
 
-    function setStatus(msg, type = "") {
-      statusText.textContent = msg || "";
-      statusText.className = "status " +
-        (type === "error" ? "error" : type === "success" ? "success" : "");
+    // ---------- Допоміжні функції ----------
+    function setStatus(el, msg, type = "") {
+      el.textContent = msg || "";
+      el.className = "status " + (type === "error" ? "error" : type === "success" ? "success" : "");
     }
 
     function setLoading(isLoading) {
@@ -291,91 +414,259 @@
       btnRegister.disabled = isLoading;
     }
 
-    // Перемикач вкладок
+    function getSelectedRole() {
+      const el = document.querySelector('input[name="role"]:checked');
+      return el ? el.value : "captain";
+    }
+
+    function randomCode(length = 6) {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let out = "";
+      for (let i = 0; i < length; i++) {
+        out += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return out;
+    }
+
+    async function ensureUserDocIfMissing(user) {
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, {
+          email: user.email,
+          name: user.displayName || "",
+          phone: null,
+          role: "member",
+          teamId: null,
+          createdAt: serverTimestamp()
+        });
+      }
+    }
+
+    async function loadUserInfo(user) {
+      if (!user) {
+        userBlock.style.display = "none";
+        return;
+      }
+      userBlock.style.display = "";
+      userEmailEl.textContent = user.email || "";
+
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        userInfoBox.style.display = "none";
+        return;
+      }
+
+      const data = snap.data();
+      userInfoBox.style.display = "block";
+
+      userRoleLine.textContent = "Роль: " + (data.role === "captain" ? "капітан" : "учасник");
+
+      if (data.teamId) {
+        const teamRef = doc(db, "teams", data.teamId);
+        const teamSnap = await getDoc(teamRef);
+        if (teamSnap.exists()) {
+          const team = teamSnap.data();
+          userTeamLine.textContent = "Команда: " + (team.name || "(без назви)");
+          if (data.role === "captain") {
+            userCodeLine.innerHTML = 'Код для учасників: <code>' + (team.joinCode || "—") + "</code>";
+          } else {
+            userCodeLine.textContent = "";
+          }
+        } else {
+          userTeamLine.textContent = "Команда: (не знайдено)";
+          userCodeLine.textContent = "";
+        }
+      } else {
+        userTeamLine.textContent = "Команда: ще не привʼязана";
+        userCodeLine.textContent = "";
+      }
+    }
+
+    // ---------- Перемикач вкладок ----------
     tabLogin.addEventListener("click", () => {
       tabLogin.classList.add("active");
       tabRegister.classList.remove("active");
-      btnLogin.style.display = "";
-      btnRegister.style.display = "none";
-      setStatus("");
+      loginBlock.style.display = "";
+      registerBlock.style.display = "none";
+      setStatus(loginStatus, "");
+      setStatus(registerStatus, "");
     });
 
     tabRegister.addEventListener("click", () => {
       tabRegister.classList.add("active");
       tabLogin.classList.remove("active");
-      btnLogin.style.display = "none";
-      btnRegister.style.display = "";
-      setStatus("");
+      loginBlock.style.display = "none";
+      registerBlock.style.display = "";
+      setStatus(loginStatus, "");
+      setStatus(registerStatus, "");
     });
 
-    // Вхід
-    btnLogin.addEventListener("click", async () => {
-      const email = emailInput.value.trim();
-      const pass = passInput.value.trim();
+    // ---------- Перемикання полів капітан / учасник ----------
+    document.querySelectorAll('input[name="role"]').forEach((radio) => {
+      radio.addEventListener("change", () => {
+        const role = getSelectedRole();
+        if (role === "captain") {
+          teamNameField.style.display = "";
+          joinCodeField.style.display = "none";
+        } else {
+          teamNameField.style.display = "none";
+          joinCodeField.style.display = "";
+        }
+      });
+    });
 
+    // ---------- ВХІД ----------
+    btnLogin.addEventListener("click", async () => {
+      const email = loginEmail.value.trim();
+      const pass = loginPassword.value.trim();
       if (!email || !pass) {
-        setStatus("Введи email і пароль.", "error");
+        setStatus(loginStatus, "Введи email і пароль.", "error");
         return;
       }
-
       setLoading(true);
       try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        setStatus("Успішний вхід.", "success");
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        await ensureUserDocIfMissing(cred.user);
+        setStatus(loginStatus, "Успішний вхід.", "success");
       } catch (err) {
         console.error(err);
         let msg = "Помилка входу.";
         if (err.code === "auth/user-not-found") msg = "Користувача не знайдено. Спробуй створити акаунт.";
         if (err.code === "auth/wrong-password") msg = "Невірний пароль.";
         if (err.code === "auth/invalid-email") msg = "Невірний формат email.";
-        setStatus(msg, "error");
+        setStatus(loginStatus, msg, "error");
       } finally {
         setLoading(false);
       }
     });
 
-    // Реєстрація
+    // ---------- РЕЄСТРАЦІЯ ----------
     btnRegister.addEventListener("click", async () => {
-      const email = emailInput.value.trim();
-      const pass = passInput.value.trim();
+      const role = getSelectedRole();
+      const name = regName.value.trim();
+      const phone = regPhone.value.trim();
+      const teamName = regTeamName.value.trim();
+      const joinCode = regJoinCode.value.trim().toUpperCase();
+      const email = regEmail.value.trim();
+      const pass = regPassword.value.trim();
 
+      if (!name || !phone) {
+        setStatus(registerStatus, "Введи імʼя та телефон.", "error");
+        return;
+      }
       if (!email || !pass) {
-        setStatus("Введи email і пароль.", "error");
+        setStatus(registerStatus, "Введи email і пароль.", "error");
         return;
       }
       if (pass.length < 6) {
-        setStatus("Пароль має бути мінімум 6 символів.", "error");
+        setStatus(registerStatus, "Пароль має містити мінімум 6 символів.", "error");
+        return;
+      }
+      if (role === "captain" && !teamName) {
+        setStatus(registerStatus, "Введи назву команди для капітана.", "error");
+        return;
+      }
+      if (role === "member" && !joinCode) {
+        setStatus(registerStatus, "Введи код від капітана.", "error");
         return;
       }
 
       setLoading(true);
       try {
-        await createUserWithEmailAndPassword(auth, email, pass);
-        setStatus("Акаунт створено. Ти вже залогінений.", "success");
+        let teamId = null;
+        let teamData = null;
+
+        if (role === "member") {
+          // Спочатку шукаємо команду по коду
+          const teamsRef = collection(db, "teams");
+          const q = query(teamsRef, where("joinCode", "==", joinCode));
+          const snap = await getDocs(q);
+          if (snap.empty) {
+            setStatus(registerStatus, "Команду з таким кодом не знайдено. Перевір код у капітана.", "error");
+            return;
+          }
+          const docSnap = snap.docs[0];
+          teamId = docSnap.id;
+          teamData = docSnap.data();
+        }
+
+        // Створюємо акаунт
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        const user = cred.user;
+
+        // оновлюємо displayName
+        await updateProfile(user, { displayName: name });
+
+        const userRef = doc(db, "users", user.uid);
+
+        if (role === "captain") {
+          // створити команду
+          const joinCodeCaptain = randomCode(6);
+          const teamsRef = collection(db, "teams");
+          const teamRef = await addDoc(teamsRef, {
+            name: teamName,
+            captainUid: user.uid,
+            joinCode: joinCodeCaptain,
+            createdAt: serverTimestamp()
+          });
+          teamId = teamRef.id;
+
+          await setDoc(userRef, {
+            email,
+            name,
+            phone,
+            role: "captain",
+            teamId,
+            createdAt: serverTimestamp()
+          });
+
+          setStatus(
+            registerStatus,
+            "Акаунт капітана створено. Код для учасників: " + joinCodeCaptain,
+            "success"
+          );
+        } else {
+          // учасник приєднується до вже існуючої команди
+          await setDoc(userRef, {
+            email,
+            name,
+            phone,
+            role: "member",
+            teamId,
+            createdAt: serverTimestamp()
+          });
+
+          setStatus(
+            registerStatus,
+            "Акаунт учасника створено. Ти приєднався до команди: " + (teamData?.name || ""),
+            "success"
+          );
+        }
       } catch (err) {
         console.error(err);
         let msg = "Помилка реєстрації.";
         if (err.code === "auth/email-already-in-use") msg = "Такий email вже використовується. Спробуй увійти.";
         if (err.code === "auth/invalid-email") msg = "Невірний формат email.";
-        setStatus(msg, "error");
+        setStatus(registerStatus, msg, "error");
       } finally {
         setLoading(false);
       }
     });
 
-    // Вихід
+    // ---------- ВИХІД ----------
     btnLogout.addEventListener("click", async () => {
       await signOut(auth);
     });
 
-    // Слухаємо стан авторизації
-    onAuthStateChanged(auth, (user) => {
+    // ---------- СЛУХАЧ СТАНУ ----------
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
-        userSection.style.display = "";
-        userEmailEl.textContent = user.email || "";
+        await ensureUserDocIfMissing(user);
+        await loadUserInfo(user);
       } else {
-        userSection.style.display = "none";
-        userEmailEl.textContent = "";
+        userBlock.style.display = "none";
       }
     });
   </script>
