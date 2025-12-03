@@ -1,1 +1,148 @@
-href
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STOLAR CARP — офіційний сайт турнірів</title>
+
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/favicon.png">
+  <meta name="theme-color" content="#1a1a1a">
+
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script defer src="assets/js/config.js"></script>
+
+  <!-- 🔥 Firebase інтеграція -->
+  <script type="module" src="assets/js/stolarcarp-firebase.js"></script>
+
+  <style>
+    body.home-page{
+      background: radial-gradient(circle at top,#111827 0,#020617 55%);
+    }
+    .hero-main{max-width:980px;margin:0 auto;padding:70px 0 60px;text-align:center;}
+    .hero-kicker{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;
+      font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;background:rgba(0,0,0,.6);
+      border:1px solid rgba(148,163,184,.5);color:#e5e7eb;margin-bottom:14px;margin-left:89px;}
+    .hero-title{position:relative;z-index:1;font-size:clamp(40px,7vw,64px);font-weight:900;
+      letter-spacing:.06em;margin:0 0 36px;text-transform:uppercase;
+      background:linear-gradient(90deg,#ffd700 0%,#ff8c00 40%,#d90429 100%);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      text-shadow:0 1px 0 rgba(255,255,255,0.3),0 2px 0 rgba(140,90,0,0.9),0 5px 10px rgba(0,0,0,0.85);
+      opacity:0;transform:translateY(14px);animation:heroTitleFade .9s ease-out forwards;}
+    .hero-title::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:-14px;
+      width:240px;height:3px;border-radius:999px;
+      background:linear-gradient(90deg,#ffd700 0%,#ff8c00 50%,#d90429 100%);
+      box-shadow:0 0 6px rgba(255,180,0,.6);opacity:0;animation:heroLineFade 1.1s ease-out forwards;}
+    .hero-subtitle{margin:14px auto 0;max-width:640px;color:#d1d5db;font-size:1.02rem;}
+    .hero-tags{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+    .hero-tag{padding:4px 12px;border-radius:999px;border:1px solid rgba(148,163,184,.55);
+      font-size:.8rem;color:#e5e7eb;background:rgba(15,23,42,.9);}
+    .hero-cta{margin-top:30px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
+    .btn-lg{padding:12px 22px;font-size:.98rem;border-radius:999px;}
+    .btn--accent{background:linear-gradient(135deg,#f6c34c,#f28b2b);color:#111;border:none;}
+    .btn--accent:hover{filter:brightness(1.05);}
+    .hero-season-card{margin-top:40px;padding:22px 18px;border-radius:22px;
+      background:radial-gradient(circle at top,#1e293b 0,#020617 65%);
+      border:1px solid rgba(148,163,184,.35);box-shadow:0 18px 40px rgba(0,0,0,.8);text-align:center;}
+    .section-title{position:relative;display:inline-block;margin:0 0 18px;font-size:1.35rem;
+      font-weight:700;color:#e5e7eb;padding-bottom:6px;}
+    .section-title__brand{background:linear-gradient(90deg,#ffd700 0%,#ff8c00 40%,#d90429 100%);
+      -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;}
+    .section-title::after{content:"";position:absolute;left:0;bottom:0;width:100%;height:2px;
+      border-radius:999px;background:linear-gradient(90deg,#ffd700 0%,#ff8c00 50%,#d90429 100%);
+      box-shadow:0 0 6px rgba(255,180,0,.35);}
+    @keyframes heroTitleFade{0%{opacity:0;transform:translateY(22px);}100%{opacity:1;transform:translateY(0);}}
+    @keyframes heroLineFade{0%{opacity:0;width:0;}100%{opacity:1;width:240px;}}
+  </style>
+</head>
+
+<body class="home-page">
+
+<header class="header">
+  <div class="container header__row">
+    <a class="logo" href="index.html"><span class="logo__mark">SC</span><span class="logo__text">STOLAR CARP</span></a>
+    <nav class="nav" id="nav">
+      <a href="index.html" class="nav__link nav__link--active">Головна</a>
+      <a href="rules.html" class="nav__link">Регламент</a>
+      <a href="register.html" class="nav__link">Реєстрація</a>
+      <a href="live.html" class="nav__link">Live</a>
+      <a href="rating.html" class="nav__link">Рейтинг</a>
+      <a href="lakes.html" class="nav__link">Водойми</a>
+      <a href="sponsors.html" class="nav__link">Спонсори</a>
+      <a href="events/index.html" class="nav__link">Архів</a>
+    </nav>
+    <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main class="main">
+  <section class="section container hero-main">
+    <div class="hero-kicker-wrap">
+      <div class="hero-kicker"><span class="hero-kicker-text">Твій рівень. Твій трофей. Твоя перемога.</span></div>
+    </div>
+
+    <h1 class="hero-title">STOLAR CARP</h1>
+
+    <p class="hero-subtitle">
+      STOLAR CARP — це поєднання спортивної боротьби, дружньої атмосфери, драйву, командного духу та поваги до цінностей карпфішингу.
+    </p>
+
+    <div class="hero-tags">
+      <span class="hero-tag">Сезон 2026 · 5 етапів + Фінал</span>
+      <span class="hero-tag">Зони A · B · C</span>
+      <span class="hero-tag">Live-таблиці та рейтинг онлайн</span>
+    </div>
+
+    <div class="hero-cta">
+      <a class="btn btn--primary btn-lg" href="rules.html">Переглянути регламент</a>
+      <a class="btn btn--accent btn-lg" href="register.html">Подати заявку</a>
+      <a class="btn btn--danger btn-lg" href="live.html">Live протоколи</a>
+    </div>
+
+    <div class="hero-season-card">
+      <h2 class="title-gradient">🏆 Сезон STOLAR CARP 2026</h2>
+      <p>Слідкуй за всіма етапами та Фіналом в одному місці. Архів, Live результати та підсумковий рейтинг команд.</p>
+      <a href="events/season-2026.html" class="btn btn--primary btn-lg">Переглянути сезон 2026</a>
+    </div>
+  </section>
+
+  <section class="section container info-block">
+    <h2 class="section-title">Хто може взяти участь?</h2>
+    <p class="info-text">
+      STOLAR CARP відкритий для всіх, хто живе карпфішингом і цінує не лише перемогу, а й шлях до неї. Професійний досвід не обов’язковий — головне бажання розвиватися, змагатися, поважати природу та суперників.
+    </p>
+    <ul class="info-list">
+      <li>• Команди з 2–3 учасників</li>
+      <li>• Початківці та аматори</li>
+      <li>• Досвідчені рибалки</li>
+      <li>• Риболовні клуби</li>
+      <li>• Ті, хто готовий пройти сезон із 5 етапів та фіналом</li>
+    </ul>
+  </section>
+
+  <section class="section container info-block">
+    <h2 class="section-title">Місія <span class="section-title__brand">STOLAR CARP</span></h2>
+    <p class="info-text">
+      Ми створюємо новий стандарт коропових турнірів: організованих, прозорих і спортивних. Кожне змагання — це не лише боротьба за кубок, а й зустріч однодумців.
+    </p>
+  </section>
+</main>
+
+<section class="section container highlight">
+  <h2 class="title-gradient">🎬 Ми в TikTok</h2>
+  <p>Дивись короткі відео з наших турнірів, зважувань та нагороджень!</p>
+  <a href="https://www.tiktok.com/@stolar.carp" class="btn btn--primary" target="_blank">Перейти у TikTok</a>
+</section>
+
+<footer class="footer">
+  <div class="container footer__row">
+    <div>© 2025 STOLAR CARP · Львів</div>
+    <div class="footer__links">
+      <a href="https://invite.viber.com/?g=8R04gUEhdVSnX6sr_DxGGGqAXTus0Ygh">Viber</a>
+      <a href="https://youtube.com/@dk-stolarcarp?si=H-BUK2msCiKXdcA9">YouTube</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
