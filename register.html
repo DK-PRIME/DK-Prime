@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Реєстрація | STOLAR CARP</title>
+
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script defer src="assets/js/config.js"></script>
+  <script type="module" src="assets/js/stolarcarp-firebase.js"></script>
+
+  <style>
+    .reg-wrap{
+      max-width:440px;
+      margin:80px auto;
+      background:#020617;
+      padding:28px;
+      border-radius:20px;
+      border:1px solid rgba(148,163,184,.3);
+    }
+    .reg-wrap h1{text-align:center;margin-bottom:20px;}
+    .reg-wrap input{
+      width:100%;
+      padding:10px;
+      margin-bottom:12px;
+      border-radius:10px;
+      border:none;
+    }
+    .reg-wrap button{
+      width:100%;
+      padding:12px;
+      border-radius:999px;
+    }
+    .reg-status{
+      margin-top:12px;
+      text-align:center;
+      color:#facc15;
+      font-size:.9rem;
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="container header__row">
+    <a class="logo" href="index.html">STOLAR CARP</a>
+  </div>
+</header>
+
+<main class="main">
+  <div class="reg-wrap">
+    <h1>Реєстрація команди</h1>
+
+    <input id="email" type="email" placeholder="Email" required>
+    <input id="password" type="password" placeholder="Пароль" required>
+    <input id="name" type="text" placeholder="Імʼя та прізвище">
+    <input id="phone" type="text" placeholder="Телефон">
+    <input id="team" type="text" placeholder="Назва команди">
+
+    <button class="btn btn--accent" id="regBtn">Подати заявку</button>
+    <div class="reg-status" id="status"></div>
+  </div>
+</main>
+
+<script type="module">
+import { StolarCarp } from "./assets/js/stolarcarp-firebase.js";
+
+const btn = document.getElementById("regBtn");
+const status = document.getElementById("status");
+
+btn.onclick = async () => {
+  status.textContent = "Перевірка реєстрації...";
+
+  try{
+    const email = email.value;
+    const password = password.value;
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+    const team  = document.getElementById("team").value;
+
+    const uid = await StolarCarp.signUp(email,password,name,phone,"captain");
+    await StolarCarp.registerTeam(team, uid, phone);
+
+    status.textContent = "✅ Заявка прийнята. Очікуйте підтвердження оплати.";
+  }catch(e){
+    status.textContent = "❌ " + e.message;
+  }
+};
+</script>
+
+</body>
+</html>
