@@ -1,54 +1,44 @@
-// tournamentLogic.js 
+// tournamentLogic.js (Логіка подачі заявки)
 
-// Додайте імпорт db та getDoc
 import { auth, db } from './firebase-config.js'; 
 import { registerTeamForTournament } from './tournamentService.js';
-import { doc, getDoc } from 'firebase/firestore'; // Для запиту до Firestore
+import { doc, getDoc } from 'firebase/firestore'; 
 
 const form = document.getElementById('tournamentRegistrationForm');
 const messageDiv = document.getElementById('regMessage');
 const teamNameDisplay = document.getElementById('teamNameDisplay');
 
-// Функція відображення повідомлень
 function displayRegMessage(msg, type) {
     messageDiv.textContent = msg;
     messageDiv.className = `message ${type}`;
     messageDiv.style.display = 'block';
 }
 
-// Функція для перевірки статусу авторизації та завантаження назви команди
 async function loadTeamInfo() {
     const user = auth.currentUser;
     const submitButton = document.getElementById('submitRegistration');
 
     if (user) {
         try {
-            const userId = user.uid;
-            
-            // 1. Отримання даних користувача (для teamId)
-            const userDocRef = doc(db, "users", userId);
+            const userDocRef = doc(db, "users", user.uid);
             const userDoc = await getDoc(userDocRef);
             const userData = userDoc.data();
             
-            const teamId = userData.teamId;
+            const teamId = userData?.teamId;
 
             if (!teamId) {
-                teamNameDisplay.textContent = "❌ Ви не є членом жодної команди. Заявка неможлива.";
+                teamNameDisplay.textContent = "❌ Ви не є членом команди. Заявка неможлива.";
                 submitButton.disabled = true;
                 return;
             }
 
-            // 2. Отримання даних команди (для назви)
-            const teamDocRef = doc(db, "teams", teamId);
-            const teamDoc = await getDoc(teamDocRef);
+            const teamDoc = await getDoc(doc(db, "teams", teamId));
             const teamName = teamDoc.data()?.name || "Назва не знайдена";
 
-            // Відображення назви команди
             teamNameDisplay.innerHTML = `✅ Ваша команда: <b>${teamName}</b>`;
             submitButton.disabled = false;
 
         } catch (error) {
-            console.error("Помилка завантаження інформації про команду:", error);
             teamNameDisplay.textContent = "Помилка завантаження даних команди.";
             submitButton.disabled = true;
         }
@@ -59,7 +49,6 @@ async function loadTeamInfo() {
     }
 }
 
-// Обробка відправки форми
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     displayRegMessage('Обробка заявки...', 'info');
@@ -68,7 +57,6 @@ form.addEventListener('submit', async (e) => {
     const optionFood = document.getElementById('optionFood').checked;
     const optionRules = document.getElementById('optionRules').checked;
     
-    // Перевірка, чи користувач підтвердив регламент
     if (!optionRules) {
         displayRegMessage('Необхідно підтвердити згоду з регламентом!', 'error');
         return;
@@ -83,13 +71,16 @@ form.addEventListener('submit', async (e) => {
         displayRegMessage('✅ Заявку успішно подано! Очікуйте на підтвердження оплати.', 'success');
         document.getElementById('submitRegistration').disabled = true;
         
-        // Тут можна додати логіку перенаправлення на сторінку оплати
-        
     } catch (error) {
-        console.error("Помилка подачі заявки:", error);
         displayRegMessage(`Помилка: ${error.message}`, 'error');
     }
 });
 
-// Запускаємо перевірку при завантаженні сторінки
-loadTeamInfo();
+auth.onAuthStateChanged(user => {
+    if (user) {
+        loadTeamInfo();
+    } else {
+        // Якщо користувач вийшов, оновлюємо інформацію
+        loadTeamInfo();
+    }
+});
