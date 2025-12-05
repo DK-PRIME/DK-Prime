@@ -1,300 +1,74 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>STOLAR CARP — Реєстрація</title>
-
-  <link rel="icon" type="image/png" href="assets/favicon.png">
-  <link rel="stylesheet" href="assets/css/main.css">
-  <script defer src="assets/js/config.js"></script>
-
-  <style>
-    body { background:#020617; }
-    .reg-wrap{max-width:460px;margin:90px auto 40px;padding:0 14px;}
-    .reg-card{
-      background:#0f172a;
-      border:1px solid #334155;
-      border-radius:20px;
-      padding:22px;
-      box-shadow:0 25px 50px rgba(0,0,0,.8);
-    }
-    .reg-title{font-size:1.4rem;margin-bottom:6px}
-    .reg-sub{color:#94a3b8;font-size:.9rem;margin-bottom:18px}
-
-    .field{margin-bottom:10px}
-    .field label{
-      font-size:.8rem;
-      color:#e5e7eb;
-      display:block;
-      margin-bottom:4px;
-    }
-    .field input,
-    .field select{
-      width:100%;
-      padding:9px;
-      border-radius:10px;
-      border:1px solid #475569;
-      background:#020617;
-      color:#fff;
-      font-size:.9rem;
-    }
-    .field small{
-      display:block;
-      font-size:.75rem;
-      color:#64748b;
-      margin-top:2px;
-    }
-
-    .btn-main{
-      width:100%;
-      margin-top:12px;
-      padding:11px;
-      border-radius:999px;
-      background:linear-gradient(135deg,#facc15,#f97316);
-      border:none;
-      font-weight:700;
-      color:#111;
-      cursor:pointer;
-    }
-    .btn-main:disabled{
-      opacity:.5;
-      cursor:default;
-    }
-
-    .status{
-      font-size:.85rem;
-      margin-top:8px;
-      min-height:18px;
-    }
-    .status.error{color:#f87171;}
-    .status.ok{color:#22c55e;}
-
-    .food-row{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:8px;
-      font-size:.85rem;
-      color:#e5e7eb;
-    }
-    .food-row input[type="checkbox"]{
-      width:auto;
-    }
-
-    .hp-field{
-      position:absolute;
-      left:-9999px;
-      opacity:0;
-      pointer-events:none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реєстрація на DK Prime</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        h2 { text-align: center; color: #333; }
+        label { display: block; margin: 10px 0 5px; font-weight: bold; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"] {
+            width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+        }
+        .radio-group { margin-bottom: 20px; }
+        .radio-group label { display: inline-block; margin-right: 20px; font-weight: normal; }
+        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        #message { margin-top: 20px; padding: 10px; border-radius: 4px; text-align: center; display: none; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .hidden { display: none; }
+    </style>
 </head>
-
 <body>
 
-<header class="header">
-  <div class="container header__row">
-    <a class="logo" href="index.html">
-      <span class="logo__mark">SC</span>
-      <span class="logo__text">STOLAR CARP</span>
-    </a>
-    <nav class="nav" id="nav">
-      <a href="index.html" class="nav__link">Головна</a>
-      <a href="rules.html" class="nav__link">Регламент</a>
-      <a href="register.html" class="nav__link nav__link--active">Реєстрація</a>
-      <a href="live.html" class="nav__link">Live</a>
-      <a href="rating.html" class="nav__link">Рейтинг</a>
-    </nav>
-    <button class="burger" id="burger"><span></span><span></span><span></span></button>
-  </div>
-</header>
+    <div class="container">
+        <h2>Реєстрація користувача</h2>
+        
+        <form id="registrationForm">
+            <label for="name">Ім'я та Прізвище:</label>
+            <input type="text" id="name" required>
 
-<main class="reg-wrap">
-  <div class="reg-card">
-    <div class="reg-title">Реєстрація команди</div>
-    <div class="reg-sub">
-      Заявка на участь у турнірах STOLAR CARP.  
-      Усі поля обовʼязкові.
+            <label for="email">Email (для входу):</label>
+            <input type="email" id="email" required>
+
+            <label for="phone">Телефон (формат 380XXYYYYYYY):</label>
+            <input type="tel" id="phone" pattern="380[0-9]{9}" required>
+
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" required minlength="6">
+
+            <hr>
+
+            <label>Ваша роль:</label>
+            <div class="radio-group">
+                <input type="radio" id="role_captain" name="role" value="captain" required>
+                <label for="role_captain">Капітан</label>
+                
+                <input type="radio" id="role_participant" name="role" value="participant" required>
+                <label for="role_participant">Учасник</label>
+            </div>
+
+            <div id="captainSection" class="hidden">
+                <label for="teamName">Назва Нової Команди:</label>
+                <input type="text" id="teamName">
+            </div>
+
+            <div id="participantSection" class="hidden">
+                <label for="teamCode">Код Існуючої Команди:</label>
+                <input type="text" id="teamCode">
+            </div>
+
+            <button type="submit">Зареєструватися та Продовжити</button>
+        </form>
+
+        <div id="message"></div>
     </div>
 
-    <form id="regForm">
-      <!-- Етап -->
-      <div class="field">
-        <label for="eventSelect">Етап</label>
-        <select id="eventSelect" name="event" required>
-          <option value="">Завантаження списку етапів...</option>
-        </select>
-        <small id="eventHelp"></small>
-      </div>
-
-      <!-- Назва команди -->
-      <div class="field">
-        <label for="teamName">Назва команди</label>
-        <input id="teamName" name="team_name" type="text" required>
-      </div>
-
-      <!-- Капітан (ПІБ) -->
-      <div class="field">
-        <label for="captain">Капітан (ПІБ)</label>
-        <input id="captain" name="captain" type="text" required>
-      </div>
-
-      <!-- Телефон -->
-      <div class="field">
-        <label for="phone">Телефон капітана</label>
-        <input id="phone" name="phone" type="tel" placeholder="+380XXXXXXXXX" required>
-      </div>
-
-      <!-- Харчування -->
-      <div class="food-row">
-        <label style="display:flex;align-items:center;gap:8px;">
-          <input id="food" name="food" type="checkbox">
-          <span>Потрібне харчування від організатора</span>
-        </label>
-      </div>
-
-      <div class="field">
-        <label for="food_qty">Кількість учасників з харчуванням</label>
-        <input id="food_qty" name="food_qty" type="number" min="0" max="4" value="0">
-        <small>Якщо харчування не потрібно — залиш 0.</small>
-      </div>
-
-      <!-- honeypot -->
-      <div class="hp-field">
-        <label>Не заповнюй це поле (боти ловляться тут)</label>
-        <input type="text" name="hp">
-      </div>
-
-      <button class="btn-main" id="btnSubmit" type="submit">Подати заявку</button>
-
-      <div class="status" id="formStatus"></div>
-    </form>
-  </div>
-</main>
-
-<script>
-  // ⚠️ Заміни, якщо в тебе інший URL функции
-  const API_URL = "https://us-central1-stolar-carp.cloudfunctions.net/stolarcarpApi";
-
-  const eventSelect = document.getElementById("eventSelect");
-  const eventHelp = document.getElementById("eventHelp");
-  const form = document.getElementById("regForm");
-  const btnSubmit = document.getElementById("btnSubmit");
-  const formStatus = document.getElementById("formStatus");
-
-  function setStatus(msg, type) {
-    formStatus.textContent = msg || "";
-    formStatus.className = "status" + (type ? " " + type : "");
-  }
-
-  function makeFingerprint() {
-    try {
-      return [
-        navigator.userAgent || "",
-        (screen.width + "x" + screen.height),
-        (Intl.DateTimeFormat().resolvedOptions().timeZone || "")
-      ].join("|");
-    } catch (e) {
-      return "no-fp";
-    }
-  }
-
-  async function loadStages() {
-    try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-
-      eventSelect.innerHTML = "";
-
-      if (!Array.isArray(data) || !data.length) {
-        eventSelect.innerHTML = '<option value="">Немає відкритих етапів</option>';
-        eventSelect.disabled = true;
-        eventHelp.textContent = "Список етапів порожній або ще не створений у Firestore (колекція 'stages').";
-        return;
-      }
-
-      eventSelect.disabled = false;
-      eventHelp.textContent = "";
-
-      eventSelect.insertAdjacentHTML(
-        "beforeend",
-        '<option value="">Обери етап...</option>'
-      );
-
-      data.forEach((name) => {
-        const opt = document.createElement("option");
-        opt.value = name;
-        opt.textContent = name;
-        eventSelect.appendChild(opt);
-      });
-    } catch (err) {
-      console.error(err);
-      eventSelect.innerHTML = '<option value="">Помилка завантаження етапів</option>';
-      eventSelect.disabled = true;
-      eventHelp.textContent = "Перевір, чи працює Cloud Function stolarcarpApi (GET без action).";
-    }
-  }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    setStatus("", "");
-
-    const eventValue = eventSelect.value.trim();
-    const teamName = document.getElementById("teamName").value.trim();
-    const captain = document.getElementById("captain").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const foodChecked = document.getElementById("food").checked;
-    const foodQty = document.getElementById("food_qty").value;
-
-    if (!eventValue) {
-      setStatus("Оберіть етап.", "error");
-      return;
-    }
-    if (!teamName || !captain || !phone) {
-      setStatus("Заповніть назву команди, ПІБ капітана та телефон.", "error");
-      return;
-    }
-
-    btnSubmit.disabled = true;
-
-    const params = new URLSearchParams();
-    params.append("event", eventValue);
-    params.append("team_name", teamName);
-    params.append("captain", captain);
-    params.append("phone", phone);
-    params.append("food", foodChecked ? "Так" : "Ні");
-    params.append("food_qty", foodQty || "0");
-    params.append("fp", makeFingerprint());
-    // hp залишаємо порожнім (honeypot)
-
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: params.toString()
-      });
-
-      const data = await res.json();
-      if (data.ok) {
-        setStatus(data.msg || "✅ Заявку успішно подано!", "ok");
-        form.reset();
-        // заново заповнюємо етапи (на випадок, якщо щось змінилося)
-        loadStages();
-      } else {
-        setStatus(data.msg || "❌ Помилка подачі заявки.", "error");
-      }
-    } catch (err) {
-      console.error(err);
-      setStatus("❌ Помилка мережі або сервера. Перевір підключення та Cloud Function.", "error");
-    } finally {
-      btnSubmit.disabled = false;
-    }
-  });
-
-  // старт
-  loadStages();
-</script>
-
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./registration.js"></script> 
+    
 </body>
 </html>
