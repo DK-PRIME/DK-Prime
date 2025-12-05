@@ -10,6 +10,7 @@ const authMessage = document.getElementById('authMessage');
 const userStatus = document.getElementById('userStatus');
 const logoutButton = document.getElementById('logoutButton');
 const judgeBadge = document.getElementById('judgeBadge');
+const registerLink = document.querySelector('.register-link'); // Новий елемент
 
 // --- 1. ЛОГІКА ВХОДУ ---
 
@@ -51,6 +52,7 @@ auth.onAuthStateChanged(async (user) => {
     if (user) {
         // Користувач увійшов
         loginForm.classList.add('hidden');
+        registerLink.classList.add('hidden'); // Ховаємо посилання на реєстрацію
         logoutButton.classList.remove('hidden');
         authMessage.textContent = '';
         
@@ -62,11 +64,11 @@ auth.onAuthStateChanged(async (user) => {
             userStatus.textContent = `Увійшов як: ${role} (${user.email})`;
             userStatus.classList.remove('hidden');
 
-            // Перевірка ролей
+            // Перевірка ролей: доступ надається лише адміністраторам та суддям
             if (role === 'admin' || role === 'judge') {
                 adminLinks.classList.remove('hidden');
                 
-                // Якщо користувач є суддею і має призначену зону, відображаємо її
+                // Відображення призначеної зони для судді
                 if (role === 'judge' && judgeZone) {
                     judgeBadge.textContent = `Zone: ${judgeZone} → results`;
                 } else {
@@ -74,9 +76,9 @@ auth.onAuthStateChanged(async (user) => {
                 }
                 
             } else {
-                // Якщо роль не є admin чи judge, показуємо, але обмежуємо
+                // Інші ролі (participant/captain)
                 adminLinks.classList.add('hidden');
-                authMessage.textContent = `Ваша роль (${role}) не має доступу до адмін-панелі.`;
+                authMessage.textContent = `Ваша роль (${role}) не має доступу до цієї панелі.`;
                 authMessage.style.color = 'var(--error)';
             }
             
@@ -89,6 +91,7 @@ auth.onAuthStateChanged(async (user) => {
     } else {
         // Користувач вийшов
         loginForm.classList.remove('hidden');
+        registerLink.classList.remove('hidden'); // Показуємо посилання на реєстрацію
         logoutButton.classList.add('hidden');
         adminLinks.classList.add('hidden');
         userStatus.classList.add('hidden');
