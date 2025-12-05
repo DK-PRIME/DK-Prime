@@ -38,6 +38,7 @@ exports.stolarcarpApi = functions.https.onRequest((req, res) => {
         return res.status(204).send("");
       }
 
+      // ---------- GET ----------
       if (req.method === "GET") {
         const action = req.query.action || "";
         if (action === "live") {
@@ -49,15 +50,30 @@ exports.stolarcarpApi = functions.https.onRequest((req, res) => {
         }
       }
 
+      // ---------- POST ----------
       if (req.method === "POST") {
-        const result = await handleRegister(req);
-        return res.json(result);
+        // Витягуємо action або з query (?action=...), або з body (JSON / form)
+        const action =
+          (req.query.action && String(req.query.action)) ||
+          (req.body && req.body.action ? String(req.body.action) : "");
+
+        if (action === "saveResults") {
+          // Запис результатів від суддів
+          const result = await handleSaveResults(req);
+          return res.json(result);
+        } else {
+          // Стандартна реєстрація з форми
+          const result = await handleRegister(req);
+          return res.json(result);
+        }
       }
 
       return res.status(405).json({ ok: false, msg: "Method not allowed" });
     } catch (err) {
       console.error("API error:", err);
-      return res.status(500).json({ ok: false, msg: String(err.message || err) });
+      return res
+        .status(500)
+        .json({ ok: false, msg: String(err.message || err) });
     }
   });
 });
@@ -76,7 +92,7 @@ async function handleGetStages() {
 }
 
 // ==============================
-// POST -> реєстрація (аналог doPost)
+// POST (без action або сторонній action) -> реєстрація
 // ==============================
 async function handleRegister(req) {
   let data = req.body || {};
@@ -115,6 +131,81 @@ async function handleRegister(req) {
   await db.collection("registrations").add(regDoc);
 
   return { ok: true, msg: "✅ Заявку успішно подано!" };
+}
+
+// ==============================
+// POST?action=saveResults -> збереження результатів суддів
+// ==============================
+async function handleSaveResults(req) {
+  let data = req.body || {};
+
+  // Якщо прийшло як рядок (наприклад, form-urlencoded) — розпарсимо
+  if (typeof data === "string") {
+    const qs = require("querystring");
+    data = qs.parse(data);
+  }
+
+  const stage = (data.stage || "").trim();
+  const zone = (data.zone || "").trim().toUpperCase();
+  const rows = Array.isArray(data.rows) ? data.rows : [];
+
+  if (!stage || !zone) {
+    throw new Error("Не вказано етап або зону.");
+  }
+  if (!rows.length) {
+    throw new Error("Немає рядків для збереження.");
+  }
+
+  const batch = db.batch();
+
+  rows.forEach((row) => {
+    const sector = (row.sector || "").trim();
+    const team = (row.team || "").trim();
+
+    // Пропускаємо повністю порожні
+    if (!sector && !team) return;
+
+    const sumCountRaw = row.sumCount || 0;
+    const sumWeightRaw = row.sumWeight || 0;
+    const bigRaw = row.big || 0;
+    const placeRaw = row.place || 0;
+
+    const sumCount = Number(sumCountRaw || 0);
+    const sumWeight =
+      typeof sumWeightRaw === "string"
+        ? Number(sumWeightRaw.replace(",", ".") || 0)
+        : Number(sumWeightRaw || 0);
+    const big =
+      typeof bigRaw === "string"
+        ? Number(bigRaw.replace(",", ".") || 0)
+        : Number(bigRaw || 0);
+    const place = Number(placeRaw || 0);
+
+    // детермінований id: Етап__Сектор
+    const safeStage = stage.replace(/\s+/g, "_");
+    const safeSector = sector.replace(/\s+/g, "_");
+    const docId = `${safeStage}__${safeSector}`;
+
+    const ref = db.collection("results").doc(docId);
+
+    const payload = {
+      stage,
+      zone,
+      sector,
+      team,
+      sumCount,
+      sumWeight,
+      big,
+      place,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    batch.set(ref, payload, { merge: true });
+  });
+
+  await batch.commit();
+
+  return { ok: true, msg: "✅ Результати збережено (results/saveResults)." };
 }
 
 // ==============================
