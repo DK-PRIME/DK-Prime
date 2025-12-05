@@ -33,7 +33,7 @@
       padding:22px 20px 24px;
       box-shadow:0 24px 60px rgba(0,0,0,.8);
       border:1px solid rgba(148,163,184,.4);
-      margin-bottom: 16px; /* Додав відступ, якщо є кілька карток */
+      margin-bottom: 16px;
     }
     h1{
       font-size:1.5rem;
@@ -74,7 +74,7 @@
       background:linear-gradient(135deg,var(--accent),var(--accent2));
       color:#111;
       font-weight:600;
-      white-space: nowrap; /* Щоб не переносився */
+      white-space: nowrap;
     }
     .footer{
       margin-top:16px;
@@ -82,7 +82,7 @@
       color:var(--muted);
       text-align:center;
     }
-    /* Стилі для форми входу */
+    /* Стилі для форми входу та реєстрації */
     .auth-form input {
         width: 100%;
         padding: 10px;
@@ -124,6 +124,24 @@
         background-color: var(--error) !important;
         margin-top: 10px;
     }
+    .register-link {
+        display: block;
+        text-align: center;
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px; 
+        border: 1px solid var(--muted);
+        border-radius: 6px;
+        background-color: transparent; 
+        color: var(--text);
+        text-decoration: none;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+    .register-link:hover {
+        border-color: var(--accent); 
+    }
   </style>
 </head>
 <body>
@@ -141,9 +159,11 @@
         <form id="loginForm" class="auth-form">
             <input type="email" id="emailInput" placeholder="Email" required>
             <input type="password" id="passwordInput" placeholder="Пароль" required>
-            <button type="submit">Увійти</button>
+            <button type="submit">Увійти</sbutton>
             <div id="authMessage"></div>
         </form>
+        
+        <a href="./реєстр.html" class="auth-form register-link">Створити обліковий запис / Реєстрація</a>
         
         <button id="logoutButton" class="auth-form logout-btn hidden">Вийти</button>
       </div>
@@ -182,5 +202,7 @@
   </div>
   
   <script type="module" src="./firebase-config.js"></script>
-  <script type="module" src="./tournamentService.js"></script> <script type="module" src="./index_logic.js"></script> </body>
+  <script type="module" src="./tournamentService.js"></script>
+  <script type="module" src="./index_logic.js"></script> 
+</body>
 </html>
