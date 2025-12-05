@@ -1,13 +1,13 @@
 <div class="registration-block">
-    <h3>Заявка на Етап №1 (Квітень 2026)</h3>
+    <h3>Подача Заявки на Турнірний Етап</h3>
+    <input type="hidden" id="currentTournamentId" value="etap_1_2026"> 
+
     <p id="teamNameDisplay">Команда: Завантаження...</p>
     <form id="tournamentRegistrationForm">
         
-        <input type="hidden" id="currentTournamentId" value="etap_1_2026">
-        
         <label>
             <input type="checkbox" id="optionFood">
-            Замовити комплексне харчування (додаткова оплата).
+            Замовити комплексне харчування (опціонально).
         </label>
 
         <label>
@@ -15,7 +15,13 @@
             Підтверджую згоду з регламентом турніру.
         </label>
         
-        <button type="submit" id="submitRegistration">Подати Заявку та Перейти до Оплати</button>
+        <button type="submit" id="submitRegistration">Подати Заявку</button>
     </form>
-    <div id="regMessage" class="hidden"></div>
+    <div id="regMessage"></div>
 </div>
+
+<script type="module" src="./firebase-config.js"></script>
+<script type="module" src="./tournamentService.js"></script>
+<script type="module" src="./tournamentLogic.js"></script> 
+</body>
+</html>
