@@ -13,6 +13,7 @@
       --accent2:#f97316;
       --text:#e5e7eb;
       --muted:#94a3b8;
+      --error: #ef4444;
     }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{
@@ -32,6 +33,7 @@
       padding:22px 20px 24px;
       box-shadow:0 24px 60px rgba(0,0,0,.8);
       border:1px solid rgba(148,163,184,.4);
+      margin-bottom: 16px; /* Додав відступ, якщо є кілька карток */
     }
     h1{
       font-size:1.5rem;
@@ -47,6 +49,7 @@
       display:flex;
       flex-direction:column;
       gap:10px;
+      padding: 0;
     }
     a.tile{
       display:flex;
@@ -60,6 +63,10 @@
       border:1px solid rgba(148,163,184,.4);
       font-size:.95rem;
     }
+    a.tile:hover {
+        background: rgba(15, 23, 42, 1);
+        border-color: var(--accent);
+    }
     a.tile span.badge{
       font-size:.75rem;
       padding:3px 8px;
@@ -67,12 +74,55 @@
       background:linear-gradient(135deg,var(--accent),var(--accent2));
       color:#111;
       font-weight:600;
+      white-space: nowrap; /* Щоб не переносився */
     }
     .footer{
       margin-top:16px;
       font-size:.8rem;
       color:var(--muted);
       text-align:center;
+    }
+    /* Стилі для форми входу */
+    .auth-form input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 6px;
+        border: 1px solid var(--muted);
+        background: #1e293b;
+        color: var(--text);
+    }
+    .auth-form button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        background-color: #3b82f6; /* Blue for login */
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .auth-form button:hover {
+        background-color: #2563eb;
+    }
+    #authMessage {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 0.9rem;
+        color: var(--error);
+    }
+    #userStatus {
+        text-align: center;
+        margin-bottom: 10px;
+        color: var(--accent);
+    }
+    .hidden {
+        display: none !important;
+    }
+    .logout-btn {
+        background-color: var(--error) !important;
+        margin-top: 10px;
     }
   </style>
 </head>
@@ -84,8 +134,21 @@
         Цей сайт <strong>dk-prime.netlify.app</strong> використовується як технічна
         адмін-панель: реєстрації, судді, LIVE та рейтинг сезону.
       </div>
+      
+      <div id="authSection">
+        <p id="userStatus" class="hidden"></p>
+        
+        <form id="loginForm" class="auth-form">
+            <input type="email" id="emailInput" placeholder="Email" required>
+            <input type="password" id="passwordInput" placeholder="Пароль" required>
+            <button type="submit">Увійти</button>
+            <div id="authMessage"></div>
+        </form>
+        
+        <button id="logoutButton" class="auth-form logout-btn hidden">Вийти</button>
+      </div>
 
-      <ul>
+      <ul id="adminLinks" class="hidden">
         <li>
           <a class="tile" href="реєстр.html">
             <span>Реєстрація команд</span>
@@ -95,7 +158,7 @@
         <li>
           <a class="tile" href="судді.html">
             <span>Кабінет судді (результати по зонах)</span>
-            <span class="badge">private → results</span>
+            <span class="badge" id="judgeBadge">private → results</span>
           </a>
         </li>
         <li>
@@ -117,5 +180,7 @@
       DK Prime · STOLAR CARP · Admin panel
     </div>
   </div>
-</body>
+  
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./tournamentService.js"></script> <script type="module" src="./index_logic.js"></script> </body>
 </html>
