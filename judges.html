@@ -1,360 +1,118 @@
 <!doctype html>
 <html lang="uk">
 <head>
-  <meta charset="utf-8" />
-  <title>STOLAR CARP — Кабінет судді</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STOLAR CARP — Панель судді</title>
+
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script defer src="assets/js/config.js"></script>
 
   <style>
-    :root{
-      --bg:#020617;
-      --card:#0f172a;
-      --accent:#facc15;
-      --accent2:#f97316;
-      --text:#e5e7eb;
-      --muted:#94a3b8;
-      --border:#334155;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{
-      min-height:100vh;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-      background:radial-gradient(circle at top,#111827 0,#020617 60%);
-      color:var(--text);
-      padding:16px;
-    }
-    .wrap{max-width:960px;margin:0 auto;}
-    header{
-      margin-bottom:16px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-    }
-    header .title{font-size:1.3rem;font-weight:600;}
-    header nav a{
-      color:var(--muted);
-      text-decoration:none;
-      margin-left:10px;
-      font-size:.9rem;
-    }
-    header nav a:hover{color:var(--accent);}
-    .card{
-      background:var(--card);
-      border-radius:18px;
-      border:1px solid var(--border);
-      padding:16px 14px 18px;
-      box-shadow:0 22px 50px rgba(0,0,0,.8);
-    }
-    .row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
-    label.small{
-      font-size:.8rem;
-      color:var(--muted);
-      display:block;
-      margin-bottom:4px;
-    }
-    select,input{
-      background:#020617;
-      border:1px solid #475569;
-      color:var(--text);
-      border-radius:8px;
-      padding:6px 8px;
-      font-size:.9rem;
-      min-width:0;
-    }
-    select:focus,input:focus{outline:none;border-color:var(--accent);}
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:10px;
-      font-size:.85rem;
-    }
-    th,td{
-      border:1px solid rgba(148,163,184,.4);
-      padding:5px;
-      text-align:center;
-    }
-    th{background:#020617;font-weight:500;}
-    td input{
-      width:100%;
-      padding:4px 5px;
-      font-size:.8rem;
-    }
-    .btn{
-      display:inline-block;
-      margin-top:10px;
-      padding:8px 14px;
-      border-radius:999px;
-      border:none;
-      cursor:pointer;
-      font-size:.9rem;
-      font-weight:600;
-    }
-    .btn-primary{
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      color:#111;
-    }
-    .btn-outline{
-      background:transparent;
-      color:var(--text);
-      border:1px solid rgba(148,163,184,.7);
-      margin-right:8px;
-    }
-    .status{
-      margin-top:8px;
-      font-size:.85rem;
-      color:var(--muted);
-      min-height:18px;
-    }
-    .status.err{color:#f97373;}
-    .status.ok{color:#4ade80;}
-    @media (max-width:640px){
-      header{flex-direction:column;align-items:flex-start;}
-    }
+    body{background:#020617;color:#e5e7eb;}
+    .wrap{max-width:640px;margin:80px auto 40px;padding:0 12px;}
+    .card{background:#020617;border:1px solid #334155;border-radius:18px;
+      padding:18px 16px;box-shadow:0 20px 40px rgba(0,0,0,.8);}
+    h1{font-size:1.4rem;margin:0 0 6px;}
+    .sub{font-size:.9rem;color:#94a3b8;margin-bottom:16px;}
+    .row{margin-bottom:10px;}
+    label{display:block;font-size:.8rem;margin-bottom:4px;}
+    select,input{width:100%;padding:8px;border-radius:8px;border:1px solid #475569;
+      background:#020617;color:#e5e7eb;font-size:.9rem;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .btn{margin-top:12px;width:100%;padding:10px;border-radius:999px;border:none;
+      background:linear-gradient(135deg,#facc15,#f97316);font-weight:700;color:#111;
+      cursor:pointer;}
+    .status{margin-top:8px;font-size:.85rem;min-height:18px;}
+    .status.error{color:#fca5a5;}
+    .status.ok{color:#6ee7b7;}
+
+    table{margin-top:18px;width:100%;border-collapse:collapse;font-size:.85rem;}
+    th,td{border:1px solid #1f2937;padding:4px 6px;text-align:center;}
+    th{background:#111827;}
+    caption{margin-bottom:4px;font-size:.9rem;color:#e5e7eb;}
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
-      <div class="title">Кабінет судді · STOLAR CARP</div>
-      <nav>
-        <a href="index.html">Адмін-головна</a>
-        <a href="реєстр.html">Реєстр</a>
-        <a href="live.html">Live</a>
-        <a href="рейтинг.html">Рейтинг</a>
-      </nav>
-    </header>
-
-    <div class="card">
-      <!-- Вибір етапу і зони -->
-      <div class="row">
-        <div style="flex:1 1 180px;">
-          <label class="small" for="stageSelect">Етап</label>
-          <select id="stageSelect">
-            <option value="">Завантаження…</option>
-          </select>
-        </div>
-        <div style="flex:0 0 120px;">
-          <label class="small" for="zoneSelect">Зона</label>
-          <select id="zoneSelect">
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Таблиця секторів -->
-      <table>
-        <thead>
-          <tr>
-            <th>Сектор (1/A…)</th>
-            <th>Команда</th>
-            <th>К-сть риб</th>
-            <th>Заг. вага</th>
-            <th>BigFish</th>
-            <th>Місце</th>
-            <th>×</th>
-          </tr>
-        </thead>
-        <tbody id="rowsBody">
-        </tbody>
-      </table>
-
-      <button class="btn btn-outline" id="btnAddRow">+ Додати рядок</button>
-      <button class="btn btn-primary" id="btnSave">Зберегти результати</button>
-
-      <div class="status" id="statusLine"></div>
-    </div>
+<header class="header">
+  <div class="container header__row">
+    <a class="logo" href="index.html">
+      <span class="logo__mark">SC</span>
+      <span class="logo__text">STOLAR CARP</span>
+    </a>
+    <nav class="nav" id="nav">
+      <a href="index.html" class="nav__link">Головна</a>
+      <a href="register.html" class="nav__link">Реєстрація</a>
+      <a href="live.html" class="nav__link">Live</a>
+      <a href="rating.html" class="nav__link">Рейтинг</a>
+      <a href="judges.html" class="nav__link nav__link--active">Судді</a>
+    </nav>
   </div>
+</header>
 
-  <script type="module">
-    // === Firebase (КЛІЄНТСЬКИЙ SDK) ======================
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      query,
-      orderBy,
-      getDocs,
-      doc,
-      setDoc
-    } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+<main class="wrap">
+  <div class="card">
+    <h1>Панель судді</h1>
+    <div class="sub">
+      Вносимо зважування по командах. Дані одразу летять у Firestore (колекція
+      <code>results</code>) і використовуються для LIVE на основному сайті.
+    </div>
 
-    // ⚠️ ВСТАВ ТОЙ САМИЙ КОНФІГ, ЩО ВЖЕ Є У firebase-config.js
-    const firebaseConfig = {
-      apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
-      authDomain: "stolar-carp.firebaseapp.com",
-      projectId: "stolar-carp",
-      storageBucket: "stolar-carp.firebasestorage.app",
-      messagingSenderId: "1019636788370",
-      appId: "1:1019636788370:web:af1c1ecadb683df212ca4b",
-      measurementId: "G-VWC07QNS7P"
-    };
+    <div class="row">
+      <label for="stageSelect">Етап</label>
+      <select id="stageSelect">
+        <option value="">Завантаження етапів…</option>
+      </select>
+    </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    <div class="grid">
+      <div class="row">
+        <label for="zoneSelect">Зона</label>
+        <select id="zoneSelect">
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="sectorInput">Сектор (1–8)</label>
+        <input id="sectorInput" type="number" min="1" max="8" placeholder="1">
+      </div>
+    </div>
 
-    // === DOM елементи ======================
-    const stageSelect = document.getElementById("stageSelect");
-    const zoneSelect = document.getElementById("zoneSelect");
-    const rowsBody = document.getElementById("rowsBody");
-    const btnAddRow = document.getElementById("btnAddRow");
-    const btnSave = document.getElementById("btnSave");
-    const statusLine = document.getElementById("statusLine");
+    <div class="row">
+      <label for="teamInput">Назва команди (згідно жеребкування)</label>
+      <input id="teamInput" type="text" placeholder="Напр., DK Два Кума">
+    </div>
 
-    function setStatus(msg, type="") {
-      statusLine.textContent = msg;
-      statusLine.className = "status";
-      if (type === "err") statusLine.classList.add("err");
-      if (type === "ok") statusLine.classList.add("ok");
-    }
+    <div class="row">
+      <label for="weightInput">Вага риби (кг, формат 3.45)</label>
+      <input id="weightInput" type="text" placeholder="Напр., 4.32">
+    </div>
 
-    // Додаємо рядок у таблицю
-    function addRow(data = {}) {
-      const tr = document.createElement("tr");
+    <button class="btn" id="btnAdd">Додати зважування</button>
+    <div class="status" id="judgeStatus"></div>
 
-      tr.innerHTML = `
-        <td><input data-field="sector" placeholder="1/A" value="${data.sector || ""}"></td>
-        <td><input data-field="team" placeholder="Назва команди" value="${data.team || ""}"></td>
-        <td><input data-field="sumCount" type="number" min="0" step="1" value="${data.sumCount ?? ""}"></td>
-        <td><input data-field="sumWeight" type="number" min="0" step="0.01" value="${data.sumWeight ?? ""}"></td>
-        <td><input data-field="big" type="number" min="0" step="0.01" value="${data.big ?? ""}"></td>
-        <td><input data-field="place" type="number" min="0" step="1" value="${data.place ?? ""}"></td>
-        <td><button type="button" data-action="remove">×</button></td>
-      `;
+    <table id="lastTable">
+      <caption>Останні результати по вибраній зоні</caption>
+      <thead>
+      <tr>
+        <th>Сектор</th>
+        <th>Команда</th>
+        <th>К-сть</th>
+        <th>Вага, кг</th>
+        <th>BigFish</th>
+      </tr>
+      </thead>
+      <tbody id="lastBody">
+      <tr><td colspan="5">Поки що немає даних</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
 
-      tr.querySelector('[data-action="remove"]').addEventListener("click", () => {
-        rowsBody.removeChild(tr);
-      });
-
-      rowsBody.appendChild(tr);
-    }
-
-    // Початково згенеруємо 8 рядків (1–8 секторів з вибраної зони)
-    function addDefaultRowsForZone() {
-      rowsBody.innerHTML = "";
-      const zone = zoneSelect.value || "A";
-      for (let i = 1; i <= 8; i++) {
-        addRow({ sector: `${i}/${zone}` });
-      }
-    }
-
-    // Завантаження етапів з Firestore (колекція "stages")
-    async function loadStages() {
-      try {
-        setStatus("Завантаження етапів…");
-        const q = query(collection(db, "stages"), orderBy("order", "asc"));
-        const snap = await getDocs(q);
-
-        stageSelect.innerHTML = "";
-        if (snap.empty) {
-          const opt = document.createElement("option");
-          opt.value = "";
-          opt.textContent = "Немає етапів (створи в Firestore)";
-          stageSelect.appendChild(opt);
-          setStatus("У колекції stages поки що немає документів.", "err");
-          return;
-        }
-
-        snap.forEach((docSnap, idx) => {
-          const d = docSnap.data();
-          if (!d.name) return;
-          const opt = document.createElement("option");
-          opt.value = String(d.name);
-          opt.textContent = d.name;
-          // перший елемент як поточний
-          if (idx === 0) opt.selected = true;
-          stageSelect.appendChild(opt);
-        });
-
-        setStatus("Етапи завантажено. Можна вносити результати.");
-      } catch (err) {
-        console.error(err);
-        setStatus("Помилка завантаження етапів: " + err.message, "err");
-      }
-    }
-
-    // Збереження всіх рядків у колекцію "results"
-    async function saveResults() {
-      const stage = stageSelect.value.trim();
-      const zone = zoneSelect.value.trim().toUpperCase();
-
-      if (!stage) {
-        setStatus("Вибери етап перед збереженням.", "err");
-        return;
-      }
-
-      if (!zone) {
-        setStatus("Вибери зону.", "err");
-        return;
-      }
-
-      const rows = Array.from(rowsBody.querySelectorAll("tr"));
-      if (!rows.length) {
-        setStatus("Немає рядків для збереження.", "err");
-        return;
-      }
-
-      setStatus("Зберігаю результати…");
-      btnSave.disabled = true;
-
-      try {
-        for (const tr of rows) {
-          const sector = tr.querySelector('[data-field="sector"]').value.trim();
-          const team = tr.querySelector('[data-field="team"]').value.trim();
-          const sumCountRaw = tr.querySelector('[data-field="sumCount"]').value.trim();
-          const sumWeightRaw = tr.querySelector('[data-field="sumWeight"]').value.trim();
-          const bigRaw = tr.querySelector('[data-field="big"]').value.trim();
-          const placeRaw = tr.querySelector('[data-field="place"]').value.trim();
-
-          // пропускаємо пусті
-          if (!sector && !team) continue;
-
-          const sumCount = sumCountRaw ? Number(sumCountRaw) : 0;
-          const sumWeight = sumWeightRaw ? Number(sumWeightRaw.replace(",", ".")) : 0;
-          const big = bigRaw ? Number(bigRaw.replace(",", ".")) : 0;
-          const place = placeRaw ? Number(placeRaw) : 0;
-
-          // детермінований id: Етап__Сектор
-          const safeStage = stage.replace(/\s+/g, "_");
-          const safeSector = sector.replace(/\s+/g, "_");
-          const docId = `${safeStage}__${safeSector}`;
-
-          await setDoc(
-            doc(db, "results", docId),
-            {
-              stage,
-              sector,
-              zone,
-              team,
-              sumCount,
-              sumWeight,
-              big,
-              place
-            },
-            { merge: true }
-          );
-        }
-
-        setStatus("✅ Результати збережено в Firestore (колекція results).", "ok");
-      } catch (err) {
-        console.error(err);
-        setStatus("❌ Помилка збереження: " + err.message, "err");
-      } finally {
-        btnSave.disabled = false;
-      }
-    }
-
-    // Обробники подій
-    btnAddRow.addEventListener("click", () => addRow());
-    btnSave.addEventListener("click", saveResults);
-    zoneSelect.addEventListener("change", addDefaultRowsForZone);
-
-    // Старт
-    loadStages().then(() => {
-      addDefaultRowsForZone();
-    });
-  </script>
+<script type="module" src="assets/js/judges.js"></script>
 </body>
 </html>
