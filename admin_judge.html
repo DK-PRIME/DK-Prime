@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін / Суддя Панель DK Prime</title>
+    <style>
+        /* Стилі для панелі */
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f8f8f8; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h2 { text-align: center; }
+        section { background: white; border: 1px solid #ddd; padding: 20px; margin-top: 20px; border-radius: 6px; }
+        /* Стилі для таблиці та карток суддівства */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .status-paid { color: green; font-weight: bold; }
+        .status-pending { color: orange; }
+        button.confirm-btn { background-color: #4CAF50; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
+        .team-card { border: 1px solid #3498db; margin-bottom: 10px; padding: 10px; border-radius: 4px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Адмін / Суддя Панель</h2>
+        <input type="hidden" id="adminTournamentId" value="etap_1_2026">
+        <p id="userRoleStatus">Статус: Завантаження даних користувача...</p>
+        <div id="adminMessage"></div>
+
+        <section id="adminSection" class="hidden">
+            <h3>1. Управління Заявками та Жеребкування</h3>
+
+            <div style="margin-bottom: 20px;">
+                <h4>Жеребкування (Крок 5)</h4>
+                <p>Доступні сектори (A-1, B-2,...):</p>
+                <input type="text" id="availableSectorsInput" value="A-1, A-2, B-1, B-2, C-1, C-2" style="width: 70%;">
+                <button id="runDrawButton" style="background-color: #f39c12;">Провести Жеребкування</button>
+            </div>
+            
+            <h4>Підтвердження Оплати (Крок 4)</h4>
+            <table id="registrationsTable">
+                <thead>
+                    <tr><th>ID</th><th>Команда</th><th>Зона/Сектор</th><th>Статус</th><th>Дія</th></tr>
+                </thead>
+                <tbody id="registrationsList"></tbody>
+            </table>
+        </section>
+
+        <section id="judgeSection" class="hidden">
+            <h3 id="judgeHeader">2. Суддівство (Зона: N/A)</h3>
+            <div id="teamsContainer"></div>
+        </section>
+    </div>
+
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./tournamentService.js"></script>
+    <script type="module" src="./admin_judge_logic.js"></script>
+</body>
+</html>
