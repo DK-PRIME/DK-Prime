@@ -46,7 +46,9 @@
                 <input type="radio" id="role_participant" name="role" value="participant" required>
                 <label for="role_participant">Учасник</label>
                 <input type="radio" id="role_judge" name="role" value="judge" required> 
-                <label for="role_judge">Суддя</label> 
+                <label for="role_judge">Суддя</label>
+                <input type="radio" id="role_admin" name="role" value="admin" required> 
+                <label for="role_admin">Адмін</label> 
             </div>
 
             <div id="captainSection" class="hidden">
@@ -66,6 +68,7 @@
     </div>
 
     <script type="module" src="./firebase-config.js"></script>
-    <script type="module" src="./tournamentService.js"></script> <script type="module" src="./registration.js"></script> 
+    <script type="module" src="./tournamentService.js"></script> 
+    <script type="module" src="./registration.js"></script> 
 </body>
 </html>
