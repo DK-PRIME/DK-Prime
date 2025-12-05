@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STOLAR CARP — Кабінет судді</title>
+
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <script defer src="assets/js/config.js"></script>
+
+  <style>
+    body { background:#020617; }
+
+    .page-wrap{
+      max-width:960px;
+      margin:90px auto 40px;
+      padding:0 16px 40px;
+    }
+
+    .card{
+      background:#0f172a;
+      border-radius:20px;
+      border:1px solid #334155;
+      padding:20px 18px 22px;
+      box-shadow:0 25px 50px rgba(0,0,0,.8);
+    }
+
+    .card-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .card-title{
+      font-size:1.2rem;
+      font-weight:600;
+    }
+
+    .muted{
+      font-size:.85rem;
+      color:#94a3b8;
+    }
+
+    .login-block{
+      max-width:420px;
+      margin:40px auto 0;
+    }
+
+    .field{margin-bottom:10px;}
+    .field label{
+      display:block;
+      font-size:.8rem;
+      color:#e5e7eb;
+      margin-bottom:4px;
+    }
+    .field input,.field select{
+      width:100%;
+      padding:9px;
+      border-radius:10px;
+      border:1px solid #475569;
+      background:#020617;
+      color:#fff;
+    }
+
+    .btn{
+      border:none;
+      border-radius:999px;
+      padding:9px 16px;
+      font-size:.9rem;
+      font-weight:600;
+      cursor:pointer;
+      background:linear-gradient(135deg,#facc15,#f97316);
+      color:#111;
+    }
+
+    .btn-sm{
+      padding:6px 10px;
+      font-size:.8rem;
+      border-radius:999px;
+    }
+
+    .btn-outline{
+      background:transparent;
+      color:#e5e7eb;
+      border:1px solid #64748b;
+    }
+
+    .status{
+      font-size:.85rem;
+      margin-top:6px;
+      min-height:18px;
+    }
+    .status.error{color:#f87171;}
+    .status.ok{color:#4ade80;}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:14px;
+      font-size:.86rem;
+    }
+    th,td{
+      border:1px solid rgba(148,163,184,.4);
+      padding:6px 4px;
+      text-align:center;
+    }
+    th{
+      background:#020617;
+      color:#e5e7eb;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+
+    .zone-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:26px;
+      height:26px;
+      border-radius:999px;
+      font-size:.75rem;
+      font-weight:700;
+      background:#0f172a;
+      border:1px solid #facc15;
+      color:#facc15;
+    }
+
+    .pill-input{
+      display:flex;
+      gap:4px;
+      align-items:center;
+      justify-content:center;
+    }
+    .pill-input input{
+      width:70px;
+      padding:4px 6px;
+      font-size:.8rem;
+      border-radius:999px;
+    }
+
+    .badge-small{
+      display:inline-block;
+      padding:2px 6px;
+      border-radius:999px;
+      font-size:.7rem;
+      background:#1e293b;
+      color:#e5e7eb;
+    }
+
+    .top-bar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+      margin-top:8px;
+    }
+
+    .top-bar-right{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:.8rem;
+      color:#94a3b8;
+    }
+
+    .hidden{display:none;}
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="container header__row">
+    <a class="logo" href="index.html">
+      <span class="logo__mark">SC</span>
+      <span class="logo__text">STOLAR CARP</span>
+    </a>
+    <nav class="nav" id="nav">
+      <a href="index.html" class="nav__link">Головна</a>
+      <a href="rules.html" class="nav__link">Регламент</a>
+      <a href="register.html" class="nav__link">Реєстрація</a>
+      <a href="live.html" class="nav__link">Live</a>
+      <a href="rating.html" class="nav__link">Рейтинг</a>
+    </nav>
+    <button class="burger" id="burger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<main class="page-wrap">
+
+  <!-- БЛОК ЛОГІНУ -->
+  <div id="loginCard" class="card login-block">
+    <div class="card-title">Вхід для суддів / організатора</div>
+    <div class="muted">Увійди під своїм email/паролем Firebase. Доступ до таблиці тільки для ролей <code>admin</code> та <code>judge</code>.</div>
+
+    <div class="field">
+      <label for="loginEmail">Email</label>
+      <input id="loginEmail" type="email" autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="loginPassword">Пароль</label>
+      <input id="loginPassword" type="password" autocomplete="current-password">
+    </div>
+    <button class="btn" id="btnLogin">Увійти</button>
+
+    <div class="status" id="loginStatus"></div>
+  </div>
+
+  <!-- КАБІНЕТ СУДДІ -->
+  <section id="judgeSection" class="card hidden">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Таблиця судді</div>
+        <div class="muted" id="judgeMeta"></div>
+      </div>
+      <div>
+        <button class="btn btn-outline btn-sm" id="btnLogout">Вийти</button>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div class="field" style="max-width:260px;margin:0;">
+        <label for="stageSelect">Етап</label>
+        <select id="stageSelect"></select>
+      </div>
+      <div class="top-bar-right">
+        <span>Твоя зона:</span>
+        <span id="zoneBadge" class="zone-badge">A</span>
+      </div>
+    </div>
+
+    <div class="status" id="panelStatus"></div>
+
+    <div style="overflow-x:auto; max-height:520px; margin-top:10px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Сектор</th>
+            <th>Команда</th>
+            <th>К-сть риб</th>
+            <th>Заг. вага</th>
+            <th>Big Fish</th>
+            <th>Нова риба (кг)</th>
+          </tr>
+        </thead>
+        <tbody id="judgeTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="muted" style="margin-top:8px;">
+      Кожен раз, коли ти вводиш вагу риби і натискаєш «Додати»,  
+      лічильник к-сті, загальна вага та Big Fish автоматично оновлюються у Firestore → LIVE.
+    </div>
+  </section>
+
+</main>
+
+<!-- JS ЛОГІКА -->
+<script type="module">
+  // Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+  import {
+    getFirestore,
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+    orderBy,
+    addDoc,
+    updateDoc,
+    serverTimestamp,
+  } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+  // ------------ ТВОЯ КОНФІГА FIREBASE (stolar-carp) ------------
+  const firebaseConfig = {
+    apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
+    authDomain: "stolar-carp.firebaseapp.com",
+    projectId: "stolar-carp",
+    storageBucket: "stolar-carp.firebasestorage.app",
+    messagingSenderId: "1019636788370",
+    appId: "1:1019636788370:web:af1c1ecadb683df212ca4b",
+    measurementId: "G-VWC07QNS7P"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // ------------ DOM ------------
+  const loginCard    = document.getElementById("loginCard");
+  const loginEmail   = document.getElementById("loginEmail");
+  const loginPass    = document.getElementById("loginPassword");
+  const btnLogin     = document.getElementById("btnLogin");
+  const loginStatus  = document.getElementById("loginStatus");
+
+  const judgeSection = document.getElementById("judgeSection");
+  const judgeMeta    = document.getElementById("judgeMeta");
+  const zoneBadge    = document.getElementById("zoneBadge");
+  const btnLogout    = document.getElementById("btnLogout");
+  const stageSelect  = document.getElementById("stageSelect");
+  const panelStatus  = document.getElementById("panelStatus");
+  const tbody        = document.getElementById("judgeTableBody");
+
+  // стан
+  let currentUser = null;
+  let currentUserDoc = null;
+  let currentZone = null;
+  let rowState = {}; // sector -> {docRef, data}
+
+  function setStatus(el, msg, type="") {
+    el.textContent = msg || "";
+    el.className = "status " + (type ? type : "");
+  }
+
+  // ------------ Вхід ------------
+  btnLogin.addEventListener("click", async () => {
+    const email = loginEmail.value.trim();
+    const pass  = loginPass.value.trim();
+
+    if (!email || !pass) {
+      setStatus(loginStatus, "Введи email і пароль.", "error");
+      return;
+    }
+
+    try {
+      setStatus(loginStatus, "Вхід...", "");
+      await signInWithEmailAndPassword(auth, email, pass);
+      setStatus(loginStatus, "", "");
+    } catch (err) {
+      console.error(err);
+      let msg = "Помилка входу.";
+      if (err.code === "auth/wrong-password") msg = "Невірний пароль.";
+      if (err.code === "auth/user-not-found") msg = "Користувача не знайдено.";
+      setStatus(loginStatus, msg, "error");
+    }
+  });
+
+  btnLogout.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  // ------------ Auth state ------------
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user || null;
+    if (!user) {
+      // Вийшли
+      loginCard.classList.remove("hidden");
+      judgeSection.classList.add("hidden");
+      setStatus(loginStatus, "", "");
+      stageSelect.innerHTML = "";
+      tbody.innerHTML = "";
+      return;
+    }
+
+    // Шукаємо user-doc з роллю
+    const uRef = doc(db, "users", user.uid);
+    const snap = await getDoc(uRef);
+    if (!snap.exists()) {
+      loginCard.classList.remove("hidden");
+      judgeSection.classList.add("hidden");
+      setStatus(loginStatus,
+        "У тебе немає прав доступу. Створи запис у колекції 'users' з role = 'judge' або 'admin'.",
+        "error"
+      );
+      return;
+    }
+
+    currentUserDoc = snap.data();
+    const role = currentUserDoc.role || "member";
+    currentZone = currentUserDoc.zone || null;
+
+    if (role !== "admin" && role !== "judge") {
+      loginCard.classList.remove("hidden");
+      judgeSection.classList.add("hidden");
+      setStatus(loginStatus, "Доступ тільки для ролей admin / judge.", "error");
+      return;
+    }
+
+    if (!currentZone) {
+      loginCard.classList.remove("hidden");
+      judgeSection.classList.add("hidden");
+      setStatus(loginStatus, "У user-doc не вказана зона (field: zone).", "error");
+      return;
+    }
+
+    // Ок, показуємо панель
+    loginCard.classList.add("hidden");
+    judgeSection.classList.remove("hidden");
+    setStatus(loginStatus, "", "");
+
+    judgeMeta.textContent =
+      `Увійшов: ${user.email || ""} · Роль: ${role} · Зона: ${currentZone}`;
+    zoneBadge.textContent = currentZone;
+
+    await loadStages();
+  });
+
+  // ------------ Завантаження етапів зі stages ------------
+  async function loadStages() {
+    stageSelect.innerHTML = "";
+    setStatus(panelStatus, "Завантажую етапи...", "");
+
+    try {
+      const q = query(collection(db, "stages"), orderBy("order", "asc"));
+      const snap = await getDocs(q);
+      const options = [];
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+        if (d.name) {
+          options.push(d.name);
+        }
+      });
+
+      if (!options.length) {
+        stageSelect.innerHTML = "<option>Немає етапів</option>";
+        setStatus(panelStatus, "У колекції stages немає записів.", "error");
+        return;
+      }
+
+      options.forEach((name, idx) => {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        stageSelect.appendChild(opt);
+      });
+
+      setStatus(panelStatus, "", "");
+      await loadZoneTable();
+    } catch (err) {
+      console.error(err);
+      setStatus(panelStatus, "Помилка завантаження етапів.", "error");
+    }
+  }
+
+  stageSelect.addEventListener("change", () => {
+    loadZoneTable();
+  });
+
+  // ------------ Завантаження таблиці для зони (8 секторів) ------------
+  async function loadZoneTable() {
+    const stageName = stageSelect.value;
+    if (!stageName || !currentZone) return;
+
+    setStatus(panelStatus, "Завантажую дані з results...", "");
+    tbody.innerHTML = "";
+    rowState = {};
+
+    try {
+      const resRef = collection(db, "results");
+      const qRes = query(
+        resRef,
+        where("stage", "==", stageName),
+        where("zone", "==", currentZone)
+      );
+      const snap = await getDocs(qRes);
+
+      const bySector = {};
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+        if (!d.sector) return;
+        bySector[String(d.sector)] = { id: docSnap.id, data: d };
+      });
+
+      // 8 секторів у зоні
+      for (let i = 1; i <= 8; i++) {
+        const sectorStr = `${i}/${currentZone}`;
+        const existing = bySector[sectorStr] || null;
+        addRow(stageName, sectorStr, existing);
+      }
+
+      setStatus(panelStatus, "", "");
+    } catch (err) {
+      console.error(err);
+      setStatus(panelStatus, "Помилка завантаження results.", "error");
+    }
+  }
+
+  // ------------ Додавання одного рядка у таблицю ------------
+  function addRow(stageName, sectorStr, existing) {
+    const tr = document.createElement("tr");
+
+    const tdSector = document.createElement("td");
+    tdSector.textContent = sectorStr;
+    tr.appendChild(tdSector);
+
+    // Команда
+    const tdTeam = document.createElement("td");
+    const teamInput = document.createElement("input");
+    teamInput.type = "text";
+    teamInput.style.width = "100%";
+    teamInput.style.fontSize = ".8rem";
+    teamInput.value = existing?.data?.team || "";
+    tdTeam.appendChild(teamInput);
+    tr.appendChild(tdTeam);
+
+    // К-сть
+    const tdCount = document.createElement("td");
+    tdCount.textContent = existing?.data?.sumCount || 0;
+    tr.appendChild(tdCount);
+
+    // Вага
+    const tdWeight = document.createElement("td");
+    tdWeight.textContent = existing?.data?.sumWeight || 0;
+    tr.appendChild(tdWeight);
+
+    // Big
+    const tdBig = document.createElement("td");
+    tdBig.textContent = existing?.data?.big || 0;
+    tr.appendChild(tdBig);
+
+    // Нова риба
+    const tdNew = document.createElement("td");
+    const wrap = document.createElement("div");
+    wrap.className = "pill-input";
+
+    const wInput = document.createElement("input");
+    wInput.type = "number";
+    wInput.step = "0.01";
+    wInput.placeholder = "кг";
+
+    const btnAdd = document.createElement("button");
+    btnAdd.className = "btn btn-sm";
+    btnAdd.textContent = "+ Додати";
+
+    wrap.appendChild(wInput);
+    wrap.appendChild(btnAdd);
+    tdNew.appendChild(wrap);
+    tr.appendChild(tdNew);
+
+    tbody.appendChild(tr);
+
+    // Стан рядка
+    const resRef = collection(db, "results");
+    let docRef = existing ? doc(db, "results", existing.id) : null;
+    let data = existing ? { ...existing.data } : {
+      stage: stageName,
+      sector: sectorStr,
+      zone: currentZone,
+      team: "",
+      sumCount: 0,
+      sumWeight: 0,
+      big: 0,
+      place: null,
+      updatedAt: null,
+      judgeUid: currentUser?.uid || null
+    };
+
+    rowState[sectorStr] = { docRef, data, teamInput, tdCount, tdWeight, tdBig, wInput };
+
+    // збереження назви команди (on blur)
+    teamInput.addEventListener("blur", async () => {
+      const name = teamInput.value.trim();
+      rowState[sectorStr].data.team = name;
+
+      if (!name) return; // пусту не зберігаємо
+
+      try {
+        if (!rowState[sectorStr].docRef) {
+          const newDoc = await addDoc(resRef, {
+            ...rowState[sectorStr].data,
+            updatedAt: serverTimestamp()
+          });
+          rowState[sectorStr].docRef = doc(db, "results", newDoc.id);
+        } else {
+          await updateDoc(rowState[sectorStr].docRef, {
+            team: name,
+            updatedAt: serverTimestamp()
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus(panelStatus, "Помилка збереження назви команди.", "error");
+      }
+    });
+
+    // додавання риби
+    btnAdd.addEventListener("click", async () => {
+      const val = parseFloat(wInput.value.replace(",", "."));
+      if (isNaN(val) || val <= 0) {
+        setStatus(panelStatus, "Введи коректну вагу риби (>0).", "error");
+        return;
+      }
+      if (!rowState[sectorStr].data.team) {
+        setStatus(panelStatus, "Спочатку введи назву команди.", "error");
+        return;
+      }
+
+      try {
+        const curr = rowState[sectorStr].data;
+        const newCount = (curr.sumCount || 0) + 1;
+        const newWeight = +( (curr.sumWeight || 0) + val ).toFixed(3);
+        const newBig = Math.max(curr.big || 0, val);
+
+        curr.sumCount = newCount;
+        curr.sumWeight = newWeight;
+        curr.big = newBig;
+        curr.judgeUid = currentUser?.uid || null;
+
+        // якщо документ ще не створений
+        if (!rowState[sectorStr].docRef) {
+          const newDoc = await addDoc(resRef, {
+            ...curr,
+            updatedAt: serverTimestamp()
+          });
+          rowState[sectorStr].docRef = doc(db, "results", newDoc.id);
+        } else {
+          await updateDoc(rowState[sectorStr].docRef, {
+            sumCount: newCount,
+            sumWeight: newWeight,
+            big: newBig,
+            judgeUid: currentUser?.uid || null,
+            updatedAt: serverTimestamp()
+          });
+        }
+
+        // оновлюємо DOM
+        tdCount.textContent = newCount;
+        tdWeight.textContent = newWeight;
+        tdBig.textContent = newBig;
+        wInput.value = "";
+        setStatus(panelStatus, "Запис оновлено.", "ok");
+      } catch (err) {
+        console.error(err);
+        setStatus(panelStatus, "Помилка оновлення результату.", "error");
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
