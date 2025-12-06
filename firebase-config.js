@@ -1,22 +1,55 @@
 // firebase-config.js
+// Підключення Firebase SDK (v9 modular) через CDN
 
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// !!! УВАГА: Замініть ці плейсхолдери на Ваші реальні ключі Firebase !!!
+// ТВОЯ реальна конфігурація Stolar Carp
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
+  authDomain: "stolar-carp.firebaseapp.com",
+  projectId: "stolar-carp",
+  storageBucket: "stolar-carp.firebasestorage.app",
+  messagingSenderId: "1019636788370",
+  appId: "1:1019636788370:web:af1c1ecadb683df212ca4b",
+  measurementId: "G-VWC07QNS7P"
 };
 
-const app = initializeApp(firebaseConfig);
+// Ініціалізація
+const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
+const db   = getFirestore(app);
 
-// Експорт необхідних об'єктів для використання в інших скриптах
-export { auth, db, app };
+// Експортуємо все, що будемо використовувати в інших файлах
+export {
+  app,
+  auth,
+  db,
+  // Auth
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  // Firestore
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  addDoc,
+  serverTimestamp
+};
