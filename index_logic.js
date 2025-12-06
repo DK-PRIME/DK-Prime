@@ -1,101 +1,134 @@
-// index_logic.js (Логіка авторизації для index.html)
+// index_logic.js
+// Логіка входу/виходу та показу адмінських лінків
 
-import { auth, db } from './firebase-config.js';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore'; 
+import {
+  auth,
+  db,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  doc,
+  getDoc
+} from "./firebase-config.js";
 
-const loginForm = document.getElementById('loginForm');
-const adminLinks = document.getElementById('adminLinks');
-const authMessage = document.getElementById('authMessage');
-const userStatus = document.getElementById('userStatus');
-const logoutButton = document.getElementById('logoutButton');
-const judgeBadge = document.getElementById('judgeBadge');
-const registerLink = document.querySelector('.register-link'); // Новий елемент
+const loginForm    = document.getElementById("loginForm");
+const emailInput   = document.getElementById("emailInput");
+const passwordInput= document.getElementById("passwordInput");
+const authMessage  = document.getElementById("authMessage");
+const userStatus   = document.getElementById("userStatus");
+const logoutButton = document.getElementById("logoutButton");
+const adminLinks   = document.getElementById("adminLinks");
 
-// --- 1. ЛОГІКА ВХОДУ ---
+// Два твоїх адмінські емейли
+const ADMIN_EMAILS = [
+  "d.n.i.o.n.i.r@gmail.com",
+  "djachok2125@gmail.com",
+  "djachok2025@gmail.com"
+];
 
-loginForm.addEventListener('submit', async (e) => {
+function setAuthMessage(msg, isError = true) {
+  if (!authMessage) return;
+  authMessage.style.color = isError ? "#ef4444" : "#22c55e";
+  authMessage.textContent = msg || "";
+}
+
+function setUserStatus(text) {
+  if (!userStatus) return;
+  userStatus.textContent = text || "";
+  userStatus.classList.remove("hidden");
+}
+
+function showAdminUI() {
+  if (adminLinks) adminLinks.classList.remove("hidden");
+  if (logoutButton) logoutButton.classList.remove("hidden");
+  if (loginForm) loginForm.classList.add("hidden");
+}
+
+function showGuestUI() {
+  if (adminLinks) adminLinks.classList.add("hidden");
+  if (logoutButton) logoutButton.classList.add("hidden");
+  if (loginForm) loginForm.classList.remove("hidden");
+  if (userStatus) userStatus.classList.add("hidden");
+}
+
+// Перевіряємо роль в Firestore: users/{uid}.role === "admin"
+async function isAdminUser(user) {
+  if (!user) return false;
+
+  // Якщо email входить у список — вважаємо адміном одразу
+  if (user.email && ADMIN_EMAILS.includes(user.email)) {
+    return true;
+  }
+
+  try {
+    const ref  = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) return false;
+    const data = snap.data();
+    return data.role === "admin";
+  } catch (e) {
+    console.error("Помилка читання ролі:", e);
+    return false;
+  }
+}
+
+// Обробка сабміту форми логіну
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    authMessage.textContent = 'Вхід...';
-    authMessage.style.color = 'var(--accent)';
+    setAuthMessage("");
 
-    const email = document.getElementById('emailInput').value;
-    const password = document.getElementById('passwordInput').value;
+    const email = (emailInput?.value || "").trim();
+    const pass  = passwordInput?.value || "";
+
+    if (!email || !pass) {
+      setAuthMessage("Введи email і пароль.");
+      return;
+    }
 
     try {
-        await signInWithEmailAndPassword(auth, email, password);
-        // auth.onAuthStateChanged візьме на себе подальше оновлення інтерфейсу
-    } catch (error) {
-        let message = 'Помилка входу. Перевірте email та пароль.';
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-            message = 'Невірний email або пароль.';
-        }
-        authMessage.textContent = message;
-        authMessage.style.color = 'var(--error)';
+      await signInWithEmailAndPassword(auth, email, pass);
+      setAuthMessage("Вхід успішний.", false);
+      // onAuthStateChanged сам оновить інтерфейс
+    } catch (err) {
+      console.error("Login error:", err);
+      setAuthMessage("Помилка входу: " + (err.message || "невідома помилка"));
     }
-});
+  });
+}
 
-// --- 2. ЛОГІКА ВИХОДУ ---
-
-logoutButton.addEventListener('click', async () => {
+// Кнопка виходу
+if (logoutButton) {
+  logoutButton.addEventListener("click", async () => {
     try {
-        await signOut(auth);
-    } catch (error) {
-        authMessage.textContent = `Помилка виходу: ${error.message}`;
-        authMessage.style.color = 'var(--error)';
+      await signOut(auth);
+      setAuthMessage("Вихід виконано.", false);
+    } catch (err) {
+      console.error("Logout error:", err);
+      setAuthMessage("Помилка виходу: " + (err.message || "невідома помилка"));
     }
-});
+  });
+}
 
-// --- 3. ПЕРЕВІРКА АВТОРИЗАЦІЇ ТА РОЛІ ---
+// Слухаємо зміну стану авторизації
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    showGuestUI();
+    setAuthMessage("");
+    return;
+  }
 
-auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        // Користувач увійшов
-        loginForm.classList.add('hidden');
-        registerLink.classList.add('hidden'); // Ховаємо посилання на реєстрацію
-        logoutButton.classList.remove('hidden');
-        authMessage.textContent = '';
-        
-        try {
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            const role = userDoc.data()?.role;
-            const judgeZone = userDoc.data()?.judgeZone;
+  const admin = await isAdminUser(user);
 
-            userStatus.textContent = `Увійшов як: ${role} (${user.email})`;
-            userStatus.classList.remove('hidden');
-
-            // Перевірка ролей: доступ надається лише адміністраторам та суддям
-            if (role === 'admin' || role === 'judge') {
-                adminLinks.classList.remove('hidden');
-                
-                // Відображення призначеної зони для судді
-                if (role === 'judge' && judgeZone) {
-                    judgeBadge.textContent = `Zone: ${judgeZone} → results`;
-                } else {
-                    judgeBadge.textContent = 'private → results';
-                }
-                
-            } else {
-                // Інші ролі (participant/captain)
-                adminLinks.classList.add('hidden');
-                authMessage.textContent = `Ваша роль (${role}) не має доступу до цієї панелі.`;
-                authMessage.style.color = 'var(--error)';
-            }
-            
-        } catch (error) {
-            authMessage.textContent = `Помилка отримання даних користувача: ${error.message}`;
-            authMessage.style.color = 'var(--error)';
-            adminLinks.classList.add('hidden');
-        }
-
-    } else {
-        // Користувач вийшов
-        loginForm.classList.remove('hidden');
-        registerLink.classList.remove('hidden'); // Показуємо посилання на реєстрацію
-        logoutButton.classList.add('hidden');
-        adminLinks.classList.add('hidden');
-        userStatus.classList.add('hidden');
-        userStatus.textContent = '';
-        judgeBadge.textContent = 'private → results'; // Скидаємо бейдж
-    }
+  if (admin) {
+    showAdminUI();
+    setUserStatus(`Адмін: ${user.email}`);
+    setAuthMessage("");
+  } else {
+    // Залогінився не-адмін → не показуємо адмінські лінки
+    showGuestUI();
+    setUserStatus(`Користувач: ${user.email} (без доступу до адмінки)`);
+    setAuthMessage("Цей акаунт не має прав адміністратора.");
+  }
 });
