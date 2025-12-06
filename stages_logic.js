@@ -1,169 +1,247 @@
 // stages_logic.js
-import { firebaseConfig } from "./firebase-config.js";
+import { auth, db } from './firebase-config.js';
 import {
-  initializeApp,
-  getApps,
-  getApp,
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import {
-  getFirestore,
+  collection,
   doc,
   getDoc,
-  collection,
   getDocs,
   updateDoc,
+  query,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-// 1. Ініціалізація додатка
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const seasonSelect  = document.getElementById('seasonSelect');
+const stageBlock    = document.getElementById('stageBlock');
+const stagesList    = document.getElementById('stagesList');
+const currentInfo   = document.getElementById('currentInfo');
+const openStageBtn  = document.getElementById('openStageBtn');
+const closeAllBtn   = document.getElementById('closeAllBtn');
+const messageBox    = document.getElementById('message');
 
-// поточний сезон – зараз 2026
-const SEASON_ID = "2026";
+let currentSeasonId = null;
+let currentOpenStageId = null;
+let selectedStageId = null;
 
-const stagesContainer = document.getElementById("stagesContainer");
-const messageEl = document.getElementById("message");
-const closeAllBtn = document.getElementById("closeAllBtn");
-
-function setMessage(text, isError = false) {
-  messageEl.textContent = text;
-  messageEl.classList.toggle("error", isError);
-}
-
-// 2. Завантажити етапи + поточний активний
-async function loadStages() {
-  setMessage("Завантаження етапів...");
-  stagesContainer.innerHTML = "";
+// ===================== AUTH + ROLE CHECK =====================
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    // якщо не залогінений – назад на головну
+    window.location.href = '/';
+    return;
+  }
 
   try {
-    const seasonRef = doc(db, "seasons", SEASON_ID);
-    const seasonSnap = await getDoc(seasonRef);
+    const userSnap = await getDoc(doc(db, 'users', user.uid));
+    if (!userSnap.exists()) {
+      showMessage('Профіль користувача не знайдено в Firestore (колекція users).', 'error');
+      disableUI();
+      return;
+    }
 
+    const data = userSnap.data();
+    if (data.role !== 'admin') {
+      showMessage('Цю сторінку може відкривати тільки користувач з роллю admin.', 'error');
+      disableUI();
+      return;
+    }
+
+    // роль ок – вантажимо сезони
+    await loadSeasons();
+  } catch (err) {
+    console.error(err);
+    showMessage('Помилка завантаження ролі користувача.', 'error');
+    disableUI();
+  }
+});
+
+function disableUI() {
+  seasonSelect.disabled = true;
+  openStageBtn.disabled = true;
+  closeAllBtn.disabled  = true;
+  stageBlock.classList.add('hidden');
+}
+
+// ===================== LOAD SEASONS =====================
+
+async function loadSeasons() {
+  try {
+    const q = query(collection(db, 'seasons'), orderBy('year', 'asc'));
+    const snap = await getDocs(q);
+
+    snap.forEach((docSnap) => {
+      const data = docSnap.data();
+      const opt = document.createElement('option');
+      opt.value = docSnap.id;
+      opt.textContent = data.name || docSnap.id;
+      seasonSelect.appendChild(opt);
+    });
+
+    seasonSelect.addEventListener('change', onSeasonChange);
+  } catch (err) {
+    console.error(err);
+    showMessage('Не вдалося завантажити список сезонів.', 'error');
+  }
+}
+
+async function onSeasonChange() {
+  messageBox.classList.add('hidden');
+  stagesList.innerHTML = '';
+  currentInfo.textContent = '';
+  selectedStageId = null;
+  openStageBtn.disabled = true;
+
+  const seasonId = seasonSelect.value;
+  currentSeasonId = seasonId;
+
+  if (!seasonId) {
+    stageBlock.classList.add('hidden');
+    return;
+  }
+
+  stageBlock.classList.remove('hidden');
+  await loadStagesForSeason(seasonId);
+}
+
+// ===================== LOAD STAGES FOR SEASON =====================
+
+async function loadStagesForSeason(seasonId) {
+  try {
+    // читаємо документ сезону, щоб дізнатися, який етап зараз відкритий
+    const seasonSnap = await getDoc(doc(db, 'seasons', seasonId));
     if (!seasonSnap.exists()) {
-      setMessage("Документ сезону 2026 не знайдено у Firestore.", true);
+      showMessage(`Сезон ${seasonId} не знайдено в Firestore.`, 'error');
       return;
     }
-
     const seasonData = seasonSnap.data();
-    const activeStageId = seasonData.openRegistrationStageId || null;
+    currentOpenStageId = seasonData.openStageId || null;
 
-    const stagesCol = collection(seasonRef, "stages");
-    const stagesSnap = await getDocs(stagesCol);
-
-    const stages = [];
-    stagesSnap.forEach((d) =>
-      stages.push({ id: d.id, ...d.data() })
+    // завантажуємо список етапів
+    const q = query(
+      collection(db, 'seasons', seasonId, 'stages'),
+      orderBy('order', 'asc')
     );
+    const snap = await getDocs(q);
 
-    // сортуємо по order
-    stages.sort((a, b) => (a.order || 0) - (b.order || 0));
+    stagesList.innerHTML = '';
 
-    if (!stages.length) {
-      setMessage("Етапів для сезону ще немає.", true);
-      return;
-    }
+    snap.forEach((stageDoc) => {
+      const data = stageDoc.data();
+      const id   = stageDoc.id;
 
-    stages.forEach((stage) => {
-      const row = document.createElement("div");
-      row.className = "stage-row";
+      const row  = document.createElement('label');
+      row.className = 'stage-row';
 
-      // статус по датах
-      const now = new Date();
-      const start = stage.dateStart ? new Date(stage.dateStart) : null;
-      const end = stage.dateEnd ? new Date(stage.dateEnd) : null;
-
-      let statusText = "";
-      let statusClass = "";
-
-      if (stage.id === activeStageId) {
-        statusText = "Активний для реєстрації";
-        statusClass = "active";
+      if (id === currentOpenStageId) {
+        row.classList.add('active');
       }
 
-      if (start && now < start) {
-        statusText = statusText || "Ще не почався";
-        statusClass = statusClass || "upcoming";
-      } else if (end && now > end) {
-        statusText = statusText || "Дати минули";
-        statusClass = statusClass || "finished";
-      } else if (!statusText) {
-        statusText = "У вікні дат";
-        statusClass = "manual";
-      }
+      const main = document.createElement('div');
+      main.className = 'stage-main';
 
-      const main = document.createElement("div");
-      main.className = "stage-main";
-      main.innerHTML = `
-        <div class="stage-name">${stage.name || stage.id}</div>
-        <div class="stage-dates">
-          ${stage.dateStart || "—"} → ${stage.dateEnd || "—"}
-        </div>
-        <span class="stage-status ${statusClass}">${statusText}</span>
-      `;
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'stageSelect';
+      radio.value = id;
 
-      const actions = document.createElement("div");
-      actions.className = "stage-actions";
+      radio.addEventListener('change', () => {
+        selectedStageId = id;
+        openStageBtn.disabled = false;
 
-      const btnSetActive = document.createElement("button");
-      btnSetActive.textContent =
-        stage.id === activeStageId
-          ? "Обраний"
-          : "Зробити активним";
-      btnSetActive.disabled = stage.id === activeStageId;
-      btnSetActive.className = "btn-primary";
-
-      btnSetActive.addEventListener("click", async () => {
-        await setActiveStage(stage.id);
+        // підсвічуємо активний рядок
+        Array.from(stagesList.children).forEach(el => el.classList.remove('active'));
+        row.classList.add('active');
       });
 
-      actions.appendChild(btnSetActive);
+      const textBlock = document.createElement('div');
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'stage-name';
+      nameEl.textContent = data.name || id;
+
+      const datesEl = document.createElement('div');
+      datesEl.className = 'stage-dates';
+      if (data.dateStart || data.dateEnd) {
+        datesEl.textContent = `${data.dateStart || '—'} → ${data.dateEnd || '—'}`;
+      }
+
+      textBlock.appendChild(nameEl);
+      textBlock.appendChild(datesEl);
+
+      main.appendChild(radio);
+      main.appendChild(textBlock);
+
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      if (id === currentOpenStageId) {
+        chip.classList.add('chip-open');
+        chip.textContent = 'відкритий';
+      } else {
+        chip.textContent = 'закрито';
+      }
+
       row.appendChild(main);
-      row.appendChild(actions);
-      stagesContainer.appendChild(row);
+      row.appendChild(chip);
+      stagesList.appendChild(row);
     });
 
-    if (activeStageId) {
-      setMessage(`Зараз відкритий етап: ${activeStageId}`);
-    } else {
-      setMessage("Наразі жоден етап не відкритий для реєстрації.");
-    }
+    updateCurrentInfo();
   } catch (err) {
     console.error(err);
-    setMessage("Помилка при завантаженні етапів: " + err.message, true);
+    showMessage('Не вдалося завантажити етапи сезона.', 'error');
   }
 }
 
-// 3. Встановити активний етап (для реєстрації)
-async function setActiveStage(stageId) {
+function updateCurrentInfo() {
+  if (!currentOpenStageId) {
+    currentInfo.innerHTML = 'Зараз <strong>реєстрація закрита</strong> на всі етапи.';
+  } else {
+    currentInfo.innerHTML = `Зараз відкрита реєстрація на етап: <strong>${currentOpenStageId}</strong>.`;
+  }
+}
+
+// ===================== BUTTON HANDLERS =====================
+
+openStageBtn.addEventListener('click', async () => {
+  if (!currentSeasonId || !selectedStageId) return;
+
   try {
-    setMessage("Оновлюю активний етап...");
-    const seasonRef = doc(db, "seasons", SEASON_ID);
-    await updateDoc(seasonRef, {
-      openRegistrationStageId: stageId,
+    await updateDoc(doc(db, 'seasons', currentSeasonId), {
+      openStageId: selectedStageId
     });
-    await loadStages();
+    currentOpenStageId = selectedStageId;
+    showMessage('Етап успішно відкритий для реєстрації.', 'success');
+    await loadStagesForSeason(currentSeasonId);
   } catch (err) {
     console.error(err);
-    setMessage("Помилка при збереженні: " + err.message, true);
+    showMessage('Не вдалося оновити сезон (openStageId).', 'error');
   }
-}
+});
 
-// 4. Закрити всі етапи (реєстрація OFF)
-async function closeAllStages() {
+closeAllBtn.addEventListener('click', async () => {
+  if (!currentSeasonId) return;
+
   try {
-    setMessage("Закриваю реєстрацію для всіх етапів...");
-    const seasonRef = doc(db, "seasons", SEASON_ID);
-    await updateDoc(seasonRef, {
-      openRegistrationStageId: null,
+    await updateDoc(doc(db, 'seasons', currentSeasonId), {
+      openStageId: null
     });
-    await loadStages();
+    currentOpenStageId = null;
+    selectedStageId = null;
+    showMessage('Реєстрацію закрито на всі етапи сезону.', 'success');
+    await loadStagesForSeason(currentSeasonId);
   } catch (err) {
     console.error(err);
-    setMessage("Помилка при оновленні: " + err.message, true);
+    showMessage('Не вдалося закрити реєстрацію на всі етапи.', 'error');
   }
+});
+
+// ===================== UI helpers =====================
+
+function showMessage(text, type) {
+  messageBox.textContent = text;
+  messageBox.classList.remove('hidden', 'error', 'success');
+  if (type === 'error')  messageBox.classList.add('error');
+  if (type === 'success') messageBox.classList.add('success');
 }
-
-closeAllBtn.addEventListener("click", closeAllStages);
-
-// старт
-loadStages();
