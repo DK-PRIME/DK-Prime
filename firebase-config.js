@@ -1,25 +1,8 @@
 // firebase-config.js
-// Підключення Firebase SDK (v9 modular) через CDN
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-// ТВОЯ реальна конфігурація Stolar Carp
 const firebaseConfig = {
   apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
   authDomain: "stolar-carp.firebaseapp.com",
@@ -30,26 +13,6 @@ const firebaseConfig = {
   measurementId: "G-VWC07QNS7P"
 };
 
-// Ініціалізація
-const app  = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
-
-// Експортуємо все, що будемо використовувати в інших файлах
-export {
-  app,
-  auth,
-  db,
-  // Auth
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut,
-  // Firestore
-  doc,
-  setDoc,
-  getDoc,
-  collection,
-  addDoc,
-  serverTimestamp
-};
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
