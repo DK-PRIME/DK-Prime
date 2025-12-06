@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="utf-8" />
-  <title>STOLAR CARP · Етапи сезону</title>
+  <title>STOLAR CARP · Керування етапами</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
@@ -22,126 +22,302 @@
       color:var(--text);
       display:flex;
       justify-content:center;
-      align-items:center;
-      padding:16px;
+      align-items:flex-start;
+      padding:16px 12px 24px;
     }
-    .shell{width:100%;max-width:760px;}
+    .shell{width:100%;max-width:480px;}
     .card{
       background:var(--card);
       border-radius:20px;
-      padding:20px;
+      padding:20px 18px 22px;
       box-shadow:0 24px 60px rgba(0,0,0,.8);
       border:1px solid rgba(148,163,184,.4);
     }
-    h1{font-size:1.4rem;margin-bottom:4px;}
-    .sub{font-size:.9rem;color:var(--muted);margin-bottom:12px;}
     .back-link{
-      display:inline-block;
-      margin-bottom:10px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
       font-size:.85rem;
       color:var(--muted);
       text-decoration:none;
+      margin-bottom:10px;
     }
     .back-link:hover{color:var(--accent);}
-    .stages-list{
+    h1{font-size:1.4rem;margin-bottom:4px;}
+    .sub{
+      font-size:.9rem;
+      color:var(--muted);
+      margin-bottom:16px;
+    }
+    .stage-list{
       display:flex;
       flex-direction:column;
-      gap:10px;
-      margin-top:10px;
+      gap:8px;
+      margin-bottom:14px;
     }
-    .stage-row{
+    .stage-item{
       display:flex;
-      flex-wrap:wrap;
-      justify-content:space-between;
       align-items:center;
       gap:8px;
-      padding:10px 12px;
+      padding:8px 10px;
       border-radius:12px;
-      background:#020617;
       border:1px solid rgba(148,163,184,.4);
+      background:rgba(15,23,42,.95);
+      font-size:.9rem;
+    }
+    .stage-item input[type="radio"]{
+      width:16px;
+      height:16px;
+      accent-color:#facc15;
     }
     .stage-main{
       display:flex;
       flex-direction:column;
-      gap:3px;
     }
-    .stage-name{font-weight:600;font-size:.98rem;}
-    .stage-dates{font-size:.8rem;color:var(--muted);}
-    .stage-status{
-      font-size:.75rem;
-      padding:2px 8px;
-      border-radius:999px;
-      display:inline-block;
-      margin-top:2px;
+    .stage-name{font-weight:600;}
+    .stage-dates{
+      font-size:.78rem;
+      color:var(--muted);
     }
-    .stage-status.active{
-      background:rgba(34,197,94,.15);
-      color:#bbf7d0;
-    }
-    .stage-status.upcoming{
-      background:rgba(59,130,246,.15);
-      color:#bfdbfe;
-    }
-    .stage-status.finished{
-      background:rgba(148,163,184,.15);
-      color:#e5e7eb;
-    }
-    .stage-status.manual{
-      background:rgba(250,204,21,.15);
-      color:#fef08a;
-    }
-    .stage-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
-    }
-    .stage-actions button{
-      font-size:.8rem;
-      padding:6px 10px;
-      border-radius:999px;
+    .btn{
+      width:100%;
+      margin-top:6px;
+      padding:10px;
+      border-radius:10px;
       border:none;
+      font-size:.95rem;
       cursor:pointer;
+      transition:transform .08s ease, box-shadow .08s ease, background .1s;
     }
     .btn-primary{
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
-      color:#111827;
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      color:#020617;
       font-weight:600;
+    }
+    .btn-primary:disabled{
+      opacity:.5;
+      cursor:not-allowed;
     }
     .btn-secondary{
       background:transparent;
-      border:1px solid rgba(148,163,184,.6);
+      border:1px solid rgba(148,163,184,.5);
       color:var(--muted);
     }
-    #message{
-      margin-top:12px;
+    .btn-secondary:hover{
+      border-color:var(--accent);
+      color:var(--text);
+    }
+    .btn:active{transform:scale(.97);}
+    .info{
+      margin-top:10px;
       font-size:.85rem;
       color:var(--muted);
+      min-height:2em;
     }
-    #message.error{color:var(--error);}
+    .info-strong{color:var(--accent);}
+    .error{color:var(--error);}
   </style>
 </head>
 <body>
   <div class="shell">
     <div class="card">
       <a href="index.html" class="back-link">← Назад до адмін-панелі</a>
-      <h1>Керування етапами сезону 2026</h1>
-      <p class="sub">
+
+      <h1>Керування етапами сезону <span id="seasonYear">2026</span></h1>
+      <div class="sub">
         Обери, який етап зараз <strong>відкритий для реєстрації</strong>.
-        Інформація зберігається в Firestore у документі сезону.
-      </p>
-
-      <div id="stagesContainer" class="stages-list"></div>
-
-      <p id="message"></p>
-
-      <div style="margin-top:10px;">
-        <button id="closeAllBtn" class="btn-secondary">
-          Закрити реєстрацію на всі етапи
-        </button>
+        Інформація зберігається в Firestore у документі сезону
+        <span class="info-strong">seasons/2026</span>.
       </div>
+
+      <div id="stagesContainer" class="stage-list">
+        <!-- Тут JS намалює список етапів -->
+      </div>
+
+      <button id="openBtn" class="btn btn-primary" disabled>
+        Відкрити реєстрацію на обраний етап
+      </button>
+
+      <button id="closeBtn" class="btn btn-secondary">
+        Закрити реєстрацію на всі етапи
+      </button>
+
+      <div id="infoText" class="info"></div>
     </div>
   </div>
 
-  <script type="module" src="./stages_logic.js"></script>
+  <script type="module">
+    import { auth, db } from "./firebase-config.js";
+    import {
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      doc,
+      getDoc,
+      updateDoc,
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const SEASON_ID = "2026"; // поки що жорстко, потім зробимо вибір року
+
+    const stagesContainer = document.getElementById("stagesContainer");
+    const openBtn = document.getElementById("openBtn");
+    const closeBtn = document.getElementById("closeBtn");
+    const infoText = document.getElementById("infoText");
+
+    let selectedStageId = null;
+    let currentOpenStageId = null;
+
+    // ---------- Перевірка, що користувач адмін ----------
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        infoText.textContent = "Потрібно увійти в адмін-панель.";
+        infoText.classList.add("error");
+        openBtn.disabled = true;
+        closeBtn.disabled = true;
+        return;
+      }
+
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
+
+        if (!userSnap.exists() || userSnap.data().role !== "admin") {
+          infoText.textContent = "У вас немає прав адміністратора.";
+          infoText.classList.add("error");
+          openBtn.disabled = true;
+          closeBtn.disabled = true;
+          return;
+        }
+
+        // Якщо все ок – завантажуємо етапи
+        await loadStages();
+      } catch (err) {
+        console.error(err);
+        infoText.textContent = "Помилка перевірки прав доступу.";
+        infoText.classList.add("error");
+      }
+    });
+
+    // ---------- Завантажити етапи сезону ----------
+    async function loadStages() {
+      infoText.textContent = "Завантаження етапів...";
+      infoText.classList.remove("error");
+
+      const seasonRef = doc(db, "seasons", SEASON_ID);
+      const seasonSnap = await getDoc(seasonRef);
+      if (!seasonSnap.exists()) {
+        infoText.textContent = "Документ сезону не знайдено (seasons/" + SEASON_ID + ").";
+        infoText.classList.add("error");
+        return;
+      }
+
+      const seasonData = seasonSnap.data();
+      currentOpenStageId = seasonData.openStageId || null;
+
+      const stagesRef = collection(seasonRef, "stages");
+      const stagesSnap = await getDocs(stagesRef);
+
+      stagesContainer.innerHTML = "";
+
+      stagesSnap.forEach((stageDoc) => {
+        const data = stageDoc.data();
+        const id = stageDoc.id; // etap1, etap2, final
+
+        const wrapper = document.createElement("label");
+        wrapper.className = "stage-item";
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "stage";
+        radio.value = id;
+
+        if (currentOpenStageId === id) {
+          radio.checked = true;
+          selectedStageId = id;
+        }
+
+        radio.addEventListener("change", () => {
+          selectedStageId = id;
+          openBtn.disabled = false;
+        });
+
+        const main = document.createElement("div");
+        main.className = "stage-main";
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "stage-name";
+        nameEl.textContent = data.name || id;
+
+        const datesEl = document.createElement("div");
+        datesEl.className = "stage-dates";
+        const ds = data.dateStart || "—";
+        const de = data.dateEnd || "—";
+        datesEl.textContent = `Дати: ${ds} – ${de}`;
+
+        main.appendChild(nameEl);
+        main.appendChild(datesEl);
+
+        wrapper.appendChild(radio);
+        wrapper.appendChild(main);
+        stagesContainer.appendChild(wrapper);
+      });
+
+      updateInfoText();
+      if (!selectedStageId) openBtn.disabled = true;
+    }
+
+    function updateInfoText() {
+      if (currentOpenStageId) {
+        infoText.innerHTML =
+          'Зараз реєстрація відкрита на: <span class="info-strong">'
+          + currentOpenStageId +
+          "</span>.";
+      } else {
+        infoText.textContent = "Зараз реєстрація закрита на всі етапи.";
+      }
+    }
+
+    // ---------- Відкрити на обраний етап ----------
+    openBtn.addEventListener("click", async () => {
+      if (!selectedStageId) return;
+
+      openBtn.disabled = true;
+      closeBtn.disabled = true;
+      infoText.textContent = "Оновлення даних...";
+
+      const seasonRef = doc(db, "seasons", SEASON_ID);
+      await updateDoc(seasonRef, {
+        openStageId: selectedStageId
+      });
+
+      currentOpenStageId = selectedStageId;
+      updateInfoText();
+      closeBtn.disabled = false;
+    });
+
+    // ---------- Закрити на всі етапи ----------
+    closeBtn.addEventListener("click", async () => {
+      openBtn.disabled = true;
+      closeBtn.disabled = true;
+      infoText.textContent = "Закриваємо реєстрацію...";
+
+      const seasonRef = doc(db, "seasons", SEASON_ID);
+      await updateDoc(seasonRef, {
+        openStageId: null
+      });
+
+      currentOpenStageId = null;
+      selectedStageId = null;
+
+      // Зняти вибір radio
+      const radios = document.querySelectorAll('input[name="stage"]');
+      radios.forEach(r => r.checked = false);
+
+      updateInfoText();
+      closeBtn.disabled = false;
+    });
+  </script>
 </body>
 </html>
