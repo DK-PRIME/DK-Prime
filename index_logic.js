@@ -1,132 +1,110 @@
 // index_logic.js
-// Логіка входу/виходу та показу адмінських лінків
-
+import { auth, db } from "./firebase-config.js";
 import {
-  auth,
-  db,
-  signInWithEmailAndPassword,
   onAuthStateChanged,
-  signOut,
+  signInWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import {
   doc,
   getDoc
-} from "./firebase-config.js";
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-const loginForm    = document.getElementById("loginForm");
-const emailInput   = document.getElementById("emailInput");
-const passwordInput= document.getElementById("passwordInput");
-const authMessage  = document.getElementById("authMessage");
-const userStatus   = document.getElementById("userStatus");
+// DOM елементи
+const loginForm = document.getElementById("loginForm");
+const emailInput = document.getElementById("emailInput");
+const passwordInput = document.getElementById("passwordInput");
+const authMessage = document.getElementById("authMessage");
+const userStatus = document.getElementById("userStatus");
 const logoutButton = document.getElementById("logoutButton");
-const adminLinks   = document.getElementById("adminLinks");
+const adminLinks = document.getElementById("adminLinks");
+const authSection = document.getElementById("authSection");
 
-// Адмінський емейл
-const ADMIN_EMAILS = [
-  "djachok2025@gmail.com"
-];
+// Допоміжні функції
+function showAdminUI(user, userDoc) {
+  if (!user || !userDoc || userDoc.role !== "admin") {
+    // не адмін → форма логіну
+    authSection.classList.remove("hidden");
+    adminLinks.classList.add("hidden");
+    logoutButton.classList.add("hidden");
+    userStatus.classList.add("hidden");
+    return;
+  }
 
-function setAuthMessage(msg, isError = true) {
-  if (!authMessage) return;
-  authMessage.style.color = isError ? "#ef4444" : "#22c55e";
-  authMessage.textContent = msg || "";
-}
+  // адмін
+  authSection.classList.remove("hidden");
+  loginForm.classList.add("hidden");
+  logoutButton.classList.remove("hidden");
+  adminLinks.classList.remove("hidden");
 
-function setUserStatus(text) {
-  if (!userStatus) return;
-  userStatus.textContent = text || "";
+  userStatus.textContent = `Увійшов як: ${userDoc.name || user.email} (admin)`;
   userStatus.classList.remove("hidden");
+  authMessage.textContent = "";
 }
 
-function showAdminUI() {
-  if (adminLinks) adminLinks.classList.remove("hidden");
-  if (logoutButton) logoutButton.classList.remove("hidden");
-  if (loginForm) loginForm.classList.add("hidden");
+function showLoggedOutUI() {
+  loginForm.classList.remove("hidden");
+  logoutButton.classList.add("hidden");
+  adminLinks.classList.add("hidden");
+  userStatus.classList.add("hidden");
+  authMessage.textContent = "";
 }
 
-function showGuestUI() {
-  if (adminLinks) adminLinks.classList.add("hidden");
-  if (logoutButton) logoutButton.classList.add("hidden");
-  if (loginForm) loginForm.classList.remove("hidden");
-  if (userStatus) userStatus.classList.add("hidden");
-}
-
-// Перевіряємо роль в Firestore: users/{uid}.role === "admin"
-async function isAdminUser(user) {
-  if (!user) return false;
-
-  // Якщо email входить у список — вважаємо адміном одразу
-  if (user.email && ADMIN_EMAILS.includes(user.email)) {
-    return true;
+// Слухач стану авторизації
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    showLoggedOutUI();
+    return;
   }
 
   try {
-    const ref  = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
 
-    if (!snap.exists()) return false;
-    const data = snap.data();
-    return data.role === "admin";
-  } catch (e) {
-    console.error("Помилка читання ролі:", e);
-    return false;
-  }
-}
-
-// Обробка сабміту форми логіну
-if (loginForm) {
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    setAuthMessage("");
-
-    const email = (emailInput?.value || "").trim();
-    const pass  = passwordInput?.value || "";
-
-    if (!email || !pass) {
-      setAuthMessage("Введи email і пароль.");
+    if (!snap.exists()) {
+      authMessage.textContent = "Немає профілю користувача в Firestore.";
+      showLoggedOutUI();
       return;
     }
 
+    const data = snap.data();
+    showAdminUI(user, data);
+  } catch (err) {
+    console.error("Помилка читання Firestore:", err);
+    authMessage.textContent = "Помилка читання даних користувача.";
+    showLoggedOutUI();
+  }
+});
+
+// Обробка форми логіну
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    authMessage.textContent = "";
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
-      setAuthMessage("Вхід успішний.", false);
-      // onAuthStateChanged сам оновить інтерфейс
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      // далі onAuthStateChanged сам оновить UI
+      console.log("Вхід успішний:", cred.user.uid);
     } catch (err) {
-      console.error("Login error:", err);
-      setAuthMessage("Помилка входу: " + (err.message || "невідома помилка"));
+      console.error(err);
+      authMessage.textContent = `Помилка входу: ${err.code || err.message}`;
     }
   });
 }
 
-// Кнопка виходу
+// Вихід
 if (logoutButton) {
   logoutButton.addEventListener("click", async () => {
     try {
       await signOut(auth);
-      setAuthMessage("Вихід виконано.", false);
+      showLoggedOutUI();
     } catch (err) {
-      console.error("Logout error:", err);
-      setAuthMessage("Помилка виходу: " + (err.message || "невідома помилка"));
+      console.error(err);
+      authMessage.textContent = "Помилка виходу.";
     }
   });
 }
-
-// Слухаємо зміну стану авторизації
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    showGuestUI();
-    setAuthMessage("");
-    return;
-  }
-
-  const admin = await isAdminUser(user);
-
-  if (admin) {
-    showAdminUI();
-    setUserStatus(`Адмін: ${user.email}`);
-    setAuthMessage("");
-  } else {
-    // Залогінився не-адмін → не показуємо адмінські лінки
-    showGuestUI();
-    setUserStatus(`Користувач: ${user.email} (без доступу до адмінки)`);
-    setAuthMessage("Цей акаунт не має прав адміністратора.");
-  }
-});
