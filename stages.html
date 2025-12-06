@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <title>STOLAR CARP · Етапи сезону</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#020617;
+      --card:#0f172a;
+      --accent:#facc15;
+      --accent2:#f97316;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --error:#ef4444;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      min-height:100vh;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#111827 0,#020617 60%);
+      color:var(--text);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:16px;
+    }
+    .shell{width:100%;max-width:760px;}
+    .card{
+      background:var(--card);
+      border-radius:20px;
+      padding:20px;
+      box-shadow:0 24px 60px rgba(0,0,0,.8);
+      border:1px solid rgba(148,163,184,.4);
+    }
+    h1{font-size:1.4rem;margin-bottom:4px;}
+    .sub{font-size:.9rem;color:var(--muted);margin-bottom:12px;}
+    .back-link{
+      display:inline-block;
+      margin-bottom:10px;
+      font-size:.85rem;
+      color:var(--muted);
+      text-decoration:none;
+    }
+    .back-link:hover{color:var(--accent);}
+    .stages-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+    .stage-row{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#020617;
+      border:1px solid rgba(148,163,184,.4);
+    }
+    .stage-main{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+    .stage-name{font-weight:600;font-size:.98rem;}
+    .stage-dates{font-size:.8rem;color:var(--muted);}
+    .stage-status{
+      font-size:.75rem;
+      padding:2px 8px;
+      border-radius:999px;
+      display:inline-block;
+      margin-top:2px;
+    }
+    .stage-status.active{
+      background:rgba(34,197,94,.15);
+      color:#bbf7d0;
+    }
+    .stage-status.upcoming{
+      background:rgba(59,130,246,.15);
+      color:#bfdbfe;
+    }
+    .stage-status.finished{
+      background:rgba(148,163,184,.15);
+      color:#e5e7eb;
+    }
+    .stage-status.manual{
+      background:rgba(250,204,21,.15);
+      color:#fef08a;
+    }
+    .stage-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .stage-actions button{
+      font-size:.8rem;
+      padding:6px 10px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#111827;
+      font-weight:600;
+    }
+    .btn-secondary{
+      background:transparent;
+      border:1px solid rgba(148,163,184,.6);
+      color:var(--muted);
+    }
+    #message{
+      margin-top:12px;
+      font-size:.85rem;
+      color:var(--muted);
+    }
+    #message.error{color:var(--error);}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="card">
+      <a href="index.html" class="back-link">← Назад до адмін-панелі</a>
+      <h1>Керування етапами сезону 2026</h1>
+      <p class="sub">
+        Обери, який етап зараз <strong>відкритий для реєстрації</strong>.
+        Інформація зберігається в Firestore у документі сезону.
+      </p>
+
+      <div id="stagesContainer" class="stages-list"></div>
+
+      <p id="message"></p>
+
+      <div style="margin-top:10px;">
+        <button id="closeAllBtn" class="btn-secondary">
+          Закрити реєстрацію на всі етапи
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./stages_logic.js"></script>
+</body>
+</html>
