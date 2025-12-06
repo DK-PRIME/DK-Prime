@@ -19,10 +19,8 @@ const userStatus   = document.getElementById("userStatus");
 const logoutButton = document.getElementById("logoutButton");
 const adminLinks   = document.getElementById("adminLinks");
 
-// Два твоїх адмінські емейли
+// Адмінський емейл
 const ADMIN_EMAILS = [
-  "d.n.i.o.n.i.r@gmail.com",
-  "djachok2125@gmail.com",
   "djachok2025@gmail.com"
 ];
 
