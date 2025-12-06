@@ -1,74 +1,155 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Реєстрація на DK Prime</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        h2 { text-align: center; color: #333; }
-        label { display: block; margin: 10px 0 5px; font-weight: bold; }
-        input[type="text"], input[type="email"], input[type="password"], input[type="tel"] { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .radio-group { margin-bottom: 20px; }
-        .radio-group label { display: inline-block; margin-right: 20px; font-weight: normal; }
-        button { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
-        button:hover { background-color: #0056b3; }
-        #message { margin-top: 20px; padding: 10px; border-radius: 4px; text-align: center; display: none; }
-        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .hidden { display: none; }
-    </style>
+  <meta charset="utf-8" />
+  <title>Реєстрація · STOLAR CARP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root{
+      --bg:#020617;
+      --card:#0f172a;
+      --accent:#facc15;
+      --accent2:#f97316;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --error:#ef4444;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      min-height:100vh;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#111827 0,#020617 60%);
+      color:var(--text);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:16px;
+    }
+    .shell{width:100%;max-width:620px;}
+    .card{
+      background:var(--card);
+      border-radius:20px;
+      padding:22px 20px 24px;
+      box-shadow:0 24px 60px rgba(0,0,0,.8);
+      border:1px solid rgba(148,163,184,.4);
+      margin-bottom:16px;
+    }
+    h1{font-size:1.5rem;margin-bottom:6px;}
+    .sub{font-size:.9rem;color:var(--muted);margin-bottom:18px;}
+    label{
+      font-size:.9rem;
+      margin-bottom:4px;
+      display:block;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"]{
+      width:100%;
+      padding:10px;
+      margin-bottom:10px;
+      border-radius:8px;
+      border:1px solid var(--muted);
+      background:#1e293b;
+      color:var(--text);
+      font-size:.95rem;
+    }
+    .checkbox-row{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      margin:6px 0 10px;
+      font-size:.85rem;
+      color:var(--muted);
+    }
+    .checkbox-row input{
+      margin-top:2px;
+    }
+    button{
+      width:100%;
+      padding:10px;
+      border:none;
+      border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#111827;
+      font-weight:600;
+      font-size:1rem;
+      cursor:pointer;
+      margin-top:6px;
+    }
+    button:hover{
+      filter:brightness(1.05);
+    }
+    .footer{
+      margin-top:12px;
+      font-size:.8rem;
+      color:var(--muted);
+      text-align:center;
+    }
+    .link-back{
+      display:block;
+      text-align:center;
+      margin-top:8px;
+      font-size:.9rem;
+      color:var(--accent);
+      text-decoration:none;
+    }
+    .link-back:hover{text-decoration:underline;}
+    #registerMessage{
+      margin-top:8px;
+      font-size:.9rem;
+      text-align:center;
+      color:var(--error);
+      min-height:1.2em;
+    }
+  </style>
 </head>
 <body>
+  <div class="shell">
+    <div class="card">
+      <h1>Реєстрація STOLAR CARP</h1>
+      <div class="sub">
+        Створення особистого акаунта капітана та команди.
+        Дані потрібні для реєстрації на етапи та відображення складу команди.
+      </div>
 
-    <div class="container">
-        <h2>Реєстрація користувача</h2>
-        <form id="registrationForm">
-            <label for="name">Ім'я та Прізвище:</label>
-            <input type="text" id="name" required>
+      <form id="registerForm">
+        <label for="fullName">Ім'я та прізвище капітана</label>
+        <input id="fullName" name="fullName" type="text" required />
 
-            <label for="email">Email (для входу):</label>
-            <input type="email" id="email" required>
+        <label for="email">Email (для входу на сайт)</label>
+        <input id="email" name="email" type="email" required />
 
-            <label for="phone">Телефон (формат 380XXYYYYYYY):</label>
-            <input type="tel" id="phone" pattern="380[0-9]{9}" required>
+        <label for="password">Пароль</label>
+        <input id="password" name="password" type="password" required minlength="6" />
 
-            <label for="password">Пароль:</label>
-            <input type="password" id="password" required minlength="6">
+        <label for="phone">Номер телефону</label>
+        <input id="phone" name="phone" type="tel" placeholder="+380..." required />
 
-            <hr>
+        <label for="teamName">Назва команди</label>
+        <input id="teamName" name="teamName" type="text" required />
 
-            <label>Ваша роль:</label>
-            <div class="radio-group">
-                <input type="radio" id="role_captain" name="role" value="captain" required>
-                <label for="role_captain">Капітан</label>
-                <input type="radio" id="role_participant" name="role" value="participant" required>
-                <label for="role_participant">Учасник</label>
-                <input type="radio" id="role_judge" name="role" value="judge" required> 
-                <label for="role_judge">Суддя</label>
-                <input type="radio" id="role_admin" name="role" value="admin" required> 
-                <label for="role_admin">Адмін</label> 
-            </div>
+        <div class="checkbox-row">
+          <input id="agree" name="agree" type="checkbox" />
+          <label for="agree">
+            Даю згоду на обробку персональних даних та використання
+            фото/результатів команди у межах турнірів STOLAR CARP.
+          </label>
+        </div>
 
-            <div id="captainSection" class="hidden">
-                <label for="teamName">Назва Нової Команди:</label>
-                <input type="text" id="teamName">
-            </div>
+        <button type="submit">Створити акаунт і команду</button>
+        <div id="registerMessage"></div>
 
-            <div id="participantSection" class="hidden">
-                <label for="teamCode">Код Існуючої Команди:</label>
-                <input type="text" id="teamCode">
-            </div>
-
-            <button type="submit">Зареєструватися та Продовжити</button>
-        </form>
-
-        <div id="message"></div>
+        <a href="./index.html" class="link-back">Вже є акаунт? Повернутися до входу</a>
+      </form>
     </div>
 
-    <script type="module" src="./firebase-config.js"></script>
-    <script type="module" src="./tournamentService.js"></script> 
-    <script type="module" src="./registration.js"></script> 
+    <div class="footer">
+      DK Prime · STOLAR CARP · Admin panel
+    </div>
+  </div>
+
+  <script type="module" src="./register_logic.js"></script>
 </body>
 </html>
