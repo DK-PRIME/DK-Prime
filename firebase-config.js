@@ -7,7 +7,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
   authDomain: "stolar-carp.firebaseapp.com",
   projectId: "stolar-carp",
-  storageBucket: "stolar-carp.firebasestorage.app",
+  storageBucket: "stolar-carp.appspot.com",   // ← ВАЖЛИВО!
   messagingSenderId: "1019636788370",
   appId: "1:1019636788370:web:af1c1ecadb683df212ca4b",
   measurementId: "G-VWC07QNS7P"
