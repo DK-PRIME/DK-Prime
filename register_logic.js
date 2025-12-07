@@ -17,17 +17,13 @@ import {
   initializeApp
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 
-// ❗ ПОВНА КОНФІГУРАЦІЯ
+// ⛔ БЕЗ ОКРЕМОГО firebase-config.js
+// ПРЯМО ВСЕРЕДИНІ register_logic.js
 const firebaseConfig = {
-  apiKey: "...",
-  authDomain: "...",
-  projectId: "...",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "..."
+   // !!! ВСТАВ СВОЇ КЛЮЧІ !!!
 };
 
-const app  = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
