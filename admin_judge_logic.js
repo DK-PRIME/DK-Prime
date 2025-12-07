@@ -67,21 +67,36 @@ async function loadAdminInterface() {
     );
     const querySnapshot = await getDocs(q);
 
+    // Якщо заявок немає
     if (querySnapshot.empty) {
       registrationsList.innerHTML =
         '<tr><td colspan="5" style="text-align: center;">Жодних заявок.</td></tr>';
+
+      const drawWaitingList = document.getElementById("drawWaitingList");
+      if (drawWaitingList) {
+        drawWaitingList.innerHTML =
+          "<li>Поки що немає жодної оплаченoї заявки.</li>";
+      }
       return;
     }
 
     let html = "";
+    const waitingForDraw = []; // Сюди збираємо команди, що допущені до жеребкування
+
     querySnapshot.forEach((d) => {
       const reg = d.data();
       const id = d.id;
+
       const isPaid = !!reg.paid;
       const statusClass = isPaid ? "status-paid" : "status-pending";
       const statusText = isPaid ? "Оплачено" : "Очікує оплати";
       const sector =
         reg.zone && reg.sector ? `${reg.zone}-${reg.sector}` : "Не призначено";
+
+      // Якщо оплата є, а зона/сектор ще не призначені — команда чекає жеребкування
+      if (isPaid && (!reg.zone || !reg.sector)) {
+        waitingForDraw.push(reg.teamName || id.substring(0, 6) + "...");
+      }
 
       html += `
         <tr>
@@ -102,14 +117,34 @@ async function loadAdminInterface() {
 
     registrationsList.innerHTML = html;
 
+    // Кнопки підтвердження оплати
     document.querySelectorAll(".confirm-btn").forEach((button) => {
       button.addEventListener("click", handlePaymentConfirmation);
     });
+
+    // Оновлюємо список "Очікують жеребкування"
+    const drawWaitingList = document.getElementById("drawWaitingList");
+    if (drawWaitingList) {
+      if (!waitingForDraw.length) {
+        drawWaitingList.innerHTML =
+          "<li>Поки що немає команд, допущених до жеребкування.</li>";
+      } else {
+        drawWaitingList.innerHTML = waitingForDraw
+          .map((name, idx) => `<li>${idx + 1}. ${name}</li>`)
+          .join("");
+      }
+    }
 
     displayAdminMessage("Дані завантажено.", "success");
   } catch (error) {
     console.error("Помилка завантаження заявок:", error);
     displayAdminMessage(`Помилка завантаження: ${error.message}`, "error");
+
+    const drawWaitingList = document.getElementById("drawWaitingList");
+    if (drawWaitingList) {
+      drawWaitingList.innerHTML =
+        "<li>Помилка завантаження списку для жеребкування.</li>";
+    }
   }
 }
 
