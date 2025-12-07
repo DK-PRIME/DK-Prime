@@ -1,18 +1,17 @@
-// firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getAuth }       from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getFirestore }  from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
   authDomain: "stolar-carp.firebaseapp.com",
   projectId: "stolar-carp",
-  storageBucket: "stolar-carp.appspot.com",   // ← ВАЖЛИВО!
+  storageBucket: "stolar-carp.appspot.com",
   messagingSenderId: "1019636788370",
   appId: "1:1019636788370:web:af1c1ecadb683df212ca4b",
   measurementId: "G-VWC07QNS7P"
 };
 
-export const app = initializeApp(firebaseConfig);
+export const app  = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db   = getFirestore(app);
