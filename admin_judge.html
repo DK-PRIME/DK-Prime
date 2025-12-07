@@ -29,22 +29,49 @@
         <div id="adminMessage"></div>
 
         <section id="adminSection" class="hidden">
-            <h3>1. Управління Заявками та Жеребкування</h3>
+  <h3>1. Управління Заявками та Жеребкування</h3>
 
-            <div style="margin-bottom: 20px;">
-                <h4>Жеребкування (Крок 5)</h4>
-                <p>Доступні сектори (A-1, B-2,...):</p>
-                <input type="text" id="availableSectorsInput" value="A-1, A-2, B-1, B-2, C-1, C-2" style="width: 70%;">
-                <button id="runDrawButton" style="background-color: #f39c12;">Провести Жеребкування</button>
-            </div>
-            
-            <h4>Підтвердження Оплати (Крок 4)</h4>
-            <table id="registrationsTable">
-                <thead>
-                    <tr><th>ID</th><th>Команда</th><th>Зона/Сектор</th><th>Статус</th><th>Дія</th></tr>
-                </thead>
-                <tbody id="registrationsList"></tbody>
-            </table>
+  <!-- БЛОК 1: Заявки та оплата -->
+  <div style="margin-bottom: 24px;">
+    <h4>1. Список заявок та оплата</h4>
+    <p>Позначайте команди, які зробили оплату. Тільки оплачені переходять у блок жеребкування.</p>
+
+    <table id="registrationsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Команда</th>
+          <th>Зона/Сектор</th>
+          <th>Статус оплати</th>
+          <th>Дія</th>
+        </tr>
+      </thead>
+      <tbody id="registrationsList"></tbody>
+    </table>
+  </div>
+
+  <!-- БЛОК 2: Жеребкування -->
+  <div>
+    <h4>2. Жеребкування (тільки оплачені команди)</h4>
+    <p>
+      У цьому блоці показуються <strong>лише команди, які оплатили</strong> і ще не мають сектора.
+      Після жеребкування до них записуються зона A/B/C та сектор 1–8.
+    </p>
+
+    <p><strong>Список команд, допущених до жеребкування:</strong></p>
+    <ul id="drawWaitingList" style="margin-bottom: 12px;"></ul>
+
+    <p>Доступні сектори (формат: A-1, A-2, B-1, B-2, C-1, C-2):</p>
+    <input
+      type="text"
+      id="availableSectorsInput"
+      value="A-1, A-2, B-1, B-2, C-1, C-2"
+      style="width: 70%;"
+    />
+    <button id="runDrawButton" style="background-color: #f39c12; padding: 6px 12px; border:none; border-radius:4px; cursor:pointer;">
+      Провести Жеребкування
+    </button>
+  </div>
         </section>
 
         <section id="judgeSection" class="hidden">
