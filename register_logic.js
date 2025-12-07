@@ -1,78 +1,93 @@
 // register_logic.js
 import { auth, db } from "./firebase-config.js";
-import {
-  createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import {
   doc,
   setDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  collection,
+  addDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 const form = document.getElementById("registerForm");
-const msg = document.getElementById("registerMessage");
+const messageEl = document.getElementById("registerMessage");
+const submitBtn = form.querySelector('button[type="submit"]');
+
+function showError(text) {
+  messageEl.style.color = "#ef4444";
+  messageEl.textContent = text;
+}
+
+function showSuccess(text) {
+  messageEl.style.color = "#22c55e";
+  messageEl.textContent = text;
+}
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  msg.style.color = "#ef4444";
-  msg.textContent = "";
+  messageEl.textContent = "";
 
   const fullName = form.fullName.value.trim();
-  const email = form.email.value.trim().toLowerCase();
+  const email = form.email.value.trim();
   const password = form.password.value;
   const phone = form.phone.value.trim();
   const teamName = form.teamName.value.trim();
   const agree = form.agree.checked;
 
   if (!agree) {
-    msg.textContent = "Потрібно поставити галочку згоди.";
+    showError("Потрібно погодитися на обробку персональних даних.");
     return;
   }
 
-  try {
-    // 1. Реєструємо користувача в Authentication
-    const userCred = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    const uid = userCred.user.uid;
+  if (!fullName || !email || !password || !phone || !teamName) {
+    showError("Будь ласка, заповни всі поля.");
+    return;
+  }
 
-    // 2. Створюємо запис у колекції users
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Створюємо...";
+
+  try {
+    // 1) Створюємо користувача в Auth
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = cred.user.uid;
+
+    // 2) Створюємо документ користувача users/{uid}
     await setDoc(doc(db, "users", uid), {
-      name: fullName,
       email,
+      name: fullName,
       phone,
-      role: "captain",            // потім можеш змінити на "admin" руками в Firestore
-      createdAt: serverTimestamp()
+      role: "captain",          // звичайні капітани. Себе можеш змінити на "admin" у Firestore
+      createdAt: serverTimestamp(),
     });
 
-    // 3. Створюємо команду всередині користувача
-    const teamId = teamName.replace(/\s+/g, "_");
-    await setDoc(doc(db, "users", uid, "teams", teamId), {
-      name: teamName,
+    // 3) Створюємо команду в колекції teams
+    const teamRef = await addDoc(collection(db, "teams"), {
+      teamName,
       captainUserId: uid,
       phone,
-      isVerified: false,
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
     });
 
-    msg.style.color = "#22c55e";
-    msg.textContent = "Акаунт створено! Зараз перейдемо до входу…";
+    // 4) Прив’язуємо teamId до користувача
+    await setDoc(
+      doc(db, "users", uid),
+      {
+        teamId: teamRef.id,
+      },
+      { merge: true }
+    );
+
+    showSuccess("Акаунт і команда створені. Зараз перейдемо на сторінку входу…");
 
     setTimeout(() => {
       window.location.href = "./index.html";
     }, 1500);
-  } catch (error) {
-    console.error(error);
-    let text = error.message;
-
-    if (error.code === "auth/email-already-in-use") {
-      text = "Такий email вже використовується. Спробуй увійти.";
-    } else if (error.code === "auth/weak-password") {
-      text = "Пароль має бути не менше 6 символів.";
-    }
-
-    msg.textContent = "Помилка: " + text;
+  } catch (err) {
+    console.error(err);
+    showError("Помилка: " + (err?.message || "не вдалося створити акаунт"));
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Створити акаунт і команду";
   }
 });
