@@ -1,16 +1,34 @@
 // index_logic.js
-import { auth, db } from "./firebase-config.js";
 import {
-  onAuthStateChanged,
+  getAuth,
   signInWithEmailAndPassword,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
-import {
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+  signOut,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-// DOM елементи
+import {
+  getFirestore,
+  doc,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+
+// ⚠️ ВСТАВ СЮДИ ТОЙ САМИЙ КОНФІГ, ЩО ТИ ВЖЕ ВСТАВЛЯВ У register_logic.js
+const firebaseConfig = {
+  apiKey: "ТВОЙ_API_KEY",
+  authDomain: "stolar-carp.firebaseapp.com",
+  projectId: "stolar-carp",
+  storageBucket: "stolar-carp.appspot.com",
+  messagingSenderId: "XXXXXXX",
+  appId: "1:XXXXXXX:web:YYYYYYYY",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ---------------- DOM елементи ----------------
 const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("emailInput");
 const passwordInput = document.getElementById("passwordInput");
@@ -18,93 +36,100 @@ const authMessage = document.getElementById("authMessage");
 const userStatus = document.getElementById("userStatus");
 const logoutButton = document.getElementById("logoutButton");
 const adminLinks = document.getElementById("adminLinks");
-const authSection = document.getElementById("authSection");
 
-// Допоміжні функції
-function showAdminUI(user, userDoc) {
-  if (!user || !userDoc || userDoc.role !== "admin") {
-    // не адмін → форма логіну
-    authSection.classList.remove("hidden");
-    adminLinks.classList.add("hidden");
-    logoutButton.classList.add("hidden");
-    userStatus.classList.add("hidden");
-    return;
+// Захисна перевірка
+function safeEl(el) {
+  if (!el) console.warn("Елемент не знайдений");
+  return el;
+}
+
+// ---------------- Допоміжні функції ----------------
+async function loadUserRole(uid) {
+  try {
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      // документа немає – повертаємо гість
+      return "guest";
+    }
+    const data = snap.data();
+    return data.role || "guest";
+  } catch (err) {
+    console.error("Помилка читання ролі:", err);
+    return "guest";
   }
-
-  // адмін
-  authSection.classList.remove("hidden");
-  loginForm.classList.add("hidden");
-  logoutButton.classList.remove("hidden");
-  adminLinks.classList.remove("hidden");
-
-  userStatus.textContent = `Увійшов як: ${userDoc.name || user.email} (admin)`;
-  userStatus.classList.remove("hidden");
-  authMessage.textContent = "";
 }
 
 function showLoggedOutUI() {
-  loginForm.classList.remove("hidden");
-  logoutButton.classList.add("hidden");
-  adminLinks.classList.add("hidden");
-  userStatus.classList.add("hidden");
-  authMessage.textContent = "";
+  if (safeEl(loginForm)) loginForm.classList.remove("hidden");
+  if (safeEl(logoutButton)) logoutButton.classList.add("hidden");
+  if (safeEl(adminLinks)) adminLinks.classList.add("hidden");
+  if (safeEl(userStatus)) userStatus.classList.add("hidden");
+  if (safeEl(authMessage)) authMessage.textContent = "";
 }
 
-// Слухач стану авторизації
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    showLoggedOutUI();
-    return;
+function showLoggedInUI(user, role) {
+  if (safeEl(loginForm)) loginForm.classList.add("hidden");
+  if (safeEl(logoutButton)) logoutButton.classList.remove("hidden");
+  if (safeEl(adminLinks)) adminLinks.classList.remove("hidden");
+
+  if (safeEl(userStatus)) {
+    userStatus.textContent = `Увійшов як: ${user.email} (${role})`;
+    userStatus.classList.remove("hidden");
   }
 
-  try {
-    const userRef = doc(db, "users", user.uid);
-    const snap = await getDoc(userRef);
+  if (safeEl(authMessage)) authMessage.textContent = "";
+}
 
-    if (!snap.exists()) {
-      authMessage.textContent = "Немає профілю користувача в Firestore.";
-      showLoggedOutUI();
-      return;
-    }
-
-    const data = snap.data();
-    showAdminUI(user, data);
-  } catch (err) {
-    console.error("Помилка читання Firestore:", err);
-    authMessage.textContent = "Помилка читання даних користувача.";
-    showLoggedOutUI();
-  }
-});
-
-// Обробка форми логіну
+// ---------------- Обробник входу ----------------
 if (loginForm) {
   loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    authMessage.textContent = "";
+    if (!emailInput || !passwordInput || !authMessage) return;
 
     const email = emailInput.value.trim();
     const password = passwordInput.value;
 
+    authMessage.textContent = "";
+
     try {
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      // далі onAuthStateChanged сам оновить UI
-      console.log("Вхід успішний:", cred.user.uid);
+      const user = cred.user;
+      // Роль підвантажиться в onAuthStateChanged, але можна і тут
+      const role = await loadUserRole(user.uid);
+      console.log("Успішний вхід, роль:", role);
+      showLoggedInUI(user, role);
     } catch (err) {
-      console.error(err);
+      console.error("Помилка входу:", err);
       authMessage.textContent = `Помилка входу: ${err.code || err.message}`;
     }
   });
 }
 
-// Вихід
+// ---------------- Обробник виходу ----------------
 if (logoutButton) {
   logoutButton.addEventListener("click", async () => {
     try {
       await signOut(auth);
       showLoggedOutUI();
     } catch (err) {
-      console.error(err);
-      authMessage.textContent = "Помилка виходу.";
+      console.error("Помилка виходу:", err);
+      if (authMessage) {
+        authMessage.textContent = "Помилка виходу. Спробуйте ще раз.";
+      }
     }
   });
 }
+
+// ---------------- Відстеження стану входу ----------------
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    console.log("Користувач вийшов / не залогінений");
+    showLoggedOutUI();
+    return;
+  }
+
+  console.log("Користувач залогінений:", user.email);
+  const role = await loadUserRole(user.uid);
+  showLoggedInUI(user, role);
+});
