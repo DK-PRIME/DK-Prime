@@ -1,36 +1,14 @@
 // register_logic.js
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp,
-  doc,
-  setDoc
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-import {
-  getAuth,
-  createUserWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+// Підключаємо готові auth і db з єдиного firebase-config.js
+import { auth, db } from "./firebase-config.js";
 
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-
-// ⛔ БЕЗ ОКРЕМОГО firebase-config.js
-// ПРЯМО ВСЕРЕДИНІ register_logic.js
-const firebaseConfig = {
-   // !!! ВСТАВ СВОЇ КЛЮЧІ !!!
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db   = getFirestore(app);
-
+// Імпортуємо потрібні функції з Firebase Auth
 import {
   createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
+// Імпортуємо потрібні функції з Firestore
 import {
   collection,
   addDoc,
@@ -42,7 +20,7 @@ import {
 // -------------------------------
 // DOM
 // -------------------------------
-const form = document.getElementById("registerForm");
+const form  = document.getElementById("registerForm");
 const msgEl = document.getElementById("registerMessage");
 
 function showMessage(text, isError = true) {
@@ -60,7 +38,7 @@ function makeJoinCode() {
 // -------------------------------
 if (form) {
   form.addEventListener("submit", async (e) => {
-    e.preventDefault();                           // ← щоб сторінка не перезавантажувалася
+    e.preventDefault(); // щоб сторінка не перезавантажувалася
     showMessage("");
 
     const submitBtn = form.querySelector("button[type='submit']");
@@ -69,15 +47,24 @@ if (form) {
       submitBtn.textContent = "Створюємо...";
     }
 
-    const fullName  = form.fullName.value.trim();
-    const email     = form.email.value.trim();
-    const password  = form.password.value;
-    const phone     = form.phone.value.trim();
-    const teamName  = form.teamName.value.trim();
-    const agree     = form.agree.checked;
+    const fullName = form.fullName.value.trim();
+    const email    = form.email.value.trim();
+    const password = form.password.value;
+    const phone    = form.phone.value.trim();
+    const teamName = form.teamName.value.trim();
+    const agree    = form.agree.checked;
 
     if (!agree) {
       showMessage("Потрібно дати згоду на обробку персональних даних.");
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Створити акаунт і команду";
+      }
+      return;
+    }
+
+    if (!fullName || !email || !password || !phone || !teamName) {
+      showMessage("Заповни всі обов’язкові поля.");
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = "Створити акаунт і команду";
@@ -96,11 +83,11 @@ if (form) {
         email,
         name: fullName,
         phone,
-        role: "admin",              // ти зараз капітан/адмін, далі зробимо ролі judge etc
+        role: "admin", // зараз ти капітан/адмін, потім зробимо гнучкі ролі
         createdAt: serverTimestamp()
       });
 
-      // 3) Створюємо тестову команду в testTeams (як у тебе вже є)
+      // 3) Створюємо команду в testTeams
       const teamRef = await addDoc(collection(db, "testTeams"), {
         captainUID: user.uid,
         name: teamName,
@@ -109,7 +96,7 @@ if (form) {
         createdAt: serverTimestamp()
       });
 
-      console.log("Створена команда з id:", teamRef.id);
+      console.log("✅ Створена команда з id:", teamRef.id);
 
       showMessage("Акаунт і команда успішно створені!", false);
 
@@ -118,7 +105,7 @@ if (form) {
         window.location.href = "./index.html";
       }, 800);
     } catch (err) {
-      console.error("Помилка реєстрації:", err);
+      console.error("❌ Помилка реєстрації:", err);
       showMessage(`Помилка: ${err.code || err.message}`);
     } finally {
       if (submitBtn) {
@@ -127,4 +114,6 @@ if (form) {
       }
     }
   });
+} else {
+  console.warn("⚠️ Форма реєстрації (registerForm) не знайдена в DOM");
 }
