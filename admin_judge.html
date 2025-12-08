@@ -6,145 +6,180 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+    :root{
+      --bg:#020617;
+      --surface:#020617;
+      --card:#020617;
+      --card2:#020617;
+      --border:rgba(148,163,184,.45);
+      --accent:#facc15;
+      --accent-soft:rgba(250,204,21,.08);
+      --error:#f97373;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --shadow:0 22px 60px rgba(0,0,0,.9);
+    }
+
+    *{box-sizing:border-box;}
+
     body{
       margin:0;
-      font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:#020617;
-      color:#e5e7eb;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#1e293b 0,#020617 48%,#020617 100%);
+      color:var(--text);
     }
+
     header{
-      background:#0f172a;
-      border-bottom:1px solid rgba(148,163,184,.4);
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:rgba(15,23,42,.96);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(148,163,184,.35);
       padding:10px 18px;
       display:flex;
       justify-content:space-between;
       align-items:center;
     }
+    .logo-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }
     .logo{
       font-weight:700;
-      letter-spacing:.08em;
+      letter-spacing:.16em;
       text-transform:uppercase;
-      font-size:.85rem;
+      font-size:.78rem;
+    }
+    .logo-sub{
+      font-size:.75rem;
+      color:var(--muted);
     }
     .role-label{
       font-size:.8rem;
-      color:#9ca3af;
+      color:var(--muted);
     }
     button.logout{
       border-radius:999px;
-      border:1px solid rgba(148,163,184,.6);
+      border:1px solid rgba(148,163,184,.7);
       background:transparent;
-      color:#e5e7eb;
-      padding:6px 12px;
+      color:var(--text);
+      padding:6px 14px;
       font-size:.8rem;
       cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
     }
+
     main{
-      padding:18px;
-      max-width:900px;
-      margin:0 auto 40px;
+      padding:18px 16px 32px;
+      max-width:1100px;
+      margin:0 auto;
     }
+
+    #systemMessage{
+      margin-bottom:10px;
+      font-size:.86rem;
+      min-height:1.2em;
+    }
+
+    .layout{
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+    }
+    @media(min-width:880px){
+      .layout{
+        flex-direction:row;
+        align-items:flex-start;
+      }
+      .col-left{flex:1.1;}
+      .col-right{flex:1;}
+    }
+
     .card{
-      background:#0f172a;
-      border-radius:16px;
-      border:1px solid rgba(148,163,184,.4);
-      padding:16px 14px 20px;
-      margin-bottom:18px;
-      box-shadow:0 16px 40px rgba(0,0,0,.9);
+      background:radial-gradient(circle at top left,rgba(15,23,42,.9),#020617 55%);
+      border-radius:18px;
+      border:1px solid var(--border);
+      padding:16px 14px 18px;
+      box-shadow:var(--shadow);
     }
+    .card-highlight{
+      border-color:rgba(250,204,21,.55);
+    }
+
     h2{
-      margin:0 0 10px;
-      font-size:1.1rem;
+      margin:0 0 6px;
+      font-size:1.02rem;
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
     h3{
-      margin:0 0 6px;
-      font-size:.95rem;
+      margin:0 0 8px;
+      font-size:.94rem;
     }
+
     .badge{
-      font-size:.7rem;
+      font-size:.68rem;
       text-transform:uppercase;
-      letter-spacing:.16em;
-      color:#9ca3af;
+      letter-spacing:.18em;
+      color:var(--muted);
       margin-bottom:4px;
       display:inline-block;
     }
-    .hidden{display:none;}
-    #systemMessage{
-      margin-bottom:12px;
-      font-size:.85rem;
-      min-height:1.2em;
-    }
-    .muted{
-      font-size:.8rem;
-      color:#9ca3af;
+    .badge-mini{
+      font-size:.66rem;
+      padding:2px 6px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      color:var(--muted);
     }
 
-    .block{
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px dashed rgba(148,163,184,.4);
-      background:rgba(15,23,42,.6);
-      margin-top:10px;
-    }
-    label.field-label{
-      display:block;
+    .hidden{display:none;}
+
+    .muted{
       font-size:.8rem;
-      color:#9ca3af;
-      margin-bottom:3px;
+      color:var(--muted);
     }
+
+    .field-label{
+      display:block;
+      font-size:.78rem;
+      color:var(--muted);
+      margin:8px 0 3px;
+    }
+
     input, select, button{
       font-family:inherit;
-      font-size:.85rem;
+      font-size:.86rem;
     }
+
     input[type="text"],
     input[type="number"],
     select{
       width:100%;
-      padding:6px 8px;
-      border-radius:8px;
-      border:1px solid rgba(148,163,184,.4);
+      padding:7px 9px;
+      border-radius:10px;
+      border:1px solid rgba(148,163,184,.45);
       background:#020617;
-      color:#e5e7eb;
+      color:var(--text);
     }
     input:disabled, select:disabled{
       opacity:.6;
       cursor:not-allowed;
     }
-    .row{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      align-items:center;
-      margin-top:8px;
-    }
-    .chip{
-      font-size:.75rem;
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid rgba(148,163,184,.4);
-    }
-    .chip-muted{
-      background:rgba(15,23,42,.8);
-      color:#9ca3af;
-    }
-    .chip-open{
-      background:rgba(22,163,74,.16);
-      border-color:rgba(34,197,94,.7);
-      color:#bbf7d0;
-    }
-    .chip-closed{
-      background:rgba(127,29,29,.25);
-      border-color:rgba(248,113,113,.7);
-      color:#fecaca;
-    }
+
     .btn{
       border-radius:999px;
-      border:1px solid rgba(250,204,21,.8);
-      background:linear-gradient(to right,rgba(250,204,21,.08),rgba(248,113,113,.08));
-      color:#fde68a;
-      padding:6px 12px;
+      border:1px solid rgba(250,204,21,.85);
+      background:linear-gradient(90deg,var(--accent-soft),rgba(248,113,113,.12));
+      color:#fef9c3;
+      padding:7px 14px;
       cursor:pointer;
-      font-size:.8rem;
+      font-size:.82rem;
       white-space:nowrap;
     }
     .btn:disabled{
@@ -152,117 +187,177 @@
       cursor:not-allowed;
     }
     .btn-secondary{
-      border-color:rgba(148,163,184,.8);
+      border-color:rgba(148,163,184,.7);
       background:transparent;
-      color:#e5e7eb;
+      color:var(--text);
     }
 
-    /* Великі вертикальні кнопки інших дій */
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      margin-top:8px;
+    }
+
+    .chip{
+      font-size:.74rem;
+      padding:4px 9px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.55);
+    }
+    .chip-muted{
+      background:rgba(15,23,42,.9);
+      color:var(--muted);
+    }
+    .chip-open{
+      background:rgba(22,163,74,.18);
+      border-color:rgba(34,197,94,.8);
+      color:#bbf7d0;
+    }
+    .chip-closed{
+      background:rgba(127,29,29,.28);
+      border-color:rgba(248,113,113,.8);
+      color:#fecaca;
+    }
+
+    .subline{
+      margin-top:4px;
+      font-size:.8rem;
+      color:var(--muted);
+    }
+
+    /* Великі вертикальні кнопки нижче */
     .big-actions{
-      margin-top:20px;
+      margin-top:22px;
+    }
+    .big-actions-title{
+      font-size:.86rem;
+      text-transform:uppercase;
+      letter-spacing:.18em;
+      color:var(--muted);
+      margin-bottom:6px;
     }
     .big-btn{
       width:100%;
-      padding:16px 14px;
+      padding:15px 14px;
       margin-bottom:10px;
-      border-radius:16px;
-      border:1px solid rgba(148,163,184,.7);
-      background:#020617;
-      color:#e5e7eb;
+      border-radius:18px;
+      border:1px solid rgba(148,163,184,.65);
+      background:radial-gradient(circle at left,rgba(148,163,184,.16),#020617 55%);
+      color:var(--text);
       text-align:left;
       cursor:pointer;
       display:flex;
       justify-content:space-between;
       align-items:center;
+      box-shadow:0 16px 40px rgba(0,0,0,.8);
     }
     .big-btn span.title{
-      font-size:.95rem;
+      font-size:.94rem;
       font-weight:600;
     }
     .big-btn span.subtitle{
       font-size:.8rem;
-      color:#9ca3af;
+      color:var(--muted);
       display:block;
       margin-top:2px;
     }
     .big-btn span.arrow{
       font-size:1.3rem;
-      opacity:.8;
+      opacity:.85;
     }
   </style>
 </head>
 <body>
   <header>
-    <div>
+    <div class="logo-wrap">
       <div class="logo">DK PRIME · CONTROL PANEL</div>
-      <div id="userInfo" class="role-label">Перевірка доступу...</div>
+      <div class="logo-sub" id="userInfo">Перевірка доступу...</div>
     </div>
-    <button class="logout" id="logoutBtn">Вийти</button>
+    <button class="logout" id="logoutBtn">
+      <span>Вийти</span>
+    </button>
   </header>
 
   <main>
     <div id="systemMessage"></div>
 
     <!-- ADMIN -->
-    <section id="adminSection" class="card hidden">
-      <span class="badge">admin</span>
-      <h2>Панель організатора</h2>
-      <p class="muted">
-        Тут ти створюєш сезони/змагання, етапи, та керуєш відкриттям реєстрації.
-      </p>
+    <section id="adminSection" class="hidden">
+      <div class="layout">
+        <!-- Ліва колонка: активний сезон/етап -->
+        <div class="col-left">
+          <div class="card card-highlight">
+            <span class="badge">Активний сезон / етап</span>
+            <h2>
+              Керування поточним змаганням
+              <span class="badge-mini">LIVE</span>
+            </h2>
+            <p class="muted">
+              Обери сезон і етап, відкрий або закрий реєстрацію. 
+              Обраний етап бачать сторінки реєстрації, жеребкування та судді.
+            </p>
 
-      <!-- Створити новий сезон / змагання -->
-      <div class="block">
-        <h3>Створити новий сезон / змагання</h3>
-        <form id="createSeasonForm">
-          <label class="field-label" for="seasonIdInput">ID сезону (наприклад: 2026)</label>
-          <input type="text" id="seasonIdInput" placeholder="2026" required>
+            <label for="seasonSelect" class="field-label">Сезон / турнір</label>
+            <select id="seasonSelect" disabled>
+              <option value="">Завантаження...</option>
+            </select>
+            <div id="seasonInfo" class="subline"></div>
 
-          <label class="field-label" for="seasonTitleInput">Назва сезону / турніру</label>
-          <input type="text" id="seasonTitleInput" placeholder="STOLAR CARP 2026" required>
+            <label for="stageSelect" class="field-label" style="margin-top:10px;">Етап</label>
+            <select id="stageSelect" disabled>
+              <option value="">Спочатку обери сезон</option>
+            </select>
 
-          <label class="field-label" for="seasonYearInput">Рік</label>
-          <input type="number" id="seasonYearInput" placeholder="2026" required>
+            <div class="row">
+              <span id="stageStatusBadge" class="chip chip-muted">Статус: не обрано</span>
+              <button id="toggleStageBtn" class="btn" disabled>Відкрити реєстрацію</button>
+            </div>
 
-          <label class="field-label" for="seasonStagesInput">Кількість етапів (без фіналу)</label>
-          <input type="number" id="seasonStagesInput" value="5" min="1" max="10" required>
-
-          <div style="margin-top:8px;">
-            <button type="submit" class="btn">Створити сезон + етапи 1–5 та Фінал</button>
+            <p class="subline">
+              Активний етап також зберігається в <code>settings/active</code> і дублюється в <code>localStorage</code>.
+              Зелений статус — відкрито, червоний — закрито.
+            </p>
           </div>
-        </form>
-        <p class="muted" style="margin-top:6px;">
-          Буде створено документ у <code>seasons</code>, етапи в <code>stages</code> (1–5 та Фінал),
-          а також оновлено <code>settings/active</code> на перший етап.
-        </p>
-      </div>
-
-      <!-- Вибір активного сезону/етапу -->
-      <div class="block">
-        <h3>Активний сезон / етап</h3>
-
-        <label for="seasonSelect" class="field-label">Обрати сезон / турнір</label>
-        <select id="seasonSelect" disabled>
-          <option value="">Завантаження...</option>
-        </select>
-        <div id="seasonInfo" class="muted" style="margin-top:4px;"></div>
-
-        <div style="height:8px;"></div>
-
-        <label for="stageSelect" class="field-label">Обрати етап</label>
-        <select id="stageSelect" disabled>
-          <option value="">Спочатку обери сезон</option>
-        </select>
-
-        <div class="row">
-          <span id="stageStatusBadge" class="chip chip-muted">Статус: не обрано</span>
-          <button id="toggleStageBtn" class="btn" disabled>Відкрити реєстрацію</button>
         </div>
 
-        <p class="muted" style="margin-top:4px;">
-          Активний етап зберігається в <code>settings/active</code> і дублюється в <code>localStorage</code>.
-          Колір: <span style="color:#bbf7d0;">зелений</span> – відкрито, <span style="color:#fecaca;">червоний</span> – закрито.
-        </p>
+        <!-- Права колонка: створення сезону -->
+        <div class="col-right">
+          <div class="card">
+            <span class="badge">Структура сезону</span>
+            <h2>Створити новий сезон / змагання</h2>
+            <p class="muted">
+              Створює запис у <code>seasons</code> та етапи в <code>stages</code> (1–5 та Фінал). 
+              Потім можна редагувати назви, дати та інші параметри.
+            </p>
+
+            <form id="createSeasonForm">
+              <label class="field-label" for="seasonIdInput">ID сезону (наприклад: 2026)</label>
+              <input type="text" id="seasonIdInput" placeholder="2026" required>
+
+              <label class="field-label" for="seasonTitleInput">Назва сезону / турніру</label>
+              <input type="text" id="seasonTitleInput" placeholder="STOLAR CARP 2026" required>
+
+              <label class="field-label" for="seasonYearInput">Рік</label>
+              <input type="number" id="seasonYearInput" placeholder="2026" required>
+
+              <label class="field-label" for="seasonStagesInput">Кількість етапів (без фіналу)</label>
+              <input type="number" id="seasonStagesInput" value="5" min="1" max="10" required>
+
+              <div style="margin-top:10px;">
+                <button type="submit" class="btn">
+                  Створити сезон + етапи 1–5 та Фінал
+                </button>
+              </div>
+            </form>
+
+            <p class="subline">
+              Після створення сезону його можна редагувати прямо у Firestore 
+              або згодом додамо окрему сторінку налаштувань сезону в DK PRIME.
+            </p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -272,6 +367,7 @@
       <h2>Панель судді</h2>
       <p class="muted">
         Для суддів використовується окрема сторінка <code>judges.html</code>, де кожен бачить тільки свою зону (A/B/C).
+        Ця сторінка використовується капітаном/адміном.
       </p>
     </section>
 
@@ -282,12 +378,14 @@
       <p>Ваш акаунт не має ролі admin або judge. Зверніться до організатора.</p>
     </section>
 
-    <!-- Великі кнопки інших дій (поза рамками карток) -->
+    <!-- Великі вертикальні кнопки інших дій -->
     <section id="bigActionsSection" class="big-actions hidden">
+      <div class="big-actions-title">Навігація по керуванню турніром</div>
+
       <button class="big-btn" onclick="window.location.href='registrations.html'">
         <div>
           <span class="title">Реєстрація учасників</span>
-          <span class="subtitle">Перегляд заявок на активний етап, підтвердження оплати</span>
+          <span class="subtitle">Заявки на активний етап, підтвердження оплати, статус команд</span>
         </div>
         <span class="arrow">➜</span>
       </button>
@@ -295,7 +393,7 @@
       <button class="big-btn" onclick="window.location.href='draw.html'">
         <div>
           <span class="title">Жеребкування</span>
-          <span class="subtitle">Розподіл підтверджених команд по зонах та секторах</span>
+          <span class="subtitle">Розподіл підтверджених команд по зонах і секторах</span>
         </div>
         <span class="arrow">➜</span>
       </button>
@@ -303,7 +401,7 @@
       <button class="big-btn" onclick="window.location.href='judges.html'">
         <div>
           <span class="title">Зони суддів A / B / C</span>
-          <span class="subtitle">Внесення зважувань по своїй зоні, адмін бачить усі</span>
+          <span class="subtitle">Судді вносять вагу риби тільки у своїй зоні, адмін бачить усі</span>
         </div>
         <span class="arrow">➜</span>
       </button>
