@@ -1,14 +1,11 @@
 // register_logic.js
 
-// Підключаємо готові auth і db з єдиного firebase-config.js
 import { auth, db } from "./firebase-config.js";
 
-// Імпортуємо потрібні функції з Firebase Auth
 import {
   createUserWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-// Імпортуємо потрібні функції з Firestore
 import {
   collection,
   addDoc,
@@ -17,9 +14,6 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// -------------------------------
-// DOM
-// -------------------------------
 const form  = document.getElementById("registerForm");
 const msgEl = document.getElementById("registerMessage");
 
@@ -33,12 +27,9 @@ function makeJoinCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-// -------------------------------
-// Обробка форми
-// -------------------------------
 if (form) {
   form.addEventListener("submit", async (e) => {
-    e.preventDefault(); // щоб сторінка не перезавантажувалася
+    e.preventDefault();
     showMessage("");
 
     const submitBtn = form.querySelector("button[type='submit']");
@@ -77,17 +68,17 @@ if (form) {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       const user = cred.user;
 
-      // 2) Записуємо його профіль у Firestore: users/{uid}
+      // 2) Запис профілю в users/{uid}
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
         email,
         name: fullName,
         phone,
-        role: "admin", // зараз ти капітан/адмін, потім зробимо гнучкі ролі
+        role: "captain",            // ← звичайний учасник, НЕ admin
         createdAt: serverTimestamp()
       });
 
-      // 3) Створюємо команду в testTeams
+      // 3) Створюємо команду (можеш потім перейменувати testTeams → teams)
       const teamRef = await addDoc(collection(db, "testTeams"), {
         captainUID: user.uid,
         name: teamName,
@@ -97,13 +88,13 @@ if (form) {
       });
 
       console.log("✅ Створена команда з id:", teamRef.id);
-
       showMessage("Акаунт і команда успішно створені!", false);
 
-      // 4) Перекидаємо назад на вхід в адмінку
+      // 4) ПЕРЕХІД У МІЙ КАБІНЕТ STOLAR CARP
       setTimeout(() => {
-        window.location.href = "./index.html";
+        window.location.href = "https://stolarcarp.netlify.app/cabinet.html";
       }, 800);
+
     } catch (err) {
       console.error("❌ Помилка реєстрації:", err);
       showMessage(`Помилка: ${err.code || err.message}`);
