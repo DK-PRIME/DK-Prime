@@ -2,13 +2,13 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>DK PRIME · Admin / Judge Panel</title>
+  <title>DK Prime · Панель</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body{
       margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:#020617;
       color:#e5e7eb;
     }
@@ -41,8 +41,8 @@
     }
     main{
       padding:18px;
-      max-width:1100px;
-      margin:0 auto 40px;
+      max-width:900px;
+      margin:0 auto;
     }
     .card{
       background:#0f172a;
@@ -74,25 +74,17 @@
       font-size:.85rem;
       min-height:1.2em;
     }
-
     .muted{
       font-size:.8rem;
       color:#9ca3af;
-      margin-top:4px;
     }
 
-    /* ADMIN GRID */
-    .admin-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:16px;
-      margin-top:10px;
-    }
-    .admin-block{
+    .block{
       padding:10px 12px;
       border-radius:12px;
       border:1px dashed rgba(148,163,184,.4);
       background:rgba(15,23,42,.6);
+      margin-top:10px;
     }
     label.field-label{
       display:block;
@@ -100,11 +92,11 @@
       color:#9ca3af;
       margin-bottom:3px;
     }
-    select,button,input,textarea{
+    select, button{
       font-family:inherit;
       font-size:.85rem;
     }
-    select,input[type="text"],input[type="number"]{
+    select{
       width:100%;
       padding:6px 8px;
       border-radius:8px;
@@ -112,16 +104,15 @@
       background:#020617;
       color:#e5e7eb;
     }
-    select:disabled,input:disabled{
+    select:disabled{
       opacity:.6;
       cursor:not-allowed;
     }
-
-    .stage-status-row{
+    .row{
       display:flex;
       flex-wrap:wrap;
-      align-items:center;
       gap:8px;
+      align-items:center;
       margin-top:8px;
     }
     .chip{
@@ -144,7 +135,7 @@
       border-color:rgba(248,113,113,.7);
       color:#fecaca;
     }
-    .btn-outline{
+    .btn{
       border-radius:999px;
       border:1px solid rgba(250,204,21,.8);
       background:linear-gradient(to right,rgba(250,204,21,.08),rgba(248,113,113,.08));
@@ -154,257 +145,106 @@
       font-size:.8rem;
       white-space:nowrap;
     }
-    .btn-outline:disabled{
+    .btn:disabled{
       opacity:.5;
       cursor:not-allowed;
     }
-
-    /* REGISTRATIONS TABLE */
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:8px;
-      font-size:.85rem;
+    .btn-secondary{
+      border-color:rgba(148,163,184,.8);
+      background:transparent;
+      color:#e5e7eb;
     }
-    th,td{
-      padding:6px 6px;
-      border-bottom:1px solid rgba(31,41,55,.9);
-      text-align:left;
-    }
-    th{
-      color:#9ca3af;
-      font-weight:500;
-      font-size:.78rem;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-    .status-paid{
-      color:#4ade80;
-      font-weight:600;
-    }
-    .status-pending{
-      color:#facc15;
-      font-weight:500;
-    }
-    .status-unassigned{
-      color:#9ca3af;
-      font-style:italic;
-    }
-    button.small{
-      padding:4px 8px;
-      font-size:.78rem;
-      border-radius:999px;
-      border:none;
-      cursor:pointer;
-      background:#22c55e;
-      color:#022c22;
-    }
-    button.small[disabled]{
-      opacity:.5;
-      cursor:not-allowed;
-    }
-
-    .flex-row{
+    .nav-row{
       display:flex;
       flex-wrap:wrap;
       gap:8px;
-      align-items:center;
-      margin-top:8px;
-    }
-    ul{
-      margin:6px 0 0;
-      padding-left:18px;
-      font-size:.82rem;
-    }
-
-    /* JUDGE */
-    #judgeHeader{
-      margin-bottom:6px;
-    }
-    #judgeStageLabel{
-      font-size:.8rem;
-      color:#9ca3af;
-      margin-bottom:10px;
-    }
-    .team-card{
-      border-radius:12px;
-      border:1px solid rgba(148,163,184,.35);
-      padding:10px 10px 12px;
       margin-top:10px;
-      background:rgba(15,23,42,.9);
-    }
-    .team-header{
-      display:flex;
-      justify-content:space-between;
-      gap:8px;
-      font-size:.9rem;
-      margin-bottom:6px;
-    }
-    .team-meta{
-      font-size:.8rem;
-      color:#9ca3af;
-    }
-    .weighing-form{
-      margin-top:6px;
-      display:flex;
-      gap:6px;
-      flex-wrap:wrap;
-    }
-    .weighing-form input{
-      max-width:130px;
-    }
-    .weighing-form button{
-      padding:4px 10px;
-      border-radius:999px;
-      border:none;
-      cursor:pointer;
-      font-size:.8rem;
-      background:#f97316;
-      color:#111827;
-    }
-    .weighing-list{
-      margin-top:4px;
-      padding-left:18px;
-      font-size:.8rem;
-    }
-
-    .alert-error{
-      margin-top:10px;
-      padding:8px 10px;
-      border-radius:10px;
-      background:rgba(127,29,29,.4);
-      border:1px solid #fca5a5;
-      font-size:.85rem;
     }
   </style>
 </head>
 <body>
-<header>
-  <div>
-    <div class="logo">DK PRIME · CONTROL PANEL</div>
-    <div id="userInfo" class="role-label">Перевірка доступу...</div>
-  </div>
-  <button class="logout" id="logoutBtn">Вийти</button>
-</header>
+  <header>
+    <div>
+      <div class="logo">DK PRIME · CONTROL PANEL</div>
+      <div id="userInfo" class="role-label">Перевірка доступу...</div>
+    </div>
+    <button class="logout" id="logoutBtn">Вийти</button>
+  </header>
 
-<main>
-  <div id="systemMessage"></div>
+  <main>
+    <div id="systemMessage"></div>
 
-  <!-- ADMIN -->
-  <section id="adminSection" class="card hidden">
-    <span class="badge">admin</span>
-    <h2>Панель організатора</h2>
-    <p class="muted">
-      Обери сезон та етап, відкрий реєстрацію, перевіряй заявки, оплати та проводь жеребкування.
-      Активний етап і статус реєстрації читає сайт <b>stolarcarp.netlify.app</b>.
-    </p>
+    <!-- ADMIN -->
+    <section id="adminSection" class="card hidden">
+      <span class="badge">admin</span>
+      <h2>Панель організатора</h2>
+      <p class="muted">
+        Тут ти задаєш активний сезон/змагання і етап, відкриваєш/закриваєш реєстрацію.
+        Усі інші дії — на окремих сторінках DK Prime.
+      </p>
 
-    <div class="admin-grid">
-      <!-- СЕЗОН -->
-      <div class="admin-block">
-        <h3>Сезон</h3>
-        <label for="seasonSelect" class="field-label">Обрати сезон STOLAR CARP</label>
+      <div class="block">
+        <h3>Сезон / змагання</h3>
+        <label for="seasonSelect" class="field-label">Обрати сезон / турнір</label>
         <select id="seasonSelect" disabled>
-          <option value="">Завантаження сезонів...</option>
+          <option value="">Завантаження...</option>
         </select>
-        <div id="seasonInfo" class="muted"></div>
+        <div id="seasonInfo" class="muted" style="margin-top:4px;"></div>
       </div>
 
-      <!-- ЕТАП -->
-      <div class="admin-block">
+      <div class="block">
         <h3>Етап</h3>
-        <label for="stageSelect" class="field-label">Обрати етап сезону</label>
+        <label for="stageSelect" class="field-label">Обрати етап</label>
         <select id="stageSelect" disabled>
           <option value="">Спочатку обери сезон</option>
         </select>
 
-        <div class="stage-status-row">
+        <div class="row">
           <span id="stageStatusBadge" class="chip chip-muted">Статус: не обрано</span>
-          <button id="toggleStageBtn" class="btn-outline" disabled>Відкрити реєстрацію</button>
+          <button id="toggleStageBtn" class="btn" disabled>Відкрити реєстрацію</button>
         </div>
 
-        <div class="muted">
-          Активний етап з відкритою реєстрацією — той, на який можуть подати заявку капітани.
+        <p class="muted" style="margin-top:4px;">
+          Активний етап з відкритою реєстрацією зберігається у <code>settings/active</code>.
+        </p>
+      </div>
+
+      <div class="block">
+        <h3>Інші дії DK Prime</h3>
+        <p class="muted">Перехід на окремі сторінки керування.</p>
+        <div class="nav-row">
+          <button class="btn-secondary btn" onclick="window.location.href='registrations.html'">
+            Реєстрація команд
+          </button>
+          <button class="btn-secondary btn" onclick="window.location.href='draw.html'">
+            Жеребкування
+          </button>
+          <button class="btn-secondary btn" onclick="window.location.href='judges.html'">
+            Суддівські зони
+          </button>
         </div>
-        <div id="tournamentInfo" class="muted"></div>
       </div>
-    </div>
+    </section>
 
-    <!-- ЗАЯВКИ + ОПЛАТА -->
-    <div class="admin-block" style="margin-top:14px;">
-      <h3>Заявки та оплата</h3>
+    <!-- JUDGE (поки просто заглушка) -->
+    <section id="judgeSection" class="card hidden">
+      <span class="badge">judge</span>
+      <h2>Панель судді</h2>
       <p class="muted">
-        Тут видно всі заявки на <b>активний турнір (tournamentId)</b>.
-        Після підтвердження оплати команда потрапляє до списку жеребкування.
+        Для суддів є окрема сторінка <code>judges.html</code>, де кожен бачить тільки свою зону.
+        Посилання на неї дає організатор.
       </p>
+    </section>
 
-      <div class="flex-row">
-        <button id="refreshRegistrationsBtn" class="btn-outline">Оновити список заявок</button>
-        <span id="registrationsStatus" class="muted"></span>
-      </div>
+    <!-- NO ACCESS -->
+    <section id="noAccessSection" class="card hidden">
+      <span class="badge">доступ заборонено</span>
+      <h2>Недостатньо прав</h2>
+      <p>Ваш акаунт не має ролі admin або judge. Зверніться до організатора.</p>
+    </section>
+  </main>
 
-      <table>
-        <thead>
-        <tr>
-          <th>ID</th>
-          <th>Команда</th>
-          <th>Оплата</th>
-          <th>Зона / Сектор</th>
-          <th>Дія</th>
-        </tr>
-        </thead>
-        <tbody id="registrationsBody">
-        <tr><td colspan="5">Заявки не завантажені.</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- ЖЕРЕБКУВАННЯ -->
-    <div class="admin-block" style="margin-top:14px;">
-      <h3>Жеребкування секторов</h3>
-      <p class="muted">
-        В жеребкуванні беруть участь лише оплачені команди без призначеного сектора.
-      </p>
-
-      <label for="availableSectorsInput" class="field-label">
-        Доступні сектори (формат: A-1, A-2, B-1, B-2, C-1, C-2)
-      </label>
-      <input id="availableSectorsInput"
-             type="text"
-             value="A-1, A-2, A-3, A-4, B-1, B-2, B-3, B-4, C-1, C-2, C-3, C-4">
-
-      <div class="flex-row">
-        <button id="runDrawBtn" class="btn-outline">Провести жеребкування</button>
-        <span id="drawStatus" class="muted"></span>
-      </div>
-
-      <div class="muted" style="margin-top:6px;">Команди, допущені до жеребкування:</div>
-      <ul id="drawWaitingList">
-        <li>Список ще не завантажено.</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- JUDGE -->
-  <section id="judgeSection" class="card hidden">
-    <span class="badge">judge</span>
-    <h2 id="judgeHeader">Панель судді</h2>
-    <div id="judgeStageLabel"></div>
-    <div id="judgeMessage" class="muted"></div>
-    <div id="judgeTeamsContainer"></div>
-  </section>
-
-  <!-- NO ACCESS -->
-  <section id="noAccessSection" class="card hidden">
-    <span class="badge">доступ заборонено</span>
-    <h2>Недостатньо прав</h2>
-    <p>Ваш акаунт не має ролі <b>admin</b> або <b>judge</b>. Зверніться до організатора.</p>
-  </section>
-
-  <section id="errorSection" class="alert-error hidden"></section>
-</main>
-
-<script type="module" src="./firebase-config.js"></script>
-<script type="module" src="./admin_judge_logic.js"></script>
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./admin_judge_logic.js"></script>
 </body>
 </html>
