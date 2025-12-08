@@ -1,4 +1,4 @@
-// register_logic.js
+// register_logic_sc.js — НОВА ЛОГІКА РЕЄСТРАЦІЇ ДЛЯ STOLAR CARP
 
 import { auth, db } from "./firebase-config.js";
 
@@ -64,21 +64,21 @@ if (form) {
     }
 
     try {
-      // 1) Створюємо користувача в Auth
+      // 1) Створюємо користувача
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       const user = cred.user;
 
-      // 2) Запис профілю в users/{uid}
+      // 2) Пишемо профіль
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
         email,
         name: fullName,
         phone,
-        role: "captain",            // ← звичайний учасник, НЕ admin
+        role: "captain",          // ← НЕ admin
         createdAt: serverTimestamp()
       });
 
-      // 3) Створюємо команду (можеш потім перейменувати testTeams → teams)
+      // 3) Створюємо команду
       const teamRef = await addDoc(collection(db, "testTeams"), {
         captainUID: user.uid,
         name: teamName,
@@ -90,7 +90,7 @@ if (form) {
       console.log("✅ Створена команда з id:", teamRef.id);
       showMessage("Акаунт і команда успішно створені!", false);
 
-      // 4) ПЕРЕХІД У МІЙ КАБІНЕТ STOLAR CARP
+      // 4) ПРЯМИЙ ПЕРЕХІД У КАБІНЕТ STOLAR CARP
       setTimeout(() => {
         window.location.href = "https://stolarcarp.netlify.app/cabinet.html";
       }, 800);
