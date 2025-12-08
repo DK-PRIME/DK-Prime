@@ -56,10 +56,6 @@
       font-size:.75rem;
       color:var(--muted);
     }
-    .role-label{
-      font-size:.8rem;
-      color:var(--muted);
-    }
     button.logout{
       border-radius:999px;
       border:1px solid rgba(148,163,184,.7);
@@ -295,8 +291,8 @@
               <span class="badge-mini">LIVE</span>
             </h2>
             <p class="muted">
-              Обери сезон і етап, відкрий або закрий реєстрацію. 
-              Обраний етап бачать сторінки реєстрації, жеребкування та судді.
+              Обери сезон/турнір і етап, відкрий або закрий реєстрацію. 
+              Обраний етап бачать сторінки реєстрації, жеребкування та судді (через дані Firestore).
             </p>
 
             <label for="seasonSelect" class="field-label">Сезон / турнір</label>
@@ -316,24 +312,31 @@
             </div>
 
             <p class="subline">
-              Активний етап також зберігається в <code>settings/active</code> і дублюється в <code>localStorage</code>.
-              Зелений статус — відкрито, червоний — закрито.
+              Для активного етапу в сезоні зберігаються поля 
+              <code>activeStageId</code> та <code>activeStageOpen</code>, 
+              а в самому етапі — <code>isRegistrationOpen</code>.
             </p>
           </div>
         </div>
 
-        <!-- Права колонка: створення сезону -->
+        <!-- Права колонка: створення сезону / одиночного -->
         <div class="col-right">
           <div class="card">
-            <span class="badge">Структура сезону</span>
-            <h2>Створити новий сезон / змагання</h2>
+            <span class="badge">Структура турніру</span>
+            <h2>Створити новий сезон / турнір</h2>
             <p class="muted">
-              Створює запис у <code>seasons</code> та етапи в <code>stages</code> (1–5 та Фінал). 
-              Потім можна редагувати назви, дати та інші параметри.
+              Створює запис у <code>seasons</code> та етапи в підколекції <code>stages</code>.
+              Для сезонів автоматично додається Фінал, одиночні змагання – без фіналу.
             </p>
 
             <form id="createSeasonForm">
-              <label class="field-label" for="seasonIdInput">ID сезону (наприклад: 2026)</label>
+              <label class="field-label" for="tournamentTypeSelect">Тип змагання</label>
+              <select id="tournamentTypeSelect">
+                <option value="season">Сезон із фіналом</option>
+                <option value="single">Одиночний турнір (без фіналу)</option>
+              </select>
+
+              <label class="field-label" for="seasonIdInput">ID сезону / турніру (наприклад: 2026)</label>
               <input type="text" id="seasonIdInput" placeholder="2026" required>
 
               <label class="field-label" for="seasonTitleInput">Назва сезону / турніру</label>
@@ -342,32 +345,53 @@
               <label class="field-label" for="seasonYearInput">Рік</label>
               <input type="number" id="seasonYearInput" placeholder="2026" required>
 
-              <label class="field-label" for="seasonStagesInput">Кількість етапів (без фіналу)</label>
-              <input type="number" id="seasonStagesInput" value="5" min="1" max="10" required>
+              <!-- Блок тільки для сезонів -->
+              <div id="seasonConfigBlock">
+                <label class="field-label" for="seasonStagesInput">
+                  Кількість етапів у сезоні (без фіналу)
+                </label>
+                <input type="number" id="seasonStagesInput" value="5" min="1" max="20">
+
+                <label class="field-label" for="seasonBestOfInput">
+                  Скільки етапів брати до рейтингу (найкращих)
+                </label>
+                <input type="number" id="seasonBestOfInput" min="1" max="20" placeholder="Напр. 3">
+
+                <label class="field-label">
+                  <input type="checkbox" id="useBigFishBonusInput" checked>
+                  Враховувати бонус -1 бал за Big Fish ≥ 13 кг
+                  (максимум 1 раз за етап для команди)
+                </label>
+
+                <p class="subline">
+                  Приклад: 5 етапів у сезоні, до рейтингу й відбору у фінал беруться найкращі 3.
+                  1 місце = 1 бал, 2 місце = 2, риба ≥13 кг дає -1 бал на цьому етапі (але не більше одного мінуса з етапу).
+                </p>
+              </div>
 
               <div style="margin-top:10px;">
                 <button type="submit" class="btn">
-                  Створити сезон + етапи 1–5 та Фінал
+                  Створити турнір
                 </button>
               </div>
             </form>
 
             <p class="subline">
-              Після створення сезону його можна редагувати прямо у Firestore 
-              або згодом додамо окрему сторінку налаштувань сезону в DK PRIME.
+              Для сезонів перший етап (<code>e1</code>) буде призначено як активний, але з закритою реєстрацією.
+              Для одиночних турнірів створюється тільки один етап (<code>e1</code>) без фіналу.
             </p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- JUDGE (заглушка) -->
+    <!-- JUDGE -->
     <section id="judgeSection" class="card hidden">
       <span class="badge">judge</span>
       <h2>Панель судді</h2>
       <p class="muted">
-        Для суддів використовується окрема сторінка <code>judges.html</code>, де кожен бачить тільки свою зону (A/B/C).
-        Ця сторінка використовується капітаном/адміном.
+        Для суддів буде окрема сторінка <code>judges.html</code>, де кожен бачить тільки свою зону (A / B / C)
+        і вводить вагу риби по своїй зоні. Ця сторінка — тільки для організатора.
       </p>
     </section>
 
