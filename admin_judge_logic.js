@@ -9,82 +9,152 @@ import {
 import {
   doc,
   getDoc,
-  setDoc,
-  updateDoc,
   collection,
   getDocs,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
   query,
-  where
+  orderBy,
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// DOM
-const adminSection    = document.getElementById("adminSection");
-const judgeSection    = document.getElementById("judgeSection");
-const noAccessSection = document.getElementById("noAccessSection");
-const sysMsg          = document.getElementById("systemMessage");
-const userInfo        = document.getElementById("userInfo");
-const logoutBtn       = document.getElementById("logoutBtn");
+// ===== DOM елементи =====
+const adminSection      = document.getElementById("adminSection");
+const judgeSection      = document.getElementById("judgeSection");
+const noAccessSection   = document.getElementById("noAccessSection");
+const bigActionsSection = document.getElementById("bigActionsSection");
 
-// елементи адмін-панелі
-const seasonSelect        = document.getElementById("seasonSelect");
-const stageSelect         = document.getElementById("stageSelect");
-const seasonInfo          = document.getElementById("seasonInfo");
-const stageStatusBadge    = document.getElementById("stageStatusBadge");
-const toggleStageBtn      = document.getElementById("toggleStageBtn");
-const createSeasonForm    = document.getElementById("createSeasonForm");
+const sysMsg     = document.getElementById("systemMessage");
+const userInfoEl = document.getElementById("userInfo");
+const logoutBtn  = document.getElementById("logoutBtn");
 
-// глобальний стан
-let currentSeasonId  = null;
-let currentStageId   = null;
-let currentStageOpen = false;
-let cachedSeasons    = [];
-let cachedStagesBySeason = {}; // { seasonId: [ {id, data} ] }
+// Елементи адмінки (сезон/етап)
+const seasonSelect     = document.getElementById("seasonSelect");
+const seasonInfoEl     = document.getElementById("seasonInfo");
+const stageSelect      = document.getElementById("stageSelect");
+const stageStatusBadge = document.getElementById("stageStatusBadge");
+const toggleStageBtn   = document.getElementById("toggleStageBtn");
 
-function setMessage(text, type = "info"){
-  if(!sysMsg) return;
+// Форма створення сезону / турніру
+const createSeasonForm       = document.getElementById("createSeasonForm");
+const tournamentTypeSelect   = document.getElementById("tournamentTypeSelect");
+const seasonIdInput          = document.getElementById("seasonIdInput");
+const seasonTitleInput       = document.getElementById("seasonTitleInput");
+const seasonYearInput        = document.getElementById("seasonYearInput");
+const seasonStagesInput      = document.getElementById("seasonStagesInput");
+const seasonBestOfInput      = document.getElementById("seasonBestOfInput");
+const useBigFishBonusInput   = document.getElementById("useBigFishBonusInput");
+const seasonConfigBlock      = document.getElementById("seasonConfigBlock");
+
+// ===== Глобальні змінні =====
+let currentUser    = null;
+let currentSeasonId = null;
+let currentStageId  = null;
+const seasonsCache = new Map();
+
+// ===== Хелпери =====
+function setMessage(text, type = "info") {
+  if (!sysMsg) return;
   sysMsg.textContent = text || "";
-  if(type === "error"){
-    sysMsg.style.color = "#f97373";
-  }else if(type === "success"){
-    sysMsg.style.color = "#4ade80";
-  }else{
-    sysMsg.style.color = "#e5e7eb";
-  }
+  if (type === "error")  sysMsg.style.color = "#f97373";
+  else if (type === "success") sysMsg.style.color = "#4ade80";
+  else sysMsg.style.color = "#e5e7eb";
 }
 
-function hideAll(){
+function hideAllSections() {
   adminSection?.classList.add("hidden");
   judgeSection?.classList.add("hidden");
   noAccessSection?.classList.add("hidden");
+  bigActionsSection?.classList.add("hidden");
 }
 
-// вихід
+function updateStageStatusUI(isOpen) {
+  if (!stageStatusBadge || !toggleStageBtn) return;
+
+  if (currentStageId == null) {
+    stageStatusBadge.textContent = "Статус: не обрано";
+    stageStatusBadge.className = "chip chip-muted";
+    toggleStageBtn.disabled = true;
+    toggleStageBtn.textContent = "Відкрити реєстрацію";
+    return;
+  }
+
+  if (isOpen) {
+    stageStatusBadge.textContent = "Статус: реєстрація відкрита";
+    stageStatusBadge.className = "chip chip-open";
+    toggleStageBtn.textContent = "Закрити реєстрацію";
+  } else {
+    stageStatusBadge.textContent = "Статус: реєстрація закрита";
+    stageStatusBadge.className = "chip chip-closed";
+    toggleStageBtn.textContent = "Відкрити реєстрацію";
+  }
+  toggleStageBtn.disabled = false;
+}
+
+function updateSeasonInfo(seasonId) {
+  if (!seasonInfoEl) return;
+  const data = seasonsCache.get(seasonId);
+  if (!data) {
+    seasonInfoEl.textContent = "";
+    return;
+  }
+  const year   = data.year || "";
+  const name   = data.name || data.title || seasonId;
+  const stages = data.stagesCount || "";
+  const type   = data.type || "season";
+
+  const typeLabel =
+    type === "single"
+      ? "Одиночний турнір"
+      : "Сезон із фіналом";
+
+  seasonInfoEl.textContent =
+    `${name}` +
+    (year ? ` · ${year}` : "") +
+    (stages ? ` · етапів: ${stages}` : "") +
+    ` · ${typeLabel}`;
+}
+
+function refreshSeasonConfigVisibility() {
+  if (!seasonConfigBlock || !tournamentTypeSelect) return;
+  const type = tournamentTypeSelect.value || "season";
+  if (type === "season") {
+    seasonConfigBlock.style.display = "block";
+  } else {
+    seasonConfigBlock.style.display = "none";
+  }
+}
+
+// ===== Події =====
 logoutBtn?.addEventListener("click", async () => {
-  try{
+  try {
     await signOut(auth);
     window.location.href = "./index.html";
-  }catch(err){
+  } catch (err) {
     console.error(err);
     setMessage("Помилка виходу: " + err.message, "error");
   }
 });
 
-// ==============================
-//  AUTH + РОЛІ
-// ==============================
+tournamentTypeSelect?.addEventListener("change", () => {
+  refreshSeasonConfigVisibility();
+});
+
+// ===== Ініціалізація ролі користувача =====
 onAuthStateChanged(auth, async (user) => {
-  if(!user){
+  if (!user) {
     window.location.href = "./index.html";
     return;
   }
+  currentUser = user;
 
-  try{
+  try {
     setMessage("Перевірка ролі користувача...");
     const userDoc = await getDoc(doc(db, "users", user.uid));
 
-    if(!userDoc.exists()){
-      userInfo.textContent = `Увійшов: ${user.email} (немає профілю users)`;
-      hideAll();
+    if (!userDoc.exists()) {
+      userInfoEl.textContent = `Увійшов: ${user.email} (немає профілю users)`;
+      hideAllSections();
       noAccessSection?.classList.remove("hidden");
       setMessage("Профіль користувача не знайдено.", "error");
       return;
@@ -93,420 +163,363 @@ onAuthStateChanged(auth, async (user) => {
     const data = userDoc.data();
     const role = data.role || "unknown";
 
-    userInfo.textContent = `Увійшов: ${user.email} · роль: ${role}`;
-    hideAll();
+    userInfoEl.textContent = `Увійшов: ${user.email} · роль: ${role}`;
+    hideAllSections();
 
-    if(role === "admin"){
+    if (role === "admin") {
       adminSection?.classList.remove("hidden");
-      document.getElementById("bigActionsSection")?.classList.remove("hidden");
+      bigActionsSection?.classList.remove("hidden");
       setMessage("Доступ надано: організатор.", "success");
       initAdminPanel();
-    }else if(role === "judge"){
+    } else if (role === "judge") {
       judgeSection?.classList.remove("hidden");
       setMessage("Доступ надано: суддя.", "success");
-      // окрема сторінка для суддів (judges.html)
-    }else{
+      // окрема сторінка judges.html буде працювати з активним етапом
+    } else {
       noAccessSection?.classList.remove("hidden");
       setMessage("Недостатньо прав доступу.", "error");
     }
-  }catch(err){
+  } catch (err) {
     console.error(err);
-    hideAll();
+    hideAllSections();
     noAccessSection?.classList.remove("hidden");
     setMessage("Помилка завантаження ролі: " + err.message, "error");
   }
 });
 
-// ==============================
-//  ІНІЦІАЛІЗАЦІЯ АДМІН-ПАНЕЛІ
-// ==============================
-function initAdminPanel(){
-  // завантажити сезони + активний етап
-  loadSeasonsAndActive().catch(err => {
-    console.error(err);
-    setMessage("Помилка ініціалізації панелі організатора: " + err.message, "error");
-  });
+// ===== Логіка адмінки =====
+async function initAdminPanel() {
+  refreshSeasonConfigVisibility();
 
-  // створення сезону
-  if(createSeasonForm){
-    createSeasonForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      try{
-        await handleCreateSeasonForm();
-      }catch(err){
-        console.error(err);
-        setMessage("Помилка створення сезону: " + err.message, "error");
-      }
-    });
-  }
+  if (!seasonSelect) return;
 
-  // зміна сезону
-  seasonSelect?.addEventListener("change", () => {
-    const seasonId = seasonSelect.value || null;
-    onSeasonChanged(seasonId);
-  });
+  seasonSelect.disabled = true;
+  stageSelect.disabled  = true;
+  stageSelect.innerHTML =
+    '<option value="">Спочатку обери сезон</option>';
+  updateStageStatusUI(false);
 
-  // зміна етапу
-  stageSelect?.addEventListener("change", () => {
-    const stageId = stageSelect.value || null;
-    onStageChanged(stageId);
-  });
+  try {
+    // 1) Завантажуємо всі сезони / турніри
+    const q = query(collection(db, "seasons"), orderBy("year", "asc"));
+    const snap = await getDocs(q);
 
-  // відкриття/закриття етапу
-  toggleStageBtn?.addEventListener("click", () => {
-    if(!currentSeasonId || !currentStageId) return;
-    toggleStageOpen().catch(err => {
-      console.error(err);
-      setMessage("Помилка зміни статусу етапу: " + err.message, "error");
-    });
-  });
-}
+    seasonsCache.clear();
 
-// ==============================
-//  ЗАВАНТАЖЕННЯ СЕЗОНІВ + ACTIVE
-// ==============================
-async function loadSeasonsAndActive(){
-  setMessage("Завантаження сезонів...");
-  cachedSeasons = [];
-  cachedStagesBySeason = {};
-  currentSeasonId  = null;
-  currentStageId   = null;
-  currentStageOpen = false;
-
-  // 1) читаємо seasons (без orderBy → БЕЗ індексів)
-  const snap = await getDocs(collection(db, "seasons"));
-  snap.forEach(d => {
-    cachedSeasons.push({ id: d.id, data: d.data() });
-  });
-
-  // відсортуємо в JS (за роком та id)
-  cachedSeasons.sort((a,b) => {
-    const ay = a.data.year || 0;
-    const by = b.data.year || 0;
-    if(ay !== by) return ay - by;
-    return (""+a.id).localeCompare(""+b.id);
-  });
-
-  // заповнюємо select
-  if(seasonSelect){
-    seasonSelect.innerHTML = "";
-    if(cachedSeasons.length === 0){
-      const opt = document.createElement("option");
-      opt.value = "";
-      opt.textContent = "Немає сезонів";
-      seasonSelect.appendChild(opt);
+    if (snap.empty) {
+      seasonSelect.innerHTML =
+        '<option value="">Сезони / турніри ще не створені</option>';
+      setMessage("Сезони / турніри ще не створені. Створи перший праворуч.", "info");
       seasonSelect.disabled = true;
-    }else{
-      const opt0 = document.createElement("option");
-      opt0.value = "";
-      opt0.textContent = "Оберіть сезон";
-      seasonSelect.appendChild(opt0);
-
-      cachedSeasons.forEach(s => {
-        const opt = document.createElement("option");
-        opt.value = s.id;
-        opt.textContent = s.data.name || s.id;
-        seasonSelect.appendChild(opt);
-      });
-      seasonSelect.disabled = false;
+      return;
     }
-  }
 
-  // 2) читаємо settings/active
-  const activeDoc = await getDoc(doc(db, "settings", "active"));
-  if(activeDoc.exists()){
-    const ad = activeDoc.data();
-    if(ad.seasonId){
-      currentSeasonId = ad.seasonId;
-      if(seasonSelect){
-        seasonSelect.value = ad.seasonId;
+    let preferredSeasonId = null;
+    let optionsHtml = "";
+
+    snap.forEach((docSnap) => {
+      const d = docSnap.data();
+      seasonsCache.set(docSnap.id, d);
+
+      const name = d.name || d.title || docSnap.id;
+      optionsHtml += `<option value="${docSnap.id}">${name}</option>`;
+
+      if (d.activeStageId) {
+        preferredSeasonId = docSnap.id;
       }
-      updateSeasonInfo();
-      // завантажимо етапи цього сезону
-      await loadStagesForSeason(ad.seasonId);
-      if(ad.stageId){
-        currentStageId = ad.stageId;
-        if(stageSelect){
-          stageSelect.value = ad.stageId;
-        }
-        const stage = findStageInCache(ad.seasonId, ad.stageId);
-        currentStageOpen = !!(stage && stage.data.isOpen);
-        updateStageStatusBadge();
-      }
-    }else{
-      updateSeasonInfo();
-      resetStageSelect("Спочатку обери сезон");
-    }
-  }else{
-    updateSeasonInfo();
-    resetStageSelect("Спочатку обери сезон");
-  }
+    });
 
-  setMessage("");
-}
+    seasonSelect.innerHTML = optionsHtml;
+    seasonSelect.disabled = false;
 
-// ==============================
-//  СТВОРЕННЯ СЕЗОНУ + ЕТАПІВ
-// ==============================
-async function handleCreateSeasonForm(){
-  if(!createSeasonForm) return;
+    // Вибираємо сезон: з активним етапом або перший
+    currentSeasonId = preferredSeasonId || snap.docs[0].id;
+    seasonSelect.value = currentSeasonId;
+    updateSeasonInfo(currentSeasonId);
 
-  const seasonIdInput   = document.getElementById("seasonIdInput");
-  const seasonTitleInput= document.getElementById("seasonTitleInput");
-  const seasonYearInput = document.getElementById("seasonYearInput");
-  const seasonStagesInput = document.getElementById("seasonStagesInput");
-
-  const seasonId   = seasonIdInput.value.trim();
-  const seasonName = seasonTitleInput.value.trim();
-  const year       = parseInt(seasonYearInput.value.trim(),10) || new Date().getFullYear();
-  const stagesCount= Math.max(1, Math.min(10, parseInt(seasonStagesInput.value.trim(),10) || 5));
-
-  if(!seasonId){
-    throw new Error("ID сезону не вказано.");
-  }
-
-  setMessage("Створення сезону " + seasonId + "...");
-
-  // 1) перевіряємо, чи сезон вже існує
-  const seasonRef = doc(db, "seasons", seasonId);
-  const existSnap = await getDoc(seasonRef);
-  if(existSnap.exists()){
-    throw new Error("Сезон з таким ID вже існує. Видали старий або задай інший ID.");
-  }
-
-  // 2) створюємо документ сезону
-  await setDoc(seasonRef, {
-    name: seasonName || seasonId,
-    year: year,
-    createdAt: new Date().toISOString()
-  });
-
-  // 3) створюємо етапи в колекції stages (одна колекція для всіх сезонів)
-  const stagePromises = [];
-
-  for(let i=1;i<=stagesCount;i++){
-    const stageId = `${seasonId}_e${i}`;
-    const stageRef = doc(db, "stages", stageId);
-    stagePromises.push(
-      setDoc(stageRef, {
-        seasonId: seasonId,
-        code: `E${i}`,
-        name: `Етап ${i}`,
-        index: i,
-        isFinal: false,
-        isOpen: false
-      })
+    // Завантажуємо етапи для цього сезону / турніру
+    const seasonData = seasonsCache.get(currentSeasonId) || {};
+    await loadStagesForSeason(
+      currentSeasonId,
+      seasonData.activeStageId || null
     );
-  }
 
-  // фінал
-  const finalId = `${seasonId}_final`;
-  const finalRef = doc(db, "stages", finalId);
-  stagePromises.push(
-    setDoc(finalRef, {
-      seasonId: seasonId,
-      code: "FINAL",
-      name: "Фінал",
-      index: stagesCount + 1,
-      isFinal: true,
-      isOpen: false
-    })
-  );
+    // Слухачі змін
+    seasonSelect.addEventListener("change", async (e) => {
+      const newSeasonId = e.target.value;
+      currentSeasonId = newSeasonId || null;
+      currentStageId  = null;
+      updateSeasonInfo(currentSeasonId);
+      await loadStagesForSeason(currentSeasonId, null);
+    });
 
-  await Promise.all(stagePromises);
+    stageSelect.addEventListener("change", async (e) => {
+      currentStageId = e.target.value || null;
+      await refreshStageStatus();
+    });
 
-  // 4) виставляємо active на перший етап
-  const firstStageId = `${seasonId}_e1`;
-  await setDoc(doc(db, "settings", "active"), {
-    seasonId: seasonId,
-    stageId: firstStageId,
-    isOpen: false
-  }, { merge: true });
+    toggleStageBtn.addEventListener("click", async () => {
+      await toggleStageRegistration();
+    });
 
-  setMessage("Сезон та етапи створено успішно.", "success");
-
-  // оновлюємо кеши та селекти
-  await loadSeasonsAndActive();
-}
-
-// ==============================
-//  ЗАВАНТАЖЕННЯ ЕТАПІВ
-// ==============================
-function resetStageSelect(placeholder){
-  if(stageSelect){
-    stageSelect.innerHTML = "";
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = placeholder;
-    stageSelect.appendChild(opt);
-    stageSelect.disabled = true;
-  }
-  currentStageId   = null;
-  currentStageOpen = false;
-  updateStageStatusBadge();
-}
-
-async function loadStagesForSeason(seasonId){
-  if(!seasonId){
-    resetStageSelect("Спочатку обери сезон");
-    return;
-  }
-
-  // якщо вже в кеші — не тягнемо знов
-  if(cachedStagesBySeason[seasonId]){
-    fillStageSelectFromCache(seasonId);
-    return;
-  }
-
-  setMessage("Завантаження етапів сезону " + seasonId + "...");
-
-  const qStages = query(
-    collection(db, "stages"),
-    where("seasonId","==", seasonId)
-  );
-  const snap = await getDocs(qStages);
-
-  const arr = [];
-  snap.forEach(d => arr.push({ id:d.id, data:d.data() }));
-
-  // сортуємо в JS, щоб не треба було composite index
-  arr.sort((a,b) => {
-    const ai = a.data.index || 0;
-    const bi = b.data.index || 0;
-    return ai - bi;
-  });
-
-  cachedStagesBySeason[seasonId] = arr;
-  fillStageSelectFromCache(seasonId);
-
-  setMessage("");
-}
-
-function fillStageSelectFromCache(seasonId){
-  const arr = cachedStagesBySeason[seasonId] || [];
-  if(stageSelect){
-    stageSelect.innerHTML = "";
-    if(arr.length === 0){
-      const opt = document.createElement("option");
-      opt.value = "";
-      opt.textContent = "Немає етапів";
-      stageSelect.appendChild(opt);
-      stageSelect.disabled = true;
-    }else{
-      const opt0 = document.createElement("option");
-      opt0.value = "";
-      opt0.textContent = "Оберіть етап";
-      stageSelect.appendChild(opt0);
-
-      arr.forEach(st => {
-        const opt = document.createElement("option");
-        opt.value = st.id;
-        opt.textContent = st.data.name || st.id;
-        stageSelect.appendChild(opt);
+    // Форма створення сезону / турніру
+    if (createSeasonForm) {
+      createSeasonForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await handleCreateSeason();
       });
-      stageSelect.disabled = false;
     }
+
+  } catch (err) {
+    console.error(err);
+    setMessage("Помилка завантаження сезонів: " + err.message, "error");
   }
 }
 
-// ==============================
-//  ЗМІНА СЕЗОНУ / ЕТАПУ
-// ==============================
-function onSeasonChanged(seasonId){
-  currentSeasonId = seasonId || null;
-  updateSeasonInfo();
-  if(!seasonId){
-    resetStageSelect("Спочатку обери сезон");
+async function loadStagesForSeason(seasonId, preferStageId = null) {
+  if (!seasonId || !stageSelect) {
+    stageSelect.innerHTML =
+      '<option value="">Спочатку обери сезон</option>';
+    updateStageStatusUI(false);
     return;
   }
-  loadStagesForSeason(seasonId).catch(err => {
+
+  stageSelect.disabled = true;
+  stageSelect.innerHTML = '<option value="">Завантаження етапів...</option>';
+  updateStageStatusUI(false);
+
+  try {
+    const stagesRef = collection(db, "seasons", seasonId, "stages");
+    const snap = await getDocs(query(stagesRef, orderBy("order", "asc")));
+
+    if (snap.empty) {
+      stageSelect.innerHTML =
+        '<option value="">Етапи ще не створені</option>';
+      setMessage("Для цього турніру ще не створені етапи.", "info");
+      stageSelect.disabled = true;
+      return;
+    }
+
+    const stages = [];
+    let optionsHtml = "";
+
+    snap.forEach((docSnap) => {
+      const d = docSnap.data();
+      const id = docSnap.id;
+      stages.push({ id, ...d });
+
+      const title = d.title || d.name || id;
+      optionsHtml += `<option value="${id}">${title}</option>`;
+    });
+
+    stageSelect.innerHTML = optionsHtml;
+    stageSelect.disabled = false;
+
+    let chosenStage =
+      stages.find((s) => s.id === preferStageId) || stages[0];
+
+    currentStageId = chosenStage.id;
+    stageSelect.value = currentStageId;
+    updateStageStatusUI(!!chosenStage.isRegistrationOpen);
+
+  } catch (err) {
     console.error(err);
     setMessage("Помилка завантаження етапів: " + err.message, "error");
-  });
-}
-
-function onStageChanged(stageId){
-  currentStageId = stageId || null;
-  const stage = findStageInCache(currentSeasonId, currentStageId);
-  currentStageOpen = !!(stage && stage.data.isOpen);
-  updateStageStatusBadge();
-
-  // збережемо вибраний етап у settings/active (без зміни isOpen)
-  if(currentSeasonId && currentStageId){
-    setDoc(doc(db, "settings", "active"), {
-      seasonId: currentSeasonId,
-      stageId: currentStageId
-    }, { merge:true }).catch(console.error);
   }
 }
 
-function findStageInCache(seasonId, stageId){
-  if(!seasonId || !stageId) return null;
-  const arr = cachedStagesBySeason[seasonId] || [];
-  return arr.find(s => s.id === stageId) || null;
-}
-
-// ==============================
-//  ВІДКРИТТЯ / ЗАКРИТТЯ РЕЄСТРАЦІЇ
-// ==============================
-async function toggleStageOpen(){
-  if(!currentSeasonId || !currentStageId) return;
-
-  const newOpen = !currentStageOpen;
-
-  const stageRef = doc(db, "stages", currentStageId);
-  await updateDoc(stageRef, { isOpen: newOpen });
-
-  // оновлюємо кеш
-  const st = findStageInCache(currentSeasonId, currentStageId);
-  if(st){
-    st.data.isOpen = newOpen;
-  }
-
-  // оновлюємо settings/active
-  await setDoc(doc(db, "settings", "active"), {
-    seasonId: currentSeasonId,
-    stageId: currentStageId,
-    isOpen: newOpen
-  }, { merge:true });
-
-  currentStageOpen = newOpen;
-  updateStageStatusBadge();
-  setMessage(newOpen ? "Реєстрацію відкрито." : "Реєстрацію закрито.", "success");
-}
-
-function updateSeasonInfo(){
-  if(!seasonInfo){
-    return;
-  }
-  if(!currentSeasonId){
-    seasonInfo.textContent = "Поточний сезон не обрано.";
-    return;
-  }
-  const s = cachedSeasons.find(x => x.id === currentSeasonId);
-  const title = s ? (s.data.name || s.id) : currentSeasonId;
-  seasonInfo.textContent = "Поточний сезон: " + title;
-}
-
-function updateStageStatusBadge(){
-  if(!stageStatusBadge) return;
-
-  if(!currentStageId){
-    stageStatusBadge.className = "chip chip-muted";
-    stageStatusBadge.textContent = "Статус: не обрано";
-    toggleStageBtn && (toggleStageBtn.disabled = true);
+async function refreshStageStatus() {
+  if (!currentSeasonId || !currentStageId) {
+    updateStageStatusUI(false);
     return;
   }
 
-  toggleStageBtn && (toggleStageBtn.disabled = false);
+  try {
+    const ref = doc(db, "seasons", currentSeasonId, "stages", currentStageId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      updateStageStatusUI(false);
+      setMessage("Обраний етап не знайдено у Firestore.", "error");
+      return;
+    }
 
-  if(currentStageOpen){
-    stageStatusBadge.className = "chip chip-open";
-    stageStatusBadge.textContent = "Статус: реєстрація відкрита";
-    if(toggleStageBtn) toggleStageBtn.textContent = "Закрити реєстрацію";
-  }else{
-    stageStatusBadge.className = "chip chip-closed";
-    stageStatusBadge.textContent = "Статус: реєстрація закрита";
-    if(toggleStageBtn) toggleStageBtn.textContent = "Відкрити реєстрацію";
+    const data = snap.data();
+    updateStageStatusUI(!!data.isRegistrationOpen);
+  } catch (err) {
+    console.error(err);
+    setMessage("Не вдалося оновити статус етапу: " + err.message, "error");
   }
 }
+
+async function toggleStageRegistration() {
+  if (!currentSeasonId || !currentStageId) {
+    setMessage("Спочатку обери сезон та етап.", "error");
+    return;
+  }
+
+  toggleStageBtn.disabled = true;
+
+  try {
+    const stageRef = doc(db, "seasons", currentSeasonId, "stages", currentStageId);
+    const stageSnap = await getDoc(stageRef);
+
+    if (!stageSnap.exists()) {
+      setMessage("Етап не знайдено у Firestore.", "error");
+      toggleStageBtn.disabled = false;
+      return;
+    }
+
+    const currentOpen = !!stageSnap.data().isRegistrationOpen;
+    const newOpen = !currentOpen;
+
+    // Оновлюємо сам етап
+    await updateDoc(stageRef, {
+      isRegistrationOpen: newOpen,
+      updatedAt: serverTimestamp(),
+    });
+
+    // Оновлюємо сезон — що цей етап активний і його статус
+    await updateDoc(doc(db, "seasons", currentSeasonId), {
+      activeStageId: currentStageId,
+      activeStageOpen: newOpen,
+      updatedAt: serverTimestamp(),
+    });
+
+    updateStageStatusUI(newOpen);
+    setMessage(
+      newOpen
+        ? "Реєстрацію на етап відкрито."
+        : "Реєстрацію на етап закрито.",
+      "success"
+    );
+  } catch (err) {
+    console.error(err);
+    setMessage("Помилка зміни статусу етапу: " + err.message, "error");
+  } finally {
+    toggleStageBtn.disabled = false;
+  }
+}
+
+async function handleCreateSeason() {
+  const type =
+    (tournamentTypeSelect?.value || "season").trim(); // "season" | "single"
+
+  const seasonId   = (seasonIdInput?.value || "").trim();
+  const title      = (seasonTitleInput?.value || "").trim();
+  const yearValue  = (seasonYearInput?.value || "").trim();
+  const stagesStr  = (seasonStagesInput?.value || "").trim();
+  const bestOfStr  = (seasonBestOfInput?.value || "").trim();
+  const bigFishOn  = !!useBigFishBonusInput?.checked;
+
+  if (!seasonId || !title || !yearValue) {
+    setMessage("Заповни ID, назву та рік турніру.", "error");
+    return;
+  }
+
+  const year = Number(yearValue);
+
+  let stagesCount, bestCount;
+
+  if (type === "season") {
+    if (!stagesStr) {
+      setMessage("Для сезону вкажи кількість етапів.", "error");
+      return;
+    }
+    stagesCount = Math.max(1, Number(stagesStr) || 1);
+
+    if (!bestOfStr) {
+      setMessage("Для сезону вкажи, скільки етапів брати до рейтингу.", "error");
+      return;
+    }
+    bestCount = Number(bestOfStr) || stagesCount;
+    if (bestCount < 1) bestCount = 1;
+    if (bestCount > stagesCount) bestCount = stagesCount;
+  } else {
+    // Одиночний турнір — один етап, без фіналу, без рейтингу сезону
+    stagesCount = 1;
+    bestCount   = null;
+  }
+
+  try {
+    const seasonRef = doc(db, "seasons", seasonId);
+
+    const baseData = {
+      type,                 // "season" або "single"
+      name: title,
+      year,
+      stagesCount,
+      hasFinal: type === "season",
+      finalTeamsCount: type === "season" ? 18 : null,
+      activeStageId: "e1",
+      activeStageOpen: false,
+      createdAt: serverTimestamp(),
+    };
+
+    if (type === "season") {
+      baseData.ratingConfig = {
+        mode: "best_of",          // беремо N найкращих етапів
+        bestCount: bestCount,     // скільки саме
+        totalPlanned: stagesCount // скільки всього етапів
+      };
+    } else {
+      baseData.ratingConfig = null;
+    }
+
+    // Схема нарахування балів для цього турніру
+    baseData.scoring = {
+      strategy: "place_as_points",  // місце = бали
+      bigFishEnabled: bigFishOn,    // чи застосовувати бонус
+      bigFishThresholdKg: 13,       // поріг великої риби
+      bigFishBonusPerStage: -1,     // -1 бал за етап, якщо є 13+ кг
+      bigFishOncePerStage: true,    // тільки 1 раз за етап для команди
+      missStagePenalty: 9           // штраф за пропущений етап (для сезону)
+    };
+
+    await setDoc(seasonRef, baseData);
+
+    // 2) Створюємо етапи
+    const stagesRef = collection(db, "seasons", seasonId, "stages");
+
+    if (type === "single") {
+      // Одиночний турнір: один етап e1
+      await setDoc(doc(stagesRef, "e1"), {
+        title: "Один етап",
+        order: 1,
+        type: "stage",
+        isRegistrationOpen: false,
+        createdAt: serverTimestamp(),
+      });
+    } else {
+      // Сезон: етапи e1..eN + фінал
+      for (let i = 1; i <= stagesCount; i++) {
+        const stageId = `e${i}`;
+        await setDoc(doc(stagesRef, stageId), {
+          title: `Етап ${i}`,
+          order: i,
+          type: "stage",
+          isRegistrationOpen: false,
+          createdAt: serverTimestamp(),
+        });
+      }
+
+      await setDoc(doc(stagesRef, "final"), {
+        title: "Фінал",
+        order: stagesCount + 1,
+        type: "final",
+        isRegistrationOpen: false,
+        createdAt: serverTimestamp(),
+      });
+    }
+
+    setMessage("Турнір і етапи успішно створені.", "success");
+
+    // Оновлюємо список сезонів / турнірів в UI
+    await initAdminPanel();
+  } catch (err) {
+    console.error(err);
+    setMessage("Помилка створення турніру: " + err.message, "error");
+  }
+}
+
+// Початкова синхронізація видимості
+refreshSeasonConfigVisibility();
