@@ -14,11 +14,9 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
-  addDoc
+  orderBy
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-// DOM-посилання
 const adminSection    = document.getElementById("adminSection");
 const judgeSection    = document.getElementById("judgeSection");
 const noAccessSection = document.getElementById("noAccessSection");
@@ -26,40 +24,44 @@ const sysMsg          = document.getElementById("systemMessage");
 const userInfo        = document.getElementById("userInfo");
 const logoutBtn       = document.getElementById("logoutBtn");
 
-// Admin: season/stage/draw
-const seasonSelect      = document.getElementById("seasonSelect");
-const seasonInfo        = document.getElementById("seasonInfo");
-const stageSelect       = document.getElementById("stageSelect");
-const stageStatusBadge  = document.getElementById("stageStatusBadge");
-const toggleStageBtn    = document.getElementById("toggleStageBtn");
-const drawGenerateBtn   = document.getElementById("drawGenerateBtn");
-const drawReloadBtn     = document.getElementById("drawReloadBtn");
-const drawMessage       = document.getElementById("drawMessage");
-const drawTableBody     = document.getElementById("drawTableBody");
+// admin controls
+const seasonSelect     = document.getElementById("seasonSelect");
+const seasonInfo       = document.getElementById("seasonInfo");
+const stageSelect      = document.getElementById("stageSelect");
+const stageStatusBadge = document.getElementById("stageStatusBadge");
+const toggleStageBtn   = document.getElementById("toggleStageBtn");
 
-// Judge UI
-const judgeStageLabel   = document.getElementById("judgeStageLabel");
-const judgeZoneLabel    = document.getElementById("judgeZoneLabel");
-const judgeTeamSelect   = document.getElementById("judgeTeamSelect");
-const judgeWeightInput  = document.getElementById("judgeWeightInput");
-const judgeBigCheckbox  = document.getElementById("judgeBigCheckbox");
-const judgeAddBtn       = document.getElementById("judgeAddBtn");
-const judgeMessage      = document.getElementById("judgeMessage");
-const judgeTableBody    = document.getElementById("judgeTableBody");
-
-// Стан
+// стан
 let currentSeasonId    = null;
 let currentStageId     = null;
 let currentStageIsOpen = false;
 
-// для судді
-let currentJudgeZone   = null;
-let currentJudgeStageTitle = "";
-let cachedZoneTeams    = [];   // [{teamName, sectorNumber}, ...]
+// localStorage ключ
+const LS_KEY_ADMIN_STATE = "dkprime_admin_state";
 
-// -------------------------
-// Допоміжні функції
-// -------------------------
+// ---- helpers ----
+function saveLocalAdminState(){
+  try{
+    const payload = {
+      seasonId: currentSeasonId || null,
+      stageId : currentStageId  || null
+    };
+    localStorage.setItem(LS_KEY_ADMIN_STATE, JSON.stringify(payload));
+  }catch(e){
+    console.warn("Не вдалось зберегти localStorage:", e);
+  }
+}
+
+function loadLocalAdminState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY_ADMIN_STATE);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){
+    console.warn("Не вдалось прочитати localStorage:", e);
+    return null;
+  }
+}
 
 function setMessage(text, type = "info"){
   if(!sysMsg) return;
@@ -89,32 +91,36 @@ logoutBtn?.addEventListener("click", async () => {
   }
 });
 
-// -------------------------
-// SETTINGS/ACTIVE
-// -------------------------
+// ----- settings/active -----
 
 async function loadActiveSettings(){
-  const activeRef = doc(db, "settings", "active");
-  const snap = await getDoc(activeRef);
-  if(!snap.exists()) return;
-  const data = snap.data() || {};
-  currentSeasonId = data.seasonId || null;
-  currentStageId  = data.stageId  || null;
+  const ref = doc(db, "settings", "active");
+  const snap = await getDoc(ref);
+
+  if(snap.exists()){
+    const data = snap.data() || {};
+    currentSeasonId = data.seasonId || null;
+    currentStageId  = data.stageId  || null;
+  }else{
+    const ls = loadLocalAdminState();
+    if(ls){
+      currentSeasonId = ls.seasonId || null;
+      currentStageId  = ls.stageId  || null;
+    }
+  }
 }
 
 async function saveActiveSettings(){
-  const activeRef = doc(db, "settings", "active");
-  const payload = {
+  const ref = doc(db, "settings", "active");
+  await setDoc(ref, {
     seasonId: currentSeasonId || null,
     stageId : currentStageId  || null,
     updatedAt: Date.now()
-  };
-  await setDoc(activeRef, payload, { merge:true });
+  }, { merge: true });
+  saveLocalAdminState();
 }
 
-// -------------------------
-// ADMIN: Seasons / Stages
-// -------------------------
+// ----- Admin panel -----
 
 async function initAdminPanel(){
   try{
@@ -198,10 +204,8 @@ async function loadSeasons(){
   if(currentSeasonId){
     await loadStagesForSeason(currentSeasonId);
   }else{
-    if(stageSelect){
-      stageSelect.disabled = true;
-      stageSelect.innerHTML = `<option value="">Спочатку обери сезон</option>`;
-    }
+    stageSelect.disabled = true;
+    stageSelect.innerHTML = `<option value="">Спочатку обери сезон</option>`;
     updateStageStatusBadge();
   }
 }
@@ -214,10 +218,6 @@ async function loadStagesForSeason(seasonId){
   currentStageIsOpen = false;
   updateStageStatusBadge();
   toggleStageBtn && (toggleStageBtn.disabled = true);
-  drawGenerateBtn && (drawGenerateBtn.disabled = true);
-  drawReloadBtn && (drawReloadBtn.disabled = true);
-  drawTableBody && (drawTableBody.innerHTML = "");
-  drawMessage && (drawMessage.textContent = "");
 
   if(!seasonId){
     stageSelect.innerHTML = `<option value="">Спочатку обери сезон</option>`;
@@ -243,6 +243,7 @@ async function loadStagesForSeason(seasonId){
     stageSelect.appendChild(opt);
     stageSelect.disabled = true;
     updateStageStatusBadge();
+    toggleStageBtn && (toggleStageBtn.disabled = true);
     return;
   }
 
@@ -284,8 +285,7 @@ async function updateStageUI(){
     currentStageIsOpen = false;
     updateStageStatusBadge();
     toggleStageBtn && (toggleStageBtn.disabled = true);
-    drawGenerateBtn && (drawGenerateBtn.disabled = true);
-    drawReloadBtn && (drawReloadBtn.disabled = true);
+    await saveActiveSettings();
     return;
   }
 
@@ -296,8 +296,6 @@ async function updateStageUI(){
     currentStageIsOpen = false;
     updateStageStatusBadge();
     toggleStageBtn && (toggleStageBtn.disabled = true);
-    drawGenerateBtn && (drawGenerateBtn.disabled = true);
-    drawReloadBtn && (drawReloadBtn.disabled = true);
     setMessage("Етап не знайдено у Firestore (stages).", "error");
     return;
   }
@@ -307,11 +305,8 @@ async function updateStageUI(){
 
   updateStageStatusBadge();
   toggleStageBtn && (toggleStageBtn.disabled = false);
-  drawGenerateBtn && (drawGenerateBtn.disabled = false);
-  drawReloadBtn && (drawReloadBtn.disabled = false);
 
   await saveActiveSettings();
-  await loadDrawingsForStage(); // оновити таблицю жеребкування
 }
 
 function updateStageStatusBadge(){
@@ -381,390 +376,7 @@ toggleStageBtn?.addEventListener("click", async () => {
   }
 });
 
-// -------------------------
-// ADMIN: Жеребкування
-// -------------------------
-
-function shuffleArray(arr){
-  for(let i = arr.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-/**
- * Генерація жеребкування:
- * - беремо підтверджені заявки з registrations
- * - будуємо список секторів по зонах
- * - випадково роздаємо команди
- * - пишемо в drawings
- */
-drawGenerateBtn?.addEventListener("click", async () => {
-  if(!currentStageId) return;
-
-  if(!confirm("Перегенерувати жеребкування для цього етапу? Попереднє буде перезаписане.")){
-    return;
-  }
-
-  try{
-    drawMessage.textContent = "Генерація жеребкування...";
-    drawTableBody.innerHTML = "";
-
-    // 1. читаємо етап (щоб знати конфіг зон, якщо є)
-    const stageRef = doc(db, "stages", currentStageId);
-    const stageSnap = await getDoc(stageRef);
-    if(!stageSnap.exists()){
-      drawMessage.textContent = "Етап не знайдено (stages).";
-      return;
-    }
-    const stageData = stageSnap.data() || {};
-    const zonesConfig = stageData.zones || { A:8, B:8, C:8 };
-
-    // 2. підтверджені заявки
-    const regCol = collection(db, "registrations");
-    const regQ = query(regCol, where("stageId","==",currentStageId), where("isApproved","==",true));
-    const regSnap = await getDocs(regQ);
-
-    if(regSnap.empty){
-      drawMessage.textContent = "Немає підтверджених заявок для жеребкування.";
-      return;
-    }
-
-    const teams = [];
-    regSnap.forEach(d => {
-      const data = d.data() || {};
-      if(data.teamName){
-        teams.push({
-          teamName: data.teamName
-        });
-      }
-    });
-
-    // 3. формуємо список секторів
-    const slots = [];
-    for(const zoneKey of Object.keys(zonesConfig)){
-      const count = Number(zonesConfig[zoneKey]) || 0;
-      for(let s = 1; s <= count; s++){
-        slots.push({ zone: zoneKey, sectorNumber:s });
-      }
-    }
-    shuffleArray(slots);
-
-    if(slots.length < teams.length){
-      drawMessage.textContent = "Немає достатньо секторів для всіх команд. Перевір конфіг 'zones' у stages.";
-      return;
-    }
-
-    // 4. чистимо існуюче жеребкування для цього етапу
-    const drawCol = collection(db, "drawings");
-    const drawQ = query(drawCol, where("stageId","==",currentStageId));
-    const oldDrawSnap = await getDocs(drawQ);
-    const batchDeletes = [];
-    oldDrawSnap.forEach(d => {
-      batchDeletes.push(d.ref);
-    });
-    // в лоб: видалення по одному
-    for(const ref of batchDeletes){
-      await setDoc(ref, {}, { merge:false }); // або deleteDoc(ref) якщо хочеш, але тоді додай імпорт
-    }
-
-    // 5. запис нового жеребкування
-    let idx = 0;
-    for(const team of teams){
-      const slot = slots[idx++];
-      await addDoc(drawCol, {
-        stageId: currentStageId,
-        teamName: team.teamName,
-        zone: slot.zone,
-        sectorNumber: slot.sectorNumber
-      });
-    }
-
-    drawMessage.textContent = "Жеребкування згенеровано.";
-    await loadDrawingsForStage();
-  }catch(err){
-    console.error(err);
-    drawMessage.textContent = "Помилка жеребкування: " + err.message;
-  }
-});
-
-// завантажити список жеребкування
-drawReloadBtn?.addEventListener("click", async () => {
-  await loadDrawingsForStage();
-});
-
-async function loadDrawingsForStage(){
-  if(!currentStageId || !drawTableBody) return;
-
-  drawTableBody.innerHTML = "";
-  drawMessage.textContent = "Завантаження жеребкування...";
-
-  const drawCol = collection(db, "drawings");
-  const qDraw = query(drawCol, where("stageId","==",currentStageId));
-  const snap = await getDocs(qDraw);
-
-  if(snap.empty){
-    drawMessage.textContent = "Жеребкування для цього етапу ще не створене.";
-    return;
-  }
-
-  const rows = [];
-  snap.forEach(d => {
-    const data = d.data() || {};
-    rows.push({
-      teamName: data.teamName || "—",
-      zone: (data.zone || "—"),
-      sectorNumber: data.sectorNumber || "—"
-    });
-  });
-
-  // чуть відсортуємо: по зоні, по сектору
-  rows.sort((a,b) => {
-    if(a.zone === b.zone){
-      return Number(a.sectorNumber) - Number(b.sectorNumber);
-    }
-    return a.zone.localeCompare(b.zone);
-  });
-
-  rows.forEach(r => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.teamName}</td>
-      <td class="text-center">${r.zone}</td>
-      <td class="text-center">${r.sectorNumber}</td>
-    `;
-    drawTableBody.appendChild(tr);
-  });
-
-  drawMessage.textContent = "";
-}
-
-// -------------------------
-// JUDGE: логіка
-// -------------------------
-
-async function initJudgePanel(userDocData){
-  // очікується, що в users є поле zone: "A"/"B"/"C"
-  const zone = (userDocData.zone || "").toUpperCase();
-  if(!zone || !["A","B","C"].includes(zone)){
-    setMessage("У профілі судді не вказана зона A/B/C.", "error");
-    return;
-  }
-  currentJudgeZone = zone;
-  judgeZoneLabel.textContent = currentJudgeZone;
-
-  // тягнемо active settings, щоб знати етап
-  await loadActiveSettings();
-
-  if(!currentStageId){
-    judgeStageLabel.textContent = "Етап не обрано (settings/active порожній)";
-    setMessage("Для суддів не задано активний етап (settings/active).", "error");
-    judgeTeamSelect.disabled = true;
-    judgeAddBtn.disabled = true;
-    return;
-  }
-
-  // підтягнути назву етапу
-  try{
-    const stageRef = doc(db, "stages", currentStageId);
-    const snap = await getDoc(stageRef);
-    const data = snap.exists() ? (snap.data() || {}) : {};
-    currentJudgeStageTitle = data.title || currentStageId;
-  }catch(e){
-    currentJudgeStageTitle = currentStageId;
-  }
-  judgeStageLabel.textContent = currentJudgeStageTitle;
-
-  // завантажуємо команди та існуючі зважування
-  await loadJudgeTeams();
-  await loadJudgeWeighings();
-  setMessage("Доступ надано: суддя.", "success");
-}
-
-// команди з drawings
-async function loadJudgeTeams(){
-  judgeTeamSelect.disabled = true;
-  judgeTeamSelect.innerHTML = `<option value="">Завантаження команд...</option>`;
-  cachedZoneTeams = [];
-
-  const drawCol = collection(db, "drawings");
-  const qDraw = query(
-    drawCol,
-    where("stageId","==",currentStageId),
-    where("zone","==",currentJudgeZone)
-  );
-  const snap = await getDocs(qDraw);
-
-  judgeTeamSelect.innerHTML = "";
-
-  if(snap.empty){
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "Немає жеребкування по вашій зоні.";
-    judgeTeamSelect.appendChild(opt);
-    judgeTeamSelect.disabled = true;
-    judgeAddBtn.disabled = true;
-    return;
-  }
-
-  snap.forEach(d => {
-    const data = d.data() || {};
-    if(!data.teamName) return;
-    cachedZoneTeams.push({
-      teamName: data.teamName,
-      sectorNumber: data.sectorNumber || null
-    });
-  });
-
-  cachedZoneTeams.sort((a,b) => {
-    const sa = Number(a.sectorNumber || 0);
-    const sb = Number(b.sectorNumber || 0);
-    if(sa === sb){
-      return a.teamName.localeCompare(b.teamName);
-    }
-    return sa - sb;
-  });
-
-  cachedZoneTeams.forEach(t => {
-    const opt = document.createElement("option");
-    opt.value = t.teamName;
-    const sectorPart = t.sectorNumber ? ` (сектор ${t.sectorNumber})` : "";
-    opt.textContent = `${t.teamName}${sectorPart}`;
-    judgeTeamSelect.appendChild(opt);
-  });
-
-  judgeTeamSelect.disabled = false;
-  judgeAddBtn.disabled = false;
-}
-
-// зважування з weighings
-async function loadJudgeWeighings(){
-  judgeTableBody.innerHTML = "";
-  judgeMessage.textContent = "Завантаження зважувань...";
-
-  const wCol = collection(db, "weighings");
-  const qW = query(
-    wCol,
-    where("stageId","==",currentStageId),
-    where("zone","==",currentJudgeZone)
-  );
-  const snap = await getDocs(qW);
-
-  const statsByTeam = new Map(); // teamName -> {sector,totalCount,totalWeight,bigFish}
-
-  // попередньо заповнимо з drawings, щоб навіть без риб були в таблиці
-  cachedZoneTeams.forEach(t => {
-    statsByTeam.set(t.teamName, {
-      teamName: t.teamName,
-      sectorNumber: t.sectorNumber || "",
-      totalCount: 0,
-      totalWeight: 0,
-      bigFish: 0
-    });
-  });
-
-  snap.forEach(d => {
-    const data = d.data() || {};
-    const teamName = data.teamName || "—";
-    const weight = Number(data.weight || 0);
-    const isBig  = !!data.isBig;
-    const sector = data.sectorNumber || "";
-
-    if(!statsByTeam.has(teamName)){
-      statsByTeam.set(teamName, {
-        teamName,
-        sectorNumber: sector,
-        totalCount: 0,
-        totalWeight: 0,
-        bigFish: 0
-      });
-    }
-    const st = statsByTeam.get(teamName);
-    st.totalCount += 1;
-    st.totalWeight += weight;
-    if(isBig && weight > st.bigFish){
-      st.bigFish = weight;
-    }
-  });
-
-  const rows = Array.from(statsByTeam.values());
-  rows.sort((a,b) => {
-    const sa = Number(a.sectorNumber || 0);
-    const sb = Number(b.sectorNumber || 0);
-    if(sa === sb){
-      return a.teamName.localeCompare(b.teamName);
-    }
-    return sa - sb;
-  });
-
-  rows.forEach(r => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.teamName}</td>
-      <td class="text-center">${r.sectorNumber || ""}</td>
-      <td class="text-center">${r.totalCount}</td>
-      <td class="text-right">${r.totalWeight.toFixed(2)}</td>
-      <td class="text-right">${r.bigFish ? r.bigFish.toFixed(2) : ""}</td>
-    `;
-    judgeTableBody.appendChild(tr);
-  });
-
-  judgeMessage.textContent = "";
-}
-
-// додати зважування
-judgeAddBtn?.addEventListener("click", async () => {
-  const teamName = judgeTeamSelect.value;
-  const weight   = Number(judgeWeightInput.value.replace(",", "."));
-  const isBig    = judgeBigCheckbox.checked;
-
-  if(!teamName){
-    judgeMessage.textContent = "Оберіть команду.";
-    return;
-  }
-  if(!weight || weight <= 0){
-    judgeMessage.textContent = "Вкажіть коректну вагу (більше 0).";
-    return;
-  }
-
-  try{
-    judgeAddBtn.disabled = true;
-    judgeMessage.textContent = "Збереження...";
-
-    // шукаємо сектор для команди
-    let sectorNumber = null;
-    const team = cachedZoneTeams.find(t => t.teamName === teamName);
-    if(team){
-      sectorNumber = team.sectorNumber || null;
-    }
-
-    const wCol = collection(db, "weighings");
-    await addDoc(wCol, {
-      stageId: currentStageId,
-      zone: currentJudgeZone,
-      teamName,
-      sectorNumber,
-      weight,
-      isBig,
-      createdAt: Date.now()
-    });
-
-    judgeWeightInput.value = "";
-    judgeBigCheckbox.checked = false;
-    judgeMessage.textContent = "Зважування додано.";
-    await loadJudgeWeighings();
-  }catch(err){
-    console.error(err);
-    judgeMessage.textContent = "Помилка збереження: " + err.message;
-  }finally{
-    judgeAddBtn.disabled = false;
-  }
-});
-
-// -------------------------
-// AUTH + Ролі
-// -------------------------
+// ----- AUTH + Ролі -----
 
 onAuthStateChanged(auth, async (user) => {
   if(!user){
@@ -774,8 +386,7 @@ onAuthStateChanged(auth, async (user) => {
 
   try{
     setMessage("Перевірка ролі користувача...");
-    const userDocRef = doc(db, "users", user.uid);
-    const userDoc = await getDoc(userDocRef);
+    const userDoc = await getDoc(doc(db, "users", user.uid));
 
     if(!userDoc.exists()){
       userInfo.textContent = `Увійшов: ${user.email} (немає профілю users)`;
@@ -797,7 +408,7 @@ onAuthStateChanged(auth, async (user) => {
       await initAdminPanel();
     }else if(role === "judge"){
       judgeSection?.classList.remove("hidden");
-      await initJudgePanel(data);
+      setMessage("Доступ надано: суддя (для тебе окрема сторінка judges.html).", "success");
     }else{
       noAccessSection?.classList.remove("hidden");
       setMessage("Недостатньо прав доступу.", "error");
