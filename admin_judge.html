@@ -1,87 +1,112 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Адмін / Суддя Панель DK Prime</title>
-    <style>
-        /* Стилі для панелі */
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f8f8f8; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        h2 { text-align: center; }
-        section { background: white; border: 1px solid #ddd; padding: 20px; margin-top: 20px; border-radius: 6px; }
-        /* Стилі для таблиці та карток суддівства */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .status-paid { color: green; font-weight: bold; }
-        .status-pending { color: orange; }
-        button.confirm-btn { background-color: #4CAF50; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
-        .team-card { border: 1px solid #3498db; margin-bottom: 10px; padding: 10px; border-radius: 4px; }
-        .hidden { display: none; }
-    </style>
+  <meta charset="UTF-8">
+  <title>DK Prime · Панель</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body{
+      margin:0;
+      font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:#020617;
+      color:#e5e7eb;
+    }
+    header{
+      background:#0f172a;
+      border-bottom:1px solid rgba(148,163,184,.4);
+      padding:10px 18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .logo{
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:.85rem;
+    }
+    .role-label{
+      font-size:.8rem;
+      color:#9ca3af;
+    }
+    button.logout{
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,.6);
+      background:transparent;
+      color:#e5e7eb;
+      padding:6px 12px;
+      font-size:.8rem;
+      cursor:pointer;
+    }
+    main{
+      padding:18px;
+      max-width:1100px;
+      margin:0 auto;
+    }
+    .card{
+      background:#0f172a;
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,.4);
+      padding:16px 14px 20px;
+      margin-bottom:18px;
+      box-shadow:0 16px 40px rgba(0,0,0,.9);
+    }
+    h2{
+      margin:0 0 10px;
+      font-size:1.1rem;
+    }
+    .badge{
+      font-size:.7rem;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      color:#9ca3af;
+      margin-bottom:4px;
+      display:inline-block;
+    }
+    .hidden{display:none;}
+    #systemMessage{
+      margin-bottom:12px;
+      font-size:.85rem;
+      min-height:1.2em;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Адмін / Суддя Панель</h2>
-        <input type="hidden" id="adminTournamentId" value="etap_1_2026">
-        <p id="userRoleStatus">Статус: Завантаження даних користувача...</p>
-        <div id="adminMessage"></div>
-
-        <section id="adminSection" class="hidden">
-  <h3>1. Управління Заявками та Жеребкування</h3>
-
-  <!-- БЛОК 1: Заявки та оплата -->
-  <div style="margin-bottom: 24px;">
-    <h4>1. Список заявок та оплата</h4>
-    <p>Позначайте команди, які зробили оплату. Тільки оплачені переходять у блок жеребкування.</p>
-
-    <table id="registrationsTable">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Команда</th>
-          <th>Зона/Сектор</th>
-          <th>Статус оплати</th>
-          <th>Дія</th>
-        </tr>
-      </thead>
-      <tbody id="registrationsList"></tbody>
-    </table>
-  </div>
-
-  <!-- БЛОК 2: Жеребкування -->
-  <div>
-    <h4>2. Жеребкування (тільки оплачені команди)</h4>
-    <p>
-      У цьому блоці показуються <strong>лише команди, які оплатили</strong> і ще не мають сектора.
-      Після жеребкування до них записуються зона A/B/C та сектор 1–8.
-    </p>
-
-    <p><strong>Список команд, допущених до жеребкування:</strong></p>
-    <ul id="drawWaitingList" style="margin-bottom: 12px;"></ul>
-
-    <p>Доступні сектори (формат: A-1, A-2, B-1, B-2, C-1, C-2):</p>
-    <input
-      type="text"
-      id="availableSectorsInput"
-      value="A-1, A-2, B-1, B-2, C-1, C-2"
-      style="width: 70%;"
-    />
-    <button id="runDrawButton" style="background-color: #f39c12; padding: 6px 12px; border:none; border-radius:4px; cursor:pointer;">
-      Провести Жеребкування
-    </button>
-  </div>
-        </section>
-
-        <section id="judgeSection" class="hidden">
-            <h3 id="judgeHeader">2. Суддівство (Зона: N/A)</h3>
-            <div id="teamsContainer"></div>
-        </section>
+  <header>
+    <div>
+      <div class="logo">DK PRIME · CONTROL PANEL</div>
+      <div id="userInfo" class="role-label">Перевірка доступу...</div>
     </div>
+    <button class="logout" id="logoutBtn">Вийти</button>
+  </header>
 
-    <script type="module" src="./firebase-config.js"></script>
-    <script type="module" src="./tournamentService.js"></script>
-    <script type="module" src="./admin_judge_logic.js"></script>
+  <main>
+    <div id="systemMessage"></div>
+
+    <!-- Блок для адміна -->
+    <section id="adminSection" class="card hidden">
+      <span class="badge">admin</span>
+      <h2>Панель організатора</h2>
+      <p>Тут будуть: заявки, оплата, жеребкування, управління суддями і т.п.</p>
+    </section>
+
+    <!-- Блок для судді -->
+    <section id="judgeSection" class="card hidden">
+      <span class="badge">judge</span>
+      <h2>Панель судді</h2>
+      <p>Тут буде список команд по вашій зоні та форма внесення зважувань.</p>
+    </section>
+
+    <!-- Блок якщо ролі немає -->
+    <section id="noAccessSection" class="card hidden">
+      <span class="badge">доступ заборонено</span>
+      <h2>Недостатньо прав</h2>
+      <p>Ваш акаунт не має ролі admin або judge. Зверніться до організатора.</p>
+    </section>
+  </main>
+
+  <script type="module" src="./firebase-config.js"></script>
+  <script type="module" src="./admin_judge_logic.js"></script>
 </body>
 </html>
