@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>DK Prime · Панель</title>
+  <title>DK Prime · Панель організатора</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -42,7 +42,7 @@
     main{
       padding:18px;
       max-width:900px;
-      margin:0 auto;
+      margin:0 auto 40px;
     }
     .card{
       background:#0f172a;
@@ -92,10 +92,12 @@
       color:#9ca3af;
       margin-bottom:3px;
     }
-    select, button{
+    input, select, button{
       font-family:inherit;
       font-size:.85rem;
     }
+    input[type="text"],
+    input[type="number"],
     select{
       width:100%;
       padding:6px 8px;
@@ -104,7 +106,7 @@
       background:#020617;
       color:#e5e7eb;
     }
-    select:disabled{
+    input:disabled, select:disabled{
       opacity:.6;
       cursor:not-allowed;
     }
@@ -154,11 +156,38 @@
       background:transparent;
       color:#e5e7eb;
     }
-    .nav-row{
+
+    /* Великі вертикальні кнопки інших дій */
+    .big-actions{
+      margin-top:20px;
+    }
+    .big-btn{
+      width:100%;
+      padding:16px 14px;
+      margin-bottom:10px;
+      border-radius:16px;
+      border:1px solid rgba(148,163,184,.7);
+      background:#020617;
+      color:#e5e7eb;
+      text-align:left;
+      cursor:pointer;
       display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:10px;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .big-btn span.title{
+      font-size:.95rem;
+      font-weight:600;
+    }
+    .big-btn span.subtitle{
+      font-size:.8rem;
+      color:#9ca3af;
+      display:block;
+      margin-top:2px;
+    }
+    .big-btn span.arrow{
+      font-size:1.3rem;
+      opacity:.8;
     }
   </style>
 </head>
@@ -179,21 +208,47 @@
       <span class="badge">admin</span>
       <h2>Панель організатора</h2>
       <p class="muted">
-        Тут ти задаєш активний сезон/змагання і етап, відкриваєш/закриваєш реєстрацію.
-        Усі інші дії — на окремих сторінках DK Prime.
+        Тут ти створюєш сезони/змагання, етапи, та керуєш відкриттям реєстрації.
       </p>
 
+      <!-- Створити новий сезон / змагання -->
       <div class="block">
-        <h3>Сезон / змагання</h3>
+        <h3>Створити новий сезон / змагання</h3>
+        <form id="createSeasonForm">
+          <label class="field-label" for="seasonIdInput">ID сезону (наприклад: 2026)</label>
+          <input type="text" id="seasonIdInput" placeholder="2026" required>
+
+          <label class="field-label" for="seasonTitleInput">Назва сезону / турніру</label>
+          <input type="text" id="seasonTitleInput" placeholder="STOLAR CARP 2026" required>
+
+          <label class="field-label" for="seasonYearInput">Рік</label>
+          <input type="number" id="seasonYearInput" placeholder="2026" required>
+
+          <label class="field-label" for="seasonStagesInput">Кількість етапів (без фіналу)</label>
+          <input type="number" id="seasonStagesInput" value="5" min="1" max="10" required>
+
+          <div style="margin-top:8px;">
+            <button type="submit" class="btn">Створити сезон + етапи 1–5 та Фінал</button>
+          </div>
+        </form>
+        <p class="muted" style="margin-top:6px;">
+          Буде створено документ у <code>seasons</code>, етапи в <code>stages</code> (1–5 та Фінал),
+          а також оновлено <code>settings/active</code> на перший етап.
+        </p>
+      </div>
+
+      <!-- Вибір активного сезону/етапу -->
+      <div class="block">
+        <h3>Активний сезон / етап</h3>
+
         <label for="seasonSelect" class="field-label">Обрати сезон / турнір</label>
         <select id="seasonSelect" disabled>
           <option value="">Завантаження...</option>
         </select>
         <div id="seasonInfo" class="muted" style="margin-top:4px;"></div>
-      </div>
 
-      <div class="block">
-        <h3>Етап</h3>
+        <div style="height:8px;"></div>
+
         <label for="stageSelect" class="field-label">Обрати етап</label>
         <select id="stageSelect" disabled>
           <option value="">Спочатку обери сезон</option>
@@ -205,34 +260,18 @@
         </div>
 
         <p class="muted" style="margin-top:4px;">
-          Активний етап з відкритою реєстрацією зберігається у <code>settings/active</code>.
+          Активний етап зберігається в <code>settings/active</code> і дублюється в <code>localStorage</code>.
+          Колір: <span style="color:#bbf7d0;">зелений</span> – відкрито, <span style="color:#fecaca;">червоний</span> – закрито.
         </p>
-      </div>
-
-      <div class="block">
-        <h3>Інші дії DK Prime</h3>
-        <p class="muted">Перехід на окремі сторінки керування.</p>
-        <div class="nav-row">
-          <button class="btn-secondary btn" onclick="window.location.href='registrations.html'">
-            Реєстрація команд
-          </button>
-          <button class="btn-secondary btn" onclick="window.location.href='draw.html'">
-            Жеребкування
-          </button>
-          <button class="btn-secondary btn" onclick="window.location.href='judges.html'">
-            Суддівські зони
-          </button>
-        </div>
       </div>
     </section>
 
-    <!-- JUDGE (поки просто заглушка) -->
+    <!-- JUDGE (заглушка) -->
     <section id="judgeSection" class="card hidden">
       <span class="badge">judge</span>
       <h2>Панель судді</h2>
       <p class="muted">
-        Для суддів є окрема сторінка <code>judges.html</code>, де кожен бачить тільки свою зону.
-        Посилання на неї дає організатор.
+        Для суддів використовується окрема сторінка <code>judges.html</code>, де кожен бачить тільки свою зону (A/B/C).
       </p>
     </section>
 
@@ -241,6 +280,33 @@
       <span class="badge">доступ заборонено</span>
       <h2>Недостатньо прав</h2>
       <p>Ваш акаунт не має ролі admin або judge. Зверніться до організатора.</p>
+    </section>
+
+    <!-- Великі кнопки інших дій (поза рамками карток) -->
+    <section id="bigActionsSection" class="big-actions hidden">
+      <button class="big-btn" onclick="window.location.href='registrations.html'">
+        <div>
+          <span class="title">Реєстрація учасників</span>
+          <span class="subtitle">Перегляд заявок на активний етап, підтвердження оплати</span>
+        </div>
+        <span class="arrow">➜</span>
+      </button>
+
+      <button class="big-btn" onclick="window.location.href='draw.html'">
+        <div>
+          <span class="title">Жеребкування</span>
+          <span class="subtitle">Розподіл підтверджених команд по зонах та секторах</span>
+        </div>
+        <span class="arrow">➜</span>
+      </button>
+
+      <button class="big-btn" onclick="window.location.href='judges.html'">
+        <div>
+          <span class="title">Зони суддів A / B / C</span>
+          <span class="subtitle">Внесення зважувань по своїй зоні, адмін бачить усі</span>
+        </div>
+        <span class="arrow">➜</span>
+      </button>
     </section>
   </main>
 
