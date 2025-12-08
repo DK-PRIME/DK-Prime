@@ -17,29 +17,59 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-const adminSection    = document.getElementById("adminSection");
-const judgeSection    = document.getElementById("judgeSection");
-const noAccessSection = document.getElementById("noAccessSection");
-const sysMsg          = document.getElementById("systemMessage");
-const userInfo        = document.getElementById("userInfo");
-const logoutBtn       = document.getElementById("logoutBtn");
+// DOM
+const adminSection      = document.getElementById("adminSection");
+const judgeSection      = document.getElementById("judgeSection");
+const noAccessSection   = document.getElementById("noAccessSection");
+const bigActionsSection = document.getElementById("bigActionsSection");
 
-// admin controls
+const sysMsg    = document.getElementById("systemMessage");
+const userInfo  = document.getElementById("userInfo");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// Створення сезону
+const createSeasonForm   = document.getElementById("createSeasonForm");
+const seasonIdInput      = document.getElementById("seasonIdInput");
+const seasonTitleInput   = document.getElementById("seasonTitleInput");
+const seasonYearInput    = document.getElementById("seasonYearInput");
+const seasonStagesInput  = document.getElementById("seasonStagesInput");
+
+// Активний сезон/етап
 const seasonSelect     = document.getElementById("seasonSelect");
 const seasonInfo       = document.getElementById("seasonInfo");
 const stageSelect      = document.getElementById("stageSelect");
 const stageStatusBadge = document.getElementById("stageStatusBadge");
 const toggleStageBtn   = document.getElementById("toggleStageBtn");
 
-// стан
+// Стан
 let currentSeasonId    = null;
 let currentStageId     = null;
 let currentStageIsOpen = false;
 
-// localStorage ключ
+// localStorage key
 const LS_KEY_ADMIN_STATE = "dkprime_admin_state";
 
-// ---- helpers ----
+// ================= helpers =================
+
+function setMessage(text, type = "info"){
+  if(!sysMsg) return;
+  sysMsg.textContent = text || "";
+  if(type === "error"){
+    sysMsg.style.color = "#f97373";
+  }else if(type === "success"){
+    sysMsg.style.color = "#4ade80";
+  }else{
+    sysMsg.style.color = "#e5e7eb";
+  }
+}
+
+function hideAllSections(){
+  adminSection?.classList.add("hidden");
+  judgeSection?.classList.add("hidden");
+  noAccessSection?.classList.add("hidden");
+  bigActionsSection?.classList.add("hidden");
+}
+
 function saveLocalAdminState(){
   try{
     const payload = {
@@ -63,24 +93,6 @@ function loadLocalAdminState(){
   }
 }
 
-function setMessage(text, type = "info"){
-  if(!sysMsg) return;
-  sysMsg.textContent = text || "";
-  if(type === "error"){
-    sysMsg.style.color = "#f97373";
-  }else if(type === "success"){
-    sysMsg.style.color = "#4ade80";
-  }else{
-    sysMsg.style.color = "#e5e7eb";
-  }
-}
-
-function hideAll(){
-  adminSection?.classList.add("hidden");
-  judgeSection?.classList.add("hidden");
-  noAccessSection?.classList.add("hidden");
-}
-
 logoutBtn?.addEventListener("click", async () => {
   try{
     await signOut(auth);
@@ -91,7 +103,7 @@ logoutBtn?.addEventListener("click", async () => {
   }
 });
 
-// ----- settings/active -----
+// ================= settings/active =================
 
 async function loadActiveSettings(){
   const ref = doc(db, "settings", "active");
@@ -120,7 +132,100 @@ async function saveActiveSettings(){
   saveLocalAdminState();
 }
 
-// ----- Admin panel -----
+// ================= Створення сезону + етапів =================
+
+async function createSeasonWithStages(seasonId, title, year, stagesCount){
+  const seasonRef = doc(db, "seasons", seasonId);
+
+  const seasonSnap = await getDoc(seasonRef);
+  if(seasonSnap.exists()){
+    throw new Error(`Сезон з ID "${seasonId}" вже існує.`);
+  }
+
+  const yearNum = Number(year) || null;
+
+  await setDoc(seasonRef, {
+    title,
+    year: yearNum,
+    isActive: true,
+    openStageId: null,
+    createdAt: Date.now()
+  });
+
+  const stagesCol = collection(db, "stages");
+
+  // Етапи 1..N
+  for(let i = 1; i <= stagesCount; i++){
+    const stageId = `${seasonId}_e${i}`;
+    const stageRef = doc(stagesCol, stageId);
+
+    await setDoc(stageRef, {
+      seasonId,
+      title: `Етап ${i}`,
+      order: i,
+      isOpen: false,
+      zones: { A: 8, B: 8, C: 8 }
+    });
+  }
+
+  // Фінал
+  const finalId = `${seasonId}_final`;
+  const finalRef = doc(stagesCol, finalId);
+  await setDoc(finalRef, {
+    seasonId,
+    title: "Фінал",
+    order: stagesCount + 1,
+    isOpen: false,
+    zones: { A: 8, B: 8, C: 8 },
+    isFinal: true
+  });
+
+  // Робимо активним перший етап
+  currentSeasonId = seasonId;
+  currentStageId  = `${seasonId}_e1`;
+  await saveActiveSettings();
+
+  // Оновлюємо у сезоні поле openStageId (поки етап закритий, але зручно мати посилання)
+  await updateDoc(seasonRef, { openStageId: null });
+
+  setMessage("Сезон та етапи створено успішно.", "success");
+  await loadSeasons(); // перезавантажимо селект
+}
+
+createSeasonForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if(!seasonIdInput || !seasonTitleInput || !seasonYearInput || !seasonStagesInput) return;
+
+  const rawId     = seasonIdInput.value.trim();
+  const rawTitle  = seasonTitleInput.value.trim();
+  const rawYear   = seasonYearInput.value.trim();
+  const rawStages = seasonStagesInput.value.trim();
+
+  if(!rawId || !rawTitle || !rawYear || !rawStages){
+    setMessage("Заповни всі поля для створення сезону.", "error");
+    return;
+  }
+
+  const seasonId    = rawId;
+  const title       = rawTitle;
+  const year        = rawYear;
+  const stagesCount = Number(rawStages);
+
+  if(!Number.isFinite(stagesCount) || stagesCount < 1){
+    setMessage("Кількість етапів має бути числом від 1.", "error");
+    return;
+  }
+
+  try{
+    setMessage("Створення сезону та етапів...", "info");
+    await createSeasonWithStages(seasonId, title, year, stagesCount);
+  }catch(err){
+    console.error(err);
+    setMessage("Помилка створення сезону: " + err.message, "error");
+  }
+});
+
+// ================= Завантаження сезонів/етапів =================
 
 async function initAdminPanel(){
   try{
@@ -160,7 +265,7 @@ async function loadSeasons(){
     seasonSelect.appendChild(opt);
     seasonSelect.disabled = true;
     if(seasonInfo){
-      seasonInfo.textContent = "Створи документи у Firestore → seasons.";
+      seasonInfo.textContent = "Створи новий сезон вище.";
     }
     return;
   }
@@ -168,8 +273,8 @@ async function loadSeasons(){
   let foundCurrent = false;
 
   snap.forEach(docSnap => {
-    const data = docSnap.data() || {};
-    const id   = docSnap.id;
+    const data  = docSnap.data() || {};
+    const id    = docSnap.id;
     const title = data.title || id;
 
     const opt = document.createElement("option");
@@ -197,8 +302,8 @@ async function loadSeasons(){
 
   if(seasonInfo){
     seasonInfo.textContent = currentSeasonId
-      ? `Поточний сезон/змагання: ${seasonSelect.selectedOptions[0]?.textContent || currentSeasonId}`
-      : "Сезон/змагання ще не обрано.";
+      ? `Поточний сезон: ${seasonSelect.selectedOptions[0]?.textContent || currentSeasonId}`
+      : "Сезон ще не обрано.";
   }
 
   if(currentSeasonId){
@@ -239,7 +344,7 @@ async function loadStagesForSeason(seasonId){
   if(snap.empty){
     const opt = document.createElement("option");
     opt.value = "";
-    opt.textContent = "Етапів цього сезону не знайдено";
+    opt.textContent = "Етапів для цього сезону не знайдено";
     stageSelect.appendChild(opt);
     stageSelect.disabled = true;
     updateStageStatusBadge();
@@ -296,7 +401,7 @@ async function updateStageUI(){
     currentStageIsOpen = false;
     updateStageStatusBadge();
     toggleStageBtn && (toggleStageBtn.disabled = true);
-    setMessage("Етап не знайдено у Firestore (stages).", "error");
+    setMessage("Етап не знайдено у колекції stages.", "error");
     return;
   }
 
@@ -335,33 +440,40 @@ function updateStageStatusBadge(){
   }
 }
 
-// зміна сезону
+// подія зміни сезону
 seasonSelect?.addEventListener("change", async () => {
   currentSeasonId = seasonSelect.value || null;
   currentStageId  = null;
 
   if(seasonInfo){
     seasonInfo.textContent = currentSeasonId
-      ? `Поточний сезон/змагання: ${seasonSelect.selectedOptions[0]?.textContent || currentSeasonId}`
-      : "Сезон/змагання ще не обрано.";
+      ? `Поточний сезон: ${seasonSelect.selectedOptions[0]?.textContent || currentSeasonId}`
+      : "Сезон ще не обрано.";
   }
   await saveActiveSettings();
   await loadStagesForSeason(currentSeasonId);
 });
 
-// зміна етапу
+// подія зміни етапу
 stageSelect?.addEventListener("change", async () => {
   currentStageId = stageSelect.value || null;
   await updateStageUI();
 });
 
-// відкриття/закриття реєстрації
+// відкриття/закриття
 toggleStageBtn?.addEventListener("click", async () => {
-  if(!currentStageId) return;
+  if(!currentStageId || !currentSeasonId) return;
   try{
-    const stageRef = doc(db, "stages", currentStageId);
+    const stageRef  = doc(db, "stages", currentStageId);
+    const seasonRef = doc(db, "seasons", currentSeasonId);
+
     const newState = !currentStageIsOpen;
     await updateDoc(stageRef, { isOpen:newState });
+
+    await updateDoc(seasonRef, {
+      openStageId: newState ? currentStageId : null
+    });
+
     currentStageIsOpen = newState;
     updateStageStatusBadge();
     setMessage(
@@ -376,7 +488,7 @@ toggleStageBtn?.addEventListener("click", async () => {
   }
 });
 
-// ----- AUTH + Ролі -----
+// ================= AUTH + роли =================
 
 onAuthStateChanged(auth, async (user) => {
   if(!user){
@@ -390,21 +502,22 @@ onAuthStateChanged(auth, async (user) => {
 
     if(!userDoc.exists()){
       userInfo.textContent = `Увійшов: ${user.email} (немає профілю users)`;
-      hideAll();
+      hideAllSections();
       noAccessSection?.classList.remove("hidden");
       setMessage("Профіль користувача не знайдено.", "error");
       return;
     }
 
-    const data = userDoc.data();
+    const data = userDoc.data() || {};
     const role = data.role || "unknown";
 
     userInfo.textContent = `Увійшов: ${user.email} · роль: ${role}`;
 
-    hideAll();
+    hideAllSections();
 
     if(role === "admin"){
       adminSection?.classList.remove("hidden");
+      bigActionsSection?.classList.remove("hidden");
       await initAdminPanel();
     }else if(role === "judge"){
       judgeSection?.classList.remove("hidden");
@@ -415,7 +528,7 @@ onAuthStateChanged(auth, async (user) => {
     }
   }catch(err){
     console.error(err);
-    hideAll();
+    hideAllSections();
     noAccessSection?.classList.remove("hidden");
     setMessage("Помилка завантаження ролі: " + err.message, "error");
   }
