@@ -1,150 +1,311 @@
-// competition_logic.js
-// Пише етап у seasons/{seasonId}/stages/{stageId} у форматі, який читає STOLAR CARP.
+// assets/js/competition.js
+// DK Prime — створення/редагування змагань (seasons) і етапів (stages)
+// Пише у Firestore:
+//   seasons/{seasonId}
+//   seasons/{seasonId}/stages/{stageId}
+// Відкриття реєстрації для STOLAR CARP: stage.isRegistrationOpen = true
 
 (function () {
-  const auth = firebase.auth();
-  const db   = firebase.firestore();
-
-  const els = {
-    seasonId: document.getElementById('seasonId'),
-    stageId: document.getElementById('stageId'),
-    label: document.getElementById('label'),
-    type: document.getElementById('type'),
-    isRegistrationOpen: document.getElementById('isRegistrationOpen'),
-    allowBigFishTotal: document.getElementById('allowBigFishTotal'),
-    minusOneFor13kg: document.getElementById('minusOneFor13kg'),
-    lake: document.getElementById('lake'),
-    capacity: document.getElementById('capacity'),
-    startDate: document.getElementById('startDate'),
-    endDate: document.getElementById('endDate'),
-    createBtn: document.getElementById('createBtn'),
-    openBtn: document.getElementById('openBtn'),
-    closeBtn: document.getElementById('closeBtn'),
-    msg: document.getElementById('msg'),
-  };
-
-  const ok = t => { els.msg.textContent = t; els.msg.className = 'msg ok'; };
-  const err = t => { els.msg.textContent = t; els.msg.className = 'msg err'; };
-
-  // Опційно: пускаємо лише admin
-  async function requireAdmin(user) {
-    const u = await db.collection('users').doc(user.uid).get();
-    const role = (u.exists && u.data().role) || '';
-    if (role !== 'admin') throw new Error('Доступ лише для адміністратора.');
+  if (!window.firebase) {
+    alert("Firebase SDK не підключений (firebase-*compat).");
+    return;
   }
 
-  async function upsertStage() {
-    const seasonId = (els.seasonId.value || '').trim();
-    const stageId  = (els.stageId.value || '').trim();
-    if (!seasonId || !stageId) return err('Вкажи seasonId і stageId');
+  // Firebase (compat)
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-    const isFinal = els.type.value === 'final';
+  // ====== helpers ======
+  const $ = (id) => document.getElementById(id);
+  const nowTS = () => firebase.firestore.FieldValue.serverTimestamp();
 
-    const payload = {
-      label: (els.label.value || '').trim() || stageId,
-      type: els.type.value,              // 'stage' | 'final' | 'event'
-      isFinal,
-      isRegistrationOpen: !!els.isRegistrationOpen.checked,
+  function val(id) {
+    const el = $(id);
+    return el ? String(el.value || "").trim() : "";
+  }
+  function num(id) {
+    const v = val(id);
+    if (v === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+  function bool(id) {
+    const el = $(id);
+    return !!(el && el.checked);
+  }
 
-      // те, що просив:
-      allowBigFishTotal: !!els.allowBigFishTotal.checked,
-      minusOneFor13kg: !!els.minusOneFor13kg.checked,
+  function setMsg(text, ok = true) {
+    const msgEl = $("msg");
+    if (!msgEl) return;
+    msgEl.textContent = text || "";
+    msgEl.style.color = ok ? "#43d18a" : "#ff6c6c";
+  }
 
-      // метадані
-      lake: (els.lake.value || '').trim() || null,
-      capacity: els.capacity.value ? Number(els.capacity.value) : null,
-      startDate: els.startDate.value || null, // 'YYYY-MM-DD'
-      endDate: els.endDate.value || null,     // 'YYYY-MM-DD'
+  function requireAdmin(user) {
+    if (!user) throw new Error("Не залогінений. Перейди на login.");
+    // Якщо не хочеш перевірку ролі — можеш прибрати цей блок.
+    // Але в тебе rules дозволяють write по seasons/stages тільки admin.
+    return db.collection("users").doc(user.uid).get().then((snap) => {
+      const role = (snap.exists && snap.data() && snap.data().role) || "";
+      if (role !== "admin") throw new Error("Доступ заборонено: потрібна роль admin.");
+      return true;
+    });
+  }
 
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  function seasonRef(seasonId) {
+    return db.collection("seasons").doc(seasonId);
+  }
+  function stageRef(seasonId, stageId) {
+    return db.collection("seasons").doc(seasonId).collection("stages").doc(stageId);
+  }
+
+  // ====== SEASON SAVE ======
+  async function saveSeason() {
+    const seasonId = val("seasonId");
+    if (!seasonId) return setMsg("Вкажи seasonId (наприклад: 2026 або Extreme_STOLAR_CARP).", false);
+
+    const data = {
+      id: seasonId,
+      title: val("seasonTitle") || val("title") || "",          // підтримка різних id у html
+      year: num("seasonYear") ?? num("year"),
+      type: val("seasonType") || val("type") || "season_fishing",
+      numStages: num("numStages"),
+      ratingStages: num("ratingStages"),
+      updatedAt: nowTS(),
     };
 
-    // створимо season-док, якщо нема
-    const seasonRef = db.collection('seasons').doc(seasonId);
-    const seasonSnap = await seasonRef.get();
-    if (!seasonSnap.exists) {
-      await seasonRef.set({
-        label: seasonId,
-        year: Number(seasonId) || null,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
+    // якщо документу ще немає — поставимо createdAt
+    const ref = seasonRef(seasonId);
+    const snap = await ref.get();
+    if (!snap.exists) data.createdAt = nowTS();
+
+    await ref.set(data, { merge: true });
+    setMsg(`Сезон збережено: ${seasonId}`, true);
+
+    // оновити списки (якщо є блоки)
+    await renderSeasons();
+  }
+
+  // ====== STAGE SAVE ======
+  async function saveStage() {
+    const seasonId = val("stageSeasonId") || val("seasonId_stage") || val("seasonIdForStage") || val("seasonId2") || val("seasonId");
+    const stageId = val("stageId");
+    if (!seasonId) return setMsg("Вкажи seasonId для етапу.", false);
+    if (!stageId) return setMsg("Вкажи stageId (наприклад: 2026_e1 або 2026_final).", false);
+
+    const data = {
+      id: stageId,
+      seasonId: seasonId,
+      label: val("label") || val("stageLabel") || "",
+      order: num("order"),
+      isFinal: bool("isFinal"),
+      // це головне поле для STOLAR CARP:
+      isRegistrationOpen: bool("isRegistrationOpen"),
+      // твої додаткові прапорці:
+      allowBigFishTotal: bool("allowBigFishTotal"),
+      minusOneFor13kg: bool("minusOneFor13kg"),
+
+      lake: val("lake") || "",
+      capacity: num("capacity"),
+      startDate: val("startDate") || "", // як рядок — нормально; якщо захочеш Timestamp, переробимо
+      endDate: val("endDate") || "",
+
+      updatedAt: nowTS(),
+    };
+
+    const ref = stageRef(seasonId, stageId);
+    const snap = await ref.get();
+    if (!snap.exists) data.createdAt = nowTS();
+
+    await ref.set(data, { merge: true });
+    setMsg(`Етап збережено: ${seasonId} / ${stageId}`, true);
+
+    await renderStagesForSeason(seasonId);
+  }
+
+  // ====== OPEN / CLOSE REG ======
+  async function setRegOpen(open) {
+    const seasonId = val("stageSeasonId") || val("seasonId_stage") || val("seasonIdForStage") || val("seasonId2") || val("seasonId");
+    const stageId = val("stageId");
+    if (!seasonId || !stageId) return setMsg("Для відкриття/закриття вкажи seasonId + stageId.", false);
+
+    await stageRef(seasonId, stageId).set(
+      { isRegistrationOpen: !!open, updatedAt: nowTS() },
+      { merge: true }
+    );
+
+    setMsg(open ? "Реєстрацію ВІДКРИТО ✅" : "Реєстрацію ЗАКРИТО ⛔", true);
+    await renderStagesForSeason(seasonId);
+  }
+
+  // ====== LISTS (optional UI) ======
+  async function renderSeasons() {
+    const box = $("seasonsList");
+    if (!box) return; // якщо у твоєму html нема такого блока — просто нічого не робимо
+
+    box.innerHTML = "Завантаження сезонів...";
+    const snap = await db.collection("seasons").orderBy("updatedAt", "desc").limit(50).get();
+
+    if (snap.empty) {
+      box.innerHTML = "<div style='opacity:.8'>Сезонів ще немає.</div>";
+      return;
     }
 
-    // створюємо/оновлюємо stage
-    await seasonRef.collection('stages').doc(stageId).set({
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      ...payload
-    }, { merge: true });
+    const items = [];
+    snap.forEach((d) => {
+      const s = d.data() || {};
+      items.push(`
+        <div style="padding:10px;border:1px solid #2a2f45;border-radius:12px;margin:8px 0;background:#141825;cursor:pointer"
+             data-season="${d.id}">
+          <b>${s.title || d.id}</b>
+          <div style="opacity:.75;font-size:.9rem">seasonId: ${d.id} · year: ${s.year ?? ""} · type: ${s.type ?? ""}</div>
+        </div>
+      `);
+    });
 
-    ok('Збережено ✔');
+    box.innerHTML = items.join("");
+
+    // клік по сезону -> підставити seasonId у форму і підвантажити етапи
+    box.querySelectorAll("[data-season]").forEach((el) => {
+      el.addEventListener("click", async () => {
+        const sid = el.getAttribute("data-season");
+        if ($("seasonId")) $("seasonId").value = sid;
+        // форма етапу теж часто потребує seasonId:
+        const stageSeason = $("stageSeasonId") || $("seasonId_stage") || $("seasonIdForStage") || $("seasonId2");
+        if (stageSeason) stageSeason.value = sid;
+
+        await renderStagesForSeason(sid);
+      });
+    });
   }
 
-  async function setOpen(isOpen) {
-    const seasonId = (els.seasonId.value || '').trim();
-    const stageId  = (els.stageId.value || '').trim();
-    if (!seasonId || !stageId) return err('Вкажи seasonId і stageId');
+  async function renderStagesForSeason(seasonId) {
+    const box = $("stagesList");
+    if (!box) return;
 
-    await db.collection('seasons').doc(seasonId)
-      .collection('stages').doc(stageId)
-      .set({
-        isRegistrationOpen: !!isOpen,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
+    if (!seasonId) {
+      box.innerHTML = "<div style='opacity:.8'>Вибери сезон.</div>";
+      return;
+    }
 
-    ok(isOpen ? 'Реєстрацію відкрито' : 'Реєстрацію закрито');
-    els.isRegistrationOpen.checked = !!isOpen;
+    box.innerHTML = "Завантаження етапів...";
+    const snap = await db
+      .collection("seasons")
+      .doc(seasonId)
+      .collection("stages")
+      .orderBy("order", "asc")
+      .get();
+
+    if (snap.empty) {
+      box.innerHTML = "<div style='opacity:.8'>Етапів у сезоні ще немає.</div>";
+      return;
+    }
+
+    const rows = [];
+    snap.forEach((d) => {
+      const st = d.data() || {};
+      rows.push(`
+        <div style="padding:10px;border:1px solid #2a2f45;border-radius:12px;margin:8px 0;background:#0f1320">
+          <b>${st.label || d.id}</b>
+          <div style="opacity:.75;font-size:.9rem">
+            stageId: ${d.id}
+            ${st.isFinal ? " · <b style='color:#f6c34c'>ФІНАЛ</b>" : ""}
+            · order: ${st.order ?? "-"}
+            · reg: ${st.isRegistrationOpen ? "<span style='color:#43d18a'>OPEN</span>" : "<span style='color:#ff6c6c'>CLOSED</span>"}
+            · BigFishTotal: ${st.allowBigFishTotal ? "так" : "ні"}
+            · −1 за 13кг: ${st.minusOneFor13kg ? "так" : "ні"}
+          </div>
+          <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">
+            <button data-fill="${d.id}" style="padding:6px 10px;border-radius:10px;border:1px solid #2a2f45;background:#141825;color:#fff;cursor:pointer">
+              Редагувати
+            </button>
+            <button data-open="${d.id}" style="padding:6px 10px;border-radius:10px;border:1px solid #2a2f45;background:#141825;color:#fff;cursor:pointer">
+              Відкрити реєстрацію
+            </button>
+            <button data-close="${d.id}" style="padding:6px 10px;border-radius:10px;border:1px solid #2a2f45;background:#141825;color:#fff;cursor:pointer">
+              Закрити реєстрацію
+            </button>
+          </div>
+        </div>
+      `);
+    });
+
+    box.innerHTML = rows.join("");
+
+    // actions
+    box.querySelectorAll("[data-fill]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const stageId = btn.getAttribute("data-fill");
+        const stSnap = await stageRef(seasonId, stageId).get();
+        const st = stSnap.data() || {};
+
+        if ($("stageId")) $("stageId").value = stageId;
+        const stageSeason = $("stageSeasonId") || $("seasonId_stage") || $("seasonIdForStage") || $("seasonId2");
+        if (stageSeason) stageSeason.value = seasonId;
+
+        if ($("label")) $("label").value = st.label || "";
+        if ($("order")) $("order").value = st.order ?? "";
+        if ($("isFinal")) $("isFinal").checked = !!st.isFinal;
+        if ($("isRegistrationOpen")) $("isRegistrationOpen").checked = !!st.isRegistrationOpen;
+        if ($("allowBigFishTotal")) $("allowBigFishTotal").checked = !!st.allowBigFishTotal;
+        if ($("minusOneFor13kg")) $("minusOneFor13kg").checked = !!st.minusOneFor13kg;
+
+        if ($("lake")) $("lake").value = st.lake || "";
+        if ($("capacity")) $("capacity").value = st.capacity ?? "";
+        if ($("startDate")) $("startDate").value = st.startDate || "";
+        if ($("endDate")) $("endDate").value = st.endDate || "";
+
+        setMsg(`Редагування етапу: ${seasonId}/${stageId}`, true);
+      });
+    });
+
+    box.querySelectorAll("[data-open]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const stageId = btn.getAttribute("data-open");
+        if ($("stageId")) $("stageId").value = stageId;
+        const stageSeason = $("stageSeasonId") || $("seasonId_stage") || $("seasonIdForStage") || $("seasonId2");
+        if (stageSeason) stageSeason.value = seasonId;
+        setRegOpen(true);
+      });
+    });
+
+    box.querySelectorAll("[data-close]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const stageId = btn.getAttribute("data-close");
+        if ($("stageId")) $("stageId").value = stageId;
+        const stageSeason = $("stageSeasonId") || $("seasonId_stage") || $("seasonIdForStage") || $("seasonId2");
+        if (stageSeason) stageSeason.value = seasonId;
+        setRegOpen(false);
+      });
+    });
   }
 
-  els.createBtn.addEventListener('click', async () => {
+  // ====== wire buttons (ids expected) ======
+  function wire() {
+    const saveSeasonBtn = $("saveSeasonBtn") || $("saveSeason") || $("seasonSaveBtn");
+    const saveStageBtn = $("saveStageBtn") || $("saveStage") || $("stageSaveBtn") || $("createBtn");
+
+    const openBtn = $("openBtn");
+    const closeBtn = $("closeBtn");
+
+    if (saveSeasonBtn) saveSeasonBtn.addEventListener("click", (e) => { e.preventDefault(); saveSeason().catch(err => setMsg(err.message || "Помилка сезону", false)); });
+    if (saveStageBtn)  saveStageBtn.addEventListener("click",  (e) => { e.preventDefault(); saveStage().catch(err => setMsg(err.message || "Помилка етапу", false)); });
+
+    if (openBtn)  openBtn.addEventListener("click", (e) => { e.preventDefault(); setRegOpen(true).catch(err => setMsg(err.message || "Помилка open", false)); });
+    if (closeBtn) closeBtn.addEventListener("click", (e) => { e.preventDefault(); setRegOpen(false).catch(err => setMsg(err.message || "Помилка close", false)); });
+  }
+
+  // ====== start ======
+  auth.onAuthStateChanged(async (user) => {
     try {
-      const user = auth.currentUser;
-      if (!user) return err('Увійди як адмін');
       await requireAdmin(user);
-      await upsertStage();
-    } catch (e) { err(e.message || String(e)); }
+      wire();
+      // якщо є списки — підвантажимо
+      await renderSeasons();
+      setMsg("Адмін доступ OK. Можеш створювати сезони/етапи.", true);
+    } catch (e) {
+      console.error(e);
+      setMsg(e.message || "Нема доступу.", false);
+    }
   });
-
-  els.openBtn.addEventListener('click', async () => {
-    try {
-      const user = auth.currentUser;
-      if (!user) return err('Увійди як адмін');
-      await requireAdmin(user);
-      await setOpen(true);
-    } catch (e) { err(e.message || String(e)); }
-  });
-
-  els.closeBtn.addEventListener('click', async () => {
-    try {
-      const user = auth.currentUser;
-      if (!user) return err('Увійди як адмін');
-      await requireAdmin(user);
-      await setOpen(false);
-    } catch (e) { err(e.message || String(e)); }
-  });
-
-  // Якщо приходимо з параметрами ?seasonId=2026&stageId=2026_e1 — підвантажимо
-  (async function prefillFromQuery(){
-    const q = new URLSearchParams(location.search);
-    const seasonId = q.get('seasonId'); const stageId = q.get('stageId');
-    if (seasonId) els.seasonId.value = seasonId;
-    if (!seasonId || !stageId) return;
-
-    els.stageId.value = stageId;
-    try {
-      const ref = db.collection('seasons').doc(seasonId).collection('stages').doc(stageId);
-      const snap = await ref.get();
-      if (snap.exists) {
-        const s = snap.data();
-        els.label.value = s.label || '';
-        els.type.value = s.type || (s.isFinal ? 'final' : 'stage');
-        els.isRegistrationOpen.checked = !!s.isRegistrationOpen;
-        els.allowBigFishTotal.checked = !!s.allowBigFishTotal;
-        els.minusOneFor13kg.checked = !!s.minusOneFor13kg;
-        els.lake.value = s.lake || '';
-        els.capacity.value = s.capacity || '';
-        els.startDate.value = s.startDate || '';
-        els.endDate.value = s.endDate || '';
-      }
-    } catch {}
-  })();
 })();
