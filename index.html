@@ -1,80 +1,73 @@
-<main class="main">
-  <section class="container section">
-    <h1 class="page-title">DK Prime · Адмінка змагань</h1>
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <title>DK Prime — Адмінка змагань</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <style>
+    body { background:#0b0d12; color:#fff; font-family:system-ui }
+    .wrap { max-width:900px; margin:40px auto; padding:20px }
+    h1 { margin-bottom:24px }
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:16px;
+    }
+    .card {
+      background:#141825;
+      border:1px solid #2a2f45;
+      border-radius:14px;
+      padding:18px;
+      cursor:pointer;
+      transition:.15s;
+    }
+    .card:hover { border-color:#f6c34c; transform:translateY(-2px) }
+    .card h3 { margin:0 0 6px }
+    .card p { margin:0; font-size:.9rem; opacity:.8 }
+  </style>
+</head>
+<body>
 
-    <div id="msg" style="margin:10px 0;font-weight:700;"></div>
+<div class="wrap">
+  <h1>DK Prime · Адмінка змагань</h1>
 
-    <div class="grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <!-- СЕЗОН -->
-      <div class="card" style="padding:14px;">
-        <h2 style="margin:0 0 10px;">Створити / редагувати сезон (змагання)</h2>
-
-        <label>seasonId (наприклад: 2026 або Extreme_STOLAR_CARP)</label>
-        <input id="seasonId" type="text" style="width:100%;margin:6px 0 10px;" />
-
-        <label>Назва</label>
-        <input id="seasonTitle" type="text" style="width:100%;margin:6px 0 10px;" />
-
-        <label>Рік</label>
-        <input id="seasonYear" type="number" style="width:100%;margin:6px 0 10px;" />
-
-        <label>Тип</label>
-        <select id="seasonType" style="width:100%;margin:6px 0 10px;">
-          <option value="season_fishing">season_fishing (сезон)</option>
-          <option value="single">single (одне змагання)</option>
-        </select>
-
-        <label>К-сть етапів (для інфи)</label>
-        <input id="numStages" type="number" style="width:100%;margin:6px 0 10px;" />
-
-        <label>Етапів у рейтингу (для інфи)</label>
-        <input id="ratingStages" type="number" style="width:100%;margin:6px 0 10px;" />
-
-        <button id="btnSaveSeason" class="btn btn--primary" type="button">Зберегти сезон</button>
-      </div>
-
-      <!-- ЕТАП -->
-      <div class="card" style="padding:14px;">
-        <h2 style="margin:0 0 10px;">Створити / редагувати етап</h2>
-
-        <label>seasonId</label>
-        <input id="stageSeasonId" type="text" style="width:100%;margin:6px 0 10px;" />
-
-        <label>stageId (наприклад: 2026_e1 / 2026_final)</label>
-        <input id="stageId" type="text" style="width:100%;margin:6px 0 10px;" />
-
-        <label>Назва етапу (label)</label>
-        <input id="stageLabel" type="text" style="width:100%;margin:6px 0 10px;" />
-
-        <label>Порядок (order)</label>
-        <input id="stageOrder" type="number" style="width:100%;margin:6px 0 10px;" />
-
-        <label style="display:flex;align-items:center;gap:10px;margin:8px 0;">
-          <input id="isFinal" type="checkbox" />
-          Фінал
-        </label>
-
-        <label style="display:flex;align-items:center;gap:10px;margin:8px 0;">
-          <input id="isRegistrationOpen" type="checkbox" />
-          ВІДКРИТИ реєстрацію (це побачить STOLAR CARP)
-        </label>
-
-        <button id="btnSaveStage" class="btn btn--primary" type="button">Зберегти етап</button>
-      </div>
+  <div class="grid">
+    <div class="card" onclick="go('competition.html')">
+      <h3>1️⃣ Створити змагання</h3>
+      <p>Сезони, етапи, BigFish Total, −1 бал за 13+ кг</p>
     </div>
 
-    <hr style="margin:18px 0;opacity:.2" />
-
-    <div class="grid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div>
-        <h3>Сезони</h3>
-        <div id="seasonsList">...</div>
-      </div>
-
-      <div>
-        <h3>Етапи вибраного сезону</h3>
-        <div id="stagesList">Вибери сезон</div>
-      </div>
+    <div class="card" onclick="go('registration_control.html')">
+      <h3>2️⃣ Реєстрація</h3>
+      <p>Відкрити / закрити реєстрацію</p>
     </div>
-  </section>
-</main>
+
+    <div class="card" onclick="go('registrations.html')">
+      <h3>3️⃣ Реєстрації команд</h3>
+      <p>Підтвердження оплати → жереб</p>
+    </div>
+
+    <div class="card" onclick="go('draw.html')">
+      <h3>4️⃣ Жеребкування</h3>
+      <p>Зона, сектор, BigFish Total</p>
+    </div>
+
+    <div class="card" onclick="go('weighing.html')">
+      <h3>5️⃣ Зважування</h3>
+      <p>Планшети A / B / C</p>
+    </div>
+
+    <div class="card" onclick="go('results.html')">
+      <h3>6️⃣ Результати</h3>
+      <p>Публікація на STOLAR CARP</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function go(page){ location.href = page }
+</script>
+
+</body>
+</html>
