@@ -38,6 +38,33 @@
       <p>Сезони, етапи, BigFish Total, −1 бал за 13+ кг</p>
     </div>
 
+    <div class="wrap" style="max-width:900px;margin:0 auto;padding:0 20px 30px;">
+  <div class="card" style="cursor:default;">
+    <h3 style="margin:0 0 10px;">⚙️ Швидко: відкрити / закрити реєстрацію</h3>
+
+    <div style="display:grid;gap:10px;">
+      <select id="rc_season" class="input" style="padding:12px;border-radius:12px;border:1px solid #2a2f45;background:#0f1320;color:#fff;">
+        <option value="">— Обери сезон —</option>
+      </select>
+
+      <select id="rc_stage" class="input" style="padding:12px;border-radius:12px;border:1px solid #2a2f45;background:#0f1320;color:#fff;" disabled>
+        <option value="">— Обери етап/змагання —</option>
+      </select>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button id="rc_open" class="btn" style="padding:12px 14px;border-radius:12px;border:1px solid #2a2f45;background:#151a2a;color:#fff;">
+          ✅ ВІДКРИТИ
+        </button>
+        <button id="rc_close" class="btn" style="padding:12px 14px;border-radius:12px;border:1px solid #2a2f45;background:#151a2a;color:#fff;">
+          ⛔ ЗАКРИТИ
+        </button>
+      </div>
+
+      <div id="rc_status" style="font-size:14px;opacity:.85;"></div>
+    </div>
+  </div>
+    </div>
+
     <div class="card" onclick="go('registration_control.html')">
       <h3>2️⃣ Реєстрація</h3>
       <p>Відкрити / закрити реєстрацію</p>
