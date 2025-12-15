@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <title>Створити змагання · DK Prime</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="wrap">
+  <h1>Створити змагання / етап</h1>
+
+  <form id="competitionForm">
+
+    <label>Сезон (ID)</label>
+    <input type="text" id="seasonId" placeholder="2026" required>
+
+    <label>Назва змагання / етапу</label>
+    <input type="text" id="title" placeholder="Етап 1 · Лелехівка" required>
+
+    <label>
+      <input type="checkbox" id="isFinal"> Фінал
+    </label>
+
+    <label>
+      <input type="checkbox" id="bigFishTotal"> BigFish Total
+    </label>
+
+    <label>
+      <input type="checkbox" id="minus13"> −1 бал за 13+ кг
+    </label>
+
+    <label>
+      <input type="checkbox" id="openReg"> Відкрити реєстрацію одразу
+    </label>
+
+    <button type="submit">Створити</button>
+  </form>
+
+  <div id="msg"></div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script src="assets/js/firebase-init.js"></script>
+<script src="assets/js/competition.js"></script>
+
+</body>
+</html>
