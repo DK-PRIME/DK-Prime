@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <title>DK Prime — Реєстрація (відкрити/закрити)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="assets/css/main.css">
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <style>
+    body{background:#0b0d12;color:#fff;font-family:system-ui}
+    .wrap{max-width:980px;margin:28px auto;padding:18px}
+    .top{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:10px 12px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:#141825}
+    .card{background:#141825;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;margin:12px 0}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .btn{cursor:pointer;border-radius:12px;padding:10px 12px;border:1px solid rgba(255,255,255,.18);background:#1b2233;color:#fff}
+    .btn:hover{border-color:#f6c34c}
+    .btn.ok{border-color:rgba(67,209,138,.45)}
+    .btn.bad{border-color:rgba(255,108,108,.45)}
+    .muted{opacity:.8}
+    select,input{background:#0f1420;color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 12px}
+    h1{margin:6px 0 12px}
+    .small{font-size:13px;opacity:.85}
+    .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Реєстрація · Відкрити / Закрити</h1>
+      <div class="small muted">Тут ми керуємо <b>isRegistrationOpen</b> у <code>seasons/{seasonId}/stages/{stageId}</code>.</div>
+    </div>
+    <button class="btn" onclick="location.href='index.html'">← На головну</button>
+  </div>
+
+  <div class="row">
+    <div class="pill" id="authPill">Доступ: перевірка…</div>
+    <div class="pill" id="rolePill">Роль: …</div>
+  </div>
+
+  <div class="hr"></div>
+
+  <div class="card">
+    <div class="row">
+      <label class="muted">Сезон:</label>
+      <select id="seasonPick"></select>
+
+      <label class="muted">Етап:</label>
+      <select id="stagePick"></select>
+
+      <button class="btn ok" id="btnOpen">Відкрити реєстрацію</button>
+      <button class="btn bad" id="btnClose">Закрити реєстрацію</button>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="small muted">
+      <div>• Після “Відкрити” STOLAR CARP побачить етап у списку, бо читає <b>collectionGroup(stages)</b> де <b>isRegistrationOpen == true</b>.</div>
+      <div>• Тут ми також оновлюємо <code>settings/active</code> (activeSeasonId, activeStageId) для зручності адмінки.</div>
+    </div>
+
+    <div class="hr"></div>
+    <div id="msg" class="small"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-weight:700;margin-bottom:8px;">Стан етапу</div>
+    <div id="stageState" class="small muted">—</div>
+  </div>
+</div>
+
+<script src="assets/js/registration_control.js"></script>
+</body>
+</html>
