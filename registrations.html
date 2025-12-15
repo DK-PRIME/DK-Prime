@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <title>Реєстрації команд · DK Prime</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{background:#0b0d12;color:#fff;font-family:system-ui}
+    .wrap{max-width:1000px;margin:32px auto;padding:16px}
+    .row{display:flex;gap:8px;margin-bottom:12px}
+    input,select{background:#0f1220;color:#fff;border:1px solid #2a2f45;border-radius:10px;padding:10px 12px}
+    .table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #243149;padding:8px 6px;font-size:.95rem}
+    .btn{padding:6px 10px;border-radius:8px;border:1px solid #3b3f57;background:#1b2140;color:#fff;cursor:pointer}
+    .ok{color:#43d18a}.err{color:#ff6c6c}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Реєстрації команд</h1>
+  <div class="row">
+    <input id="seasonId" placeholder="seasonId (напр. 2026)">
+    <input id="stageId" placeholder="stageId (напр. 2026_e1)">
+    <button class="btn" id="loadBtn">Завантажити</button>
+    <span id="msg" style="font-weight:600"></span>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Команда</th><th>Капітан</th><th>Телефон</th><th>Харч.</th><th>Статус</th><th>Дії</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="registrations_logic.js"></script>
+</body>
+</html>
