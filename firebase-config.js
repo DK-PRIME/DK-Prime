@@ -1,8 +1,6 @@
 // firebase-config.js
-// ЄДИНА ініціалізація Firebase (compat) для DK Prime (admin) + STOLAR CARP (site)
-
+// ЄДИНА ініціалізація Firebase (compat) для DK Prime
 (function () {
-  // ✅ твій конфіг
   const firebaseConfig = {
     apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
     authDomain: "stolar-carp.firebaseapp.com",
@@ -14,7 +12,7 @@
   };
 
   if (!window.firebase) {
-    console.error("Firebase SDK not loaded. Add compat scripts before firebase-config.js");
+    console.error("Firebase SDK not loaded (compat scripts missing).");
     return;
   }
 
@@ -24,12 +22,12 @@
   const db = firebase.firestore();
   const storage = firebase.storage();
 
-  // ✅ канонічні глобальні (як у STOLAR CARP)
+  // глобальні (як у STOLAR CARP)
   window.scAuth = auth;
   window.scDb = db;
   window.scStorage = storage;
 
-  // ✅ сумісність зі старим кодом
+  // сумісність
   window.auth = auth;
   window.db = db;
   window.storage = storage;
