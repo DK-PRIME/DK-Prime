@@ -1,6 +1,8 @@
-// firebase-config.js
-// ЄДИНА ініціалізація Firebase (compat) для DK Prime
+// firebase-config.js (COMPAT init for DK Prime)
+// Потрібно для competition.html та інших сторінок, які працюють через compat SDK
+
 (function () {
+  // ⚠️ твій конфіг (ти мені його дав)
   const firebaseConfig = {
     apiKey: "AIzaSyBU7BSwGl0laDvHGhrvu14nJWpabsjSoNo",
     authDomain: "stolar-carp.firebaseapp.com",
@@ -12,23 +14,23 @@
   };
 
   if (!window.firebase) {
-    console.error("Firebase SDK not loaded (compat scripts missing).");
+    console.error("Firebase SDK (compat) not loaded");
     return;
   }
 
-  if (firebase.apps.length === 0) firebase.initializeApp(firebaseConfig);
+  try {
+    // щоб не було помилки "already exists" при повторних завантаженнях
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
 
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  const storage = firebase.storage();
+    // глобальні, як у твоїй схемі
+    window.scAuth = firebase.auth();
+    window.scDb = firebase.firestore();
 
-  // глобальні (як у STOLAR CARP)
-  window.scAuth = auth;
-  window.scDb = db;
-  window.scStorage = storage;
-
-  // сумісність
-  window.auth = auth;
-  window.db = db;
-  window.storage = storage;
+    // при бажанні: локальна сесія (на телефоні/планшеті норм)
+    window.scAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+  } catch (e) {
+    console.error("firebase-config init error:", e);
+  }
 })();
