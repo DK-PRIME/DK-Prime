@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <title>DK Prime — Створити змагання</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <style>
+    body{background:#0b0d12;color:#fff;font-family:system-ui}
+    .wrap{max-width:980px;margin:24px auto;padding:16px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .btn{background:#1f2436;border:1px solid #2a2f45;color:#fff;border-radius:12px;padding:10px 12px;cursor:pointer}
+    .btn:hover{border-color:#f6c34c}
+    .card{background:#141825;border:1px solid #2a2f45;border-radius:14px;padding:14px;margin:12px 0}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:860px){.grid{grid-template-columns:1fr}}
+    label{display:block;font-size:.9rem;opacity:.9;margin:10px 0 6px}
+    input,select{width:100%;padding:10px;border-radius:12px;border:1px solid #2a2f45;background:#0f1320;color:#fff}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .chip{display:inline-flex;gap:8px;align-items:center;border:1px solid #2a2f45;border-radius:999px;padding:8px 10px}
+    .muted{opacity:.75;font-size:.9rem}
+    .ok{color:#4fe39b}
+    .err{color:#ff6c6c}
+    .list{padding-left:18px;margin:8px 0}
+    .hint{font-size:.9rem;opacity:.8}
+    .sep{height:1px;background:#2a2f45;margin:12px 0}
+    .hidden{display:none}
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1 style="margin:0">Створити змагання</h1>
+      <div class="muted">Екран 1 · Створення сезону/змагання (без відкриття реєстрації)</div>
+    </div>
+    <div class="row">
+      <button class="btn" onclick="location.href='index.html'">← На головну</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <span class="chip">
+        <b>Доступ</b>
+        <span id="authState" class="muted">перевірка...</span>
+      </span>
+      <span class="chip">
+        <b>Роль</b>
+        <span id="roleState" class="muted">...</span>
+      </span>
+    </div>
+    <div id="msg" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 6px">Тип, який створюємо</h3>
+    <div class="grid">
+      <div>
+        <label>Що це?</label>
+        <select id="kind">
+          <option value="season">Сезон (кілька етапів + опційно фінал)</option>
+          <option value="single">Окремі змагання (1 етап)</option>
+        </select>
+        <div class="hint">STOLAR CARP читає відкриті етапи з <b>seasons/{seasonId}/stages</b>.</div>
+      </div>
+
+      <div>
+        <label>minusOneFor13kg (−1 бал за 13.000+)</label>
+        <select id="minus13">
+          <option value="true">Так, вмикаємо правило</option>
+          <option value="false">Ні</option>
+        </select>
+        <div class="hint">Запишеться в сезон і в кожен stage.</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div id="seasonBlock">
+      <h3 style="margin:0 0 6px">Сезон</h3>
+      <div class="grid">
+        <div>
+          <label>seasonId (латиниця/цифри/_, без пробілів)</label>
+          <input id="seasonId" placeholder="наприклад: 2026 або STOLAR_2026" />
+        </div>
+        <div>
+          <label>Назва сезону</label>
+          <input id="seasonTitle" placeholder="STOLAR CARP 2026" />
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Рік</label>
+          <input id="seasonYear" type="number" placeholder="2026" />
+        </div>
+        <div>
+          <label>К-сть етапів (E1..EN)</label>
+          <input id="numStages" type="number" min="1" max="20" value="5" />
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Фінал?</label>
+          <select id="hasFinal">
+            <option value="true">Так</option>
+            <option value="false">Ні</option>
+          </select>
+        </div>
+        <div>
+          <label>Скільки етапів йдуть у залік (best N)</label>
+          <input id="ratingStages" type="number" min="1" max="20" value="3" />
+        </div>
+      </div>
+
+      <div class="sep"></div>
+      <div class="muted">Авто-етапи які будуть створені:</div>
+      <ul id="autoStagesList" class="list"></ul>
+    </div>
+
+    <div id="singleBlock" class="hidden">
+      <h3 style="margin:0 0 6px">Окремі змагання (1 етап)</h3>
+      <div class="grid">
+        <div>
+          <label>competitionId (буде seasonId)</label>
+          <input id="singleId" placeholder="наприклад: Extreme_STOLAR_CARP" />
+        </div>
+        <div>
+          <label>Назва змагання</label>
+          <input id="singleTitle" placeholder="Extreme Stolar Carp" />
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>Вид змагання</label>
+          <select id="singleType">
+            <option value="table_three">Таблиця трьох</option>
+            <option value="stalker_solo">Сталкер (одиночні)</option>
+            <option value="stalker_team">Сталкер (командний)</option>
+            <option value="classic">Звичайні (загальна вага)</option>
+          </select>
+        </div>
+        <div id="stalkerTeamSizeWrap" class="hidden">
+          <label>Скільки учасників у сталкер-команді?</label>
+          <select id="stalkerTeamSize">
+            <option value="1">1</option>
+            <option value="2">2 (ділимо на 2 зони)</option>
+            <option value="3">3 (ділимо на 3 зони)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="hint">
+        Для STOLAR CARP це теж буде <b>seasons/{competitionId}/stages/{competitionId}_main</b> (1 етап).
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="row">
+      <button class="btn" id="createBtn">✅ Створити</button>
+      <span id="createState" class="muted"></span>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase compat (як у тебе було раніше) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<!-- твій ініт -->
+<script src="firebase-config.js"></script>
+
+<!-- логіка сторінки -->
+<script src="assets/js/competition.js"></script>
+</body>
+</html>
