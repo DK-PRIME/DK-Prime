@@ -1,321 +1,286 @@
 // assets/js/competition.js
-// Екран 1: створення сезону/змагання
-// Пише в Firestore ТІЛЬКИ структуру, яку читає STOLAR CARP:
-// seasons/{seasonId}
-// seasons/{seasonId}/stages/{stageId}
-// Відкривати/закривати реєстрацію — ТІЛЬКИ на сторінці 2.
+// DK Prime: створення змагань/сезонів у Firestore так, щоб STOLAR CARP читав однаково.
+// Пише у: seasons/{seasonId}  +  seasons/{seasonId}/stages/{stageId}
 
 (function () {
-  const msgEl = document.getElementById("msg");
-  const authStateEl = document.getElementById("authState");
-  const roleStateEl = document.getElementById("roleState");
-  const createBtn = document.getElementById("createBtn");
-  const createState = document.getElementById("createState");
+  const auth = window.scAuth;
+  const db = window.scDb;
 
-  const kindEl = document.getElementById("kind");
-  const minus13El = document.getElementById("minus13");
-
-  const seasonBlock = document.getElementById("seasonBlock");
-  const singleBlock = document.getElementById("singleBlock");
-
-  const seasonIdEl = document.getElementById("seasonId");
-  const seasonTitleEl = document.getElementById("seasonTitle");
-  const seasonYearEl = document.getElementById("seasonYear");
-  const numStagesEl = document.getElementById("numStages");
-  const hasFinalEl = document.getElementById("hasFinal");
-  const ratingStagesEl = document.getElementById("ratingStages");
-  const autoStagesListEl = document.getElementById("autoStagesList");
-
-  const singleIdEl = document.getElementById("singleId");
-  const singleTitleEl = document.getElementById("singleTitle");
-  const singleTypeEl = document.getElementById("singleType");
-  const stalkerTeamSizeWrap = document.getElementById("stalkerTeamSizeWrap");
-  const stalkerTeamSizeEl = document.getElementById("stalkerTeamSize");
-
-  // init firebase from your firebase-config.js
-  const auth = (window.scAuth) ? window.scAuth : (window.firebase ? firebase.auth() : null);
-  const db = (window.scDb) ? window.scDb : (window.firebase ? firebase.firestore() : null);
-
-  function setMsg(text, ok = true) {
-    if (!msgEl) return;
-    msgEl.className = ok ? "ok" : "err";
-    msgEl.textContent = text || "";
+  if (!auth || !db || !window.firebase) {
+    alert("Firebase init не завантажився. Перевір firebase-config.js та підключення compat SDK.");
+    return;
   }
 
-  function setBusy(v, text) {
-    if (createBtn) createBtn.disabled = !!v;
-    if (createState) createState.textContent = text || (v ? "роблю..." : "");
+  // ====== helpers ======
+  const $ = (id) => document.getElementById(id);
+  const msg = (t, ok = true) => {
+    const el = $("msg");
+    if (!el) return;
+    el.textContent = t || "";
+    el.style.color = ok ? "#7CFFB2" : "#ff6c6c";
+  };
+
+  const nowTS = () => firebase.firestore.FieldValue.serverTimestamp();
+
+  function normalizeId(v) {
+    return String(v || "")
+      .trim()
+      .replace(/\s+/g, "_")
+      .replace(/[^\w\-]/g, "_")
+      .slice(0, 60);
   }
 
-  function asBool(v) { return String(v) === "true"; }
-
-  function normId(id) {
-    return String(id || "").trim().replace(/\s+/g, "_");
+  function stageIdForSeason(n) {
+    return `e${n}`; // e1, e2, ...
   }
 
-  function renderAutoStages() {
-    if (!autoStagesListEl) return;
-    autoStagesListEl.innerHTML = "";
+  function stageLabelForSeason(n) {
+    return `Етап ${n}`;
+  }
 
-    const seasonId = normId(seasonIdEl.value);
-    const n = Number(numStagesEl.value || 0);
-    const hasFinal = asBool(hasFinalEl.value);
+  // ====== форма ======
+  // Очікую що в competition.html є такі поля (зроби id саме так):
+  // common:
+  //   competitionKind (select): "season" | "single"
+  //   seasonId, title
+  //
+  // season:
+  //   year, numStages, hasFinal (checkbox), ratingBestOf, minusOneFor13kg (checkbox), allowBigFishTotal (checkbox)
+  //
+  // single:
+  //   singleType (select): "three_tables" | "stalker_solo" | "stalker_team" | "standard"
+  //   stalkerTeamMembers (select/number 1-3) (тільки для stalker_team)
+  //
+  // button:
+  //   saveBtn
 
-    if (!seasonId || !n) return;
+  const kindEl = $("competitionKind");
+  const saveBtn = $("saveBtn");
 
-    for (let i = 1; i <= n; i++) {
-      const li = document.createElement("li");
-      li.textContent = `${seasonId}_e${i}  —  "Етап ${i}"`;
-      autoStagesListEl.appendChild(li);
+  function readCommon() {
+    const seasonId = normalizeId($("seasonId")?.value);
+    const title = String($("title")?.value || "").trim();
+
+    if (!seasonId) throw new Error("Вкажи seasonId (наприклад: 2026 або Extreme_STOLAR_CARP)");
+    if (!title) throw new Error("Вкажи назву змагання/сезону");
+
+    return { seasonId, title };
+  }
+
+  function readSeason() {
+    const year = Number($("year")?.value || "0") || null;
+    const numStages = Number($("numStages")?.value || "0") || 0;
+    const hasFinal = !!$("hasFinal")?.checked;
+    const ratingBestOf = Number($("ratingBestOf")?.value || "0") || 0;
+
+    const minusOneFor13kg = !!$("minusOneFor13kg")?.checked;
+    const allowBigFishTotal = !!$("allowBigFishTotal")?.checked;
+
+    if (!numStages || numStages < 1 || numStages > 12) {
+      throw new Error("К-ть етапів має бути 1–12");
     }
-    if (hasFinal) {
-      const li = document.createElement("li");
-      li.textContent = `${seasonId}_final  —  "Фінал"`;
-      autoStagesListEl.appendChild(li);
+
+    if (hasFinal && (!ratingBestOf || ratingBestOf < 1 || ratingBestOf > numStages)) {
+      throw new Error("Якщо є фінал — вкажи скільки етапів йдуть в залік (1..кількість етапів)");
     }
+
+    return { year, numStages, hasFinal, ratingBestOf, minusOneFor13kg, allowBigFishTotal };
   }
 
-  function toggleBlocks() {
-    const kind = kindEl.value;
-    seasonBlock.classList.toggle("hidden", kind !== "season");
-    singleBlock.classList.toggle("hidden", kind !== "single");
-  }
+  function readSingle() {
+    const singleType = String($("singleType")?.value || "").trim();
+    if (!singleType) throw new Error("Обери тип змагання");
 
-  function toggleStalkerTeamSize() {
-    const t = singleTypeEl.value;
-    stalkerTeamSizeWrap.classList.toggle("hidden", t !== "stalker_team");
+    let stalkerTeamMembers = null;
+    if (singleType === "stalker_team") {
+      stalkerTeamMembers = Number($("stalkerTeamMembers")?.value || "0") || 0;
+      if (![1, 2, 3].includes(stalkerTeamMembers)) {
+        throw new Error("Сталкер командний: вибери 1/2/3 учасники");
+      }
+    }
+
+    return { singleType, stalkerTeamMembers };
   }
 
   async function requireAdmin(user) {
+    if (!user) throw new Error("Треба увійти в адмінку.");
     const uSnap = await db.collection("users").doc(user.uid).get();
-    const role = (uSnap.exists && uSnap.data()) ? (uSnap.data().role || "") : "";
-    roleStateEl.textContent = role || "невідомо";
-    if (role !== "admin") throw new Error("Доступ заборонено: потрібна роль admin.");
+    const role = uSnap.exists ? (uSnap.data() || {}).role : null;
+    if (role !== "admin") throw new Error("Доступ заборонено (не admin).");
   }
 
-  async function createSeasonFlow(user) {
-    const seasonId = normId(seasonIdEl.value);
-    const title = String(seasonTitleEl.value || "").trim();
-    const year = Number(seasonYearEl.value || 0);
-    const numStages = Number(numStagesEl.value || 0);
-    const hasFinal = asBool(hasFinalEl.value);
-    const ratingStages = Number(ratingStagesEl.value || 0);
-    const minusOneFor13kg = asBool(minus13El.value);
-
-    if (!seasonId) throw new Error("Вкажи seasonId.");
-    if (!title) throw new Error("Вкажи назву сезону.");
-    if (!year) throw new Error("Вкажи рік.");
-    if (!numStages || numStages < 1) throw new Error("К-сть етапів має бути >= 1.");
-    if (!ratingStages || ratingStages < 1 || ratingStages > numStages) {
-      throw new Error("ratingStages має бути від 1 до numStages.");
-    }
-
+  // ====== write logic ======
+  async function createOrUpdateSeasonSeasonDoc({ seasonId, title }, seasonData) {
     const seasonRef = db.collection("seasons").doc(seasonId);
 
-    // season doc
-    const seasonDoc = {
+    const payload = {
       id: seasonId,
       title,
-      year,
-      type: "season_fishing",
-      numStages,
-      hasFinal,
-      ratingStages,
-      minusOneFor13kg,
-      // читабельні дефолти
+      kind: "season",          // ✅ щоб сайт розумів
+      type: "season_fishing",  // ✅ як у тебе в консолі було
+      year: seasonData.year || null,
+
+      numStages: seasonData.numStages,
+      hasFinal: seasonData.hasFinal,
+      ratingBestOf: seasonData.hasFinal ? seasonData.ratingBestOf : 0,
+
+      // правила/опції (важливо для сайтів)
+      minusOneFor13kg: seasonData.minusOneFor13kg,
+      allowBigFishTotal: seasonData.allowBigFishTotal,
+
+      // реєстрацію відкриває сторінка №2 (тут лише дефолти)
       activeStageId: null,
       activeStageOpen: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+
+      createdAt: nowTS(),
+      updatedAt: nowTS()
     };
 
+    await seasonRef.set(payload, { merge: true });
+
+    // авто-створення stages e1..eN (+ final)
     const batch = db.batch();
-    batch.set(seasonRef, seasonDoc, { merge: true });
 
-    // auto stages: seasonId_e1..eN
-    for (let i = 1; i <= numStages; i++) {
-      const stageId = `${seasonId}_e${i}`;
-      const stageRef = seasonRef.collection("stages").doc(stageId);
+    for (let i = 1; i <= seasonData.numStages; i++) {
+      const stageId = `${seasonId}_${stageIdForSeason(i)}`; // 2026_e1
+      const stRef = seasonRef.collection("stages").doc(stageId);
 
-      batch.set(stageRef, {
-        id: stageId,
-        seasonId,
-        label: `Етап ${i}`,
-        order: i,
-        isFinal: false,
+      batch.set(
+        stRef,
+        {
+          id: stageId,
+          seasonId,
+          kind: "stage",
+          label: stageLabelForSeason(i),
+          order: i,
+          isFinal: false,
 
-        // IMPORTANT for STOLAR CARP register:
-        isRegistrationOpen: false,
+          // ✅ ключ, який читає STOLAR CARP для реєстру:
+          isRegistrationOpen: false,
 
-        // додаткові параметри
-        allowBigFishTotal: true,
-        minusOneFor13kg,
+          // опції/правила
+          allowBigFishTotal: seasonData.allowBigFishTotal,
+          minusOneFor13kg: seasonData.minusOneFor13kg,
 
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
+          createdAt: nowTS(),
+          updatedAt: nowTS()
+        },
+        { merge: true }
+      );
     }
 
-    // final optional
-    if (hasFinal) {
+    if (seasonData.hasFinal) {
       const stageId = `${seasonId}_final`;
-      const stageRef = seasonRef.collection("stages").doc(stageId);
+      const stRef = seasonRef.collection("stages").doc(stageId);
 
-      batch.set(stageRef, {
-        id: stageId,
-        seasonId,
-        label: "Фінал",
-        order: numStages + 1,
-        isFinal: true,
-        isRegistrationOpen: false,
-        allowBigFishTotal: true,
-        minusOneFor13kg,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
+      batch.set(
+        stRef,
+        {
+          id: stageId,
+          seasonId,
+          kind: "stage",
+          label: "Фінал",
+          order: seasonData.numStages + 1,
+          isFinal: true,
+          isRegistrationOpen: false,
+
+          allowBigFishTotal: seasonData.allowBigFishTotal,
+          minusOneFor13kg: seasonData.minusOneFor13kg,
+
+          createdAt: nowTS(),
+          updatedAt: nowTS()
+        },
+        { merge: true }
+      );
     }
 
     await batch.commit();
-    return { seasonId };
   }
 
-  async function createSingleFlow(user) {
-    const competitionId = normId(singleIdEl.value);
-    const title = String(singleTitleEl.value || "").trim();
-    const type = String(singleTypeEl.value || "classic");
-    const minusOneFor13kg = asBool(minus13El.value);
-    const teamSize = Number(stalkerTeamSizeEl.value || 1);
+  async function createOrUpdateSingleCompetition({ seasonId, title }, singleData) {
+    // single теж кладемо в seasons/{id}, але kind="single"
+    const seasonRef = db.collection("seasons").doc(seasonId);
 
-    if (!competitionId) throw new Error("Вкажи competitionId (це буде seasonId).");
-    if (!title) throw new Error("Вкажи назву змагання.");
-
-    const seasonRef = db.collection("seasons").doc(competitionId);
-    const stageId = `${competitionId}_main`;
-    const stageRef = seasonRef.collection("stages").doc(stageId);
-
-    const seasonDoc = {
-      id: competitionId,
+    const payload = {
+      id: seasonId,
       title,
-      year: new Date().getFullYear(),
-      type,                 // table_three / stalker_solo / stalker_team / classic
-      numStages: 1,
-      hasFinal: false,
-      ratingStages: 1,
-      minusOneFor13kg,
+      kind: "single",
+      type: "single",
 
-      // правила/налаштування типів
-      rules: {
-        type,
-        stalkerTeamSize: (type === "stalker_team") ? teamSize : null,
-        // опис критеріїв (щоб не губилось що це за тип)
-        criteria:
-          type === "table_three" ? ["totalWeight", "top5Weight", "teamBigFish"] :
-          type === "stalker_solo" ? ["userTotalWeight"] :
-          type === "stalker_team" ? ["sumPlacesByZones", "teamTotalWeightTieBreaker"] :
-          ["totalWeight"]
-      },
+      // тип змагання (для логіки результатів потім)
+      singleType: singleData.singleType,
+      stalkerTeamMembers: singleData.stalkerTeamMembers ?? null,
 
+      // дефолти для контролю реєстрації (сторінка №2)
       activeStageId: null,
       activeStageOpen: false,
 
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: nowTS(),
+      updatedAt: nowTS()
     };
 
-    const stageDoc = {
-      id: stageId,
-      seasonId: competitionId,
-      label: title,
-      order: 1,
-      isFinal: false,
+    await seasonRef.set(payload, { merge: true });
 
-      // IMPORTANT for STOLAR CARP register:
-      isRegistrationOpen: false,
+    // Для single робимо 1 “stage” всередині seasons/{id}/stages/{id_main}
+    const mainStageId = `${seasonId}_main`;
+    await seasonRef.collection("stages").doc(mainStageId).set(
+      {
+        id: mainStageId,
+        seasonId,
+        kind: "stage",
+        label: "Основний етап",
+        order: 1,
+        isFinal: false,
+        isRegistrationOpen: false,
 
-      allowBigFishTotal: true,
-      minusOneFor13kg,
+        // правила/прапорці під твої типи:
+        scoringModel: singleData.singleType, // three_tables | stalker_solo | stalker_team | standard
+        stalkerTeamMembers: singleData.stalkerTeamMembers ?? null,
 
-      // дублюємо тип, щоб зручно було читати
-      competitionType: type,
-      stalkerTeamSize: (type === "stalker_team") ? teamSize : null,
-
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-    };
-
-    const batch = db.batch();
-    batch.set(seasonRef, seasonDoc, { merge: true });
-    batch.set(stageRef, stageDoc, { merge: true });
-    await batch.commit();
-
-    return { seasonId: competitionId };
+        createdAt: nowTS(),
+        updatedAt: nowTS()
+      },
+      { merge: true }
+    );
   }
 
-  // UI events
-  kindEl.addEventListener("change", () => { toggleBlocks(); setMsg(""); });
-  singleTypeEl.addEventListener("change", () => { toggleStalkerTeamSize(); });
-  seasonIdEl.addEventListener("input", renderAutoStages);
-  numStagesEl.addEventListener("input", renderAutoStages);
-  hasFinalEl.addEventListener("change", renderAutoStages);
-
-  // MAIN
-  async function boot() {
-    if (!auth || !db || !window.firebase) {
-      authStateEl.textContent = "Firebase init НЕ завантажився";
-      roleStateEl.textContent = "-";
-      setMsg("Перевір: підключення firebase-config.js і firebase compat скриптів.", false);
-      if (createBtn) createBtn.disabled = true;
-      return;
+  // ====== UI events ======
+  auth.onAuthStateChanged(async (user) => {
+    try {
+      await requireAdmin(user);
+      msg("✅ Адмін доступ OK", true);
+      if (saveBtn) saveBtn.disabled = false;
+    } catch (e) {
+      console.error(e);
+      msg(e.message || "Нема доступу", false);
+      if (saveBtn) saveBtn.disabled = true;
     }
+  });
 
-    toggleBlocks();
-    toggleStalkerTeamSize();
-    renderAutoStages();
-
-    auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        authStateEl.textContent = "не залогінений";
-        roleStateEl.textContent = "-";
-        setMsg("Зайди в адмінку (логін).", false);
-        if (createBtn) createBtn.disabled = true;
-        return;
-      }
-
+  if (saveBtn) {
+    saveBtn.addEventListener("click", async () => {
       try {
-        authStateEl.textContent = user.email || "ok";
-        await requireAdmin(user);
-        setMsg("Готово. Можна створювати.", true);
-        if (createBtn) createBtn.disabled = false;
-      } catch (e) {
-        setMsg(e.message || "Нема доступу.", false);
-        if (createBtn) createBtn.disabled = true;
-      }
-    });
+        msg("");
+        saveBtn.disabled = true;
 
-    createBtn.addEventListener("click", async () => {
-      const user = auth.currentUser;
-      if (!user) { setMsg("Нема логіну.", false); return; }
+        const kind = String(kindEl?.value || "season");
+        const common = readCommon();
 
-      try {
-        setBusy(true, "створюю...");
-        setMsg("");
-
-        await requireAdmin(user);
-
-        const kind = kindEl.value;
-        let res;
-        if (kind === "season") res = await createSeasonFlow(user);
-        else res = await createSingleFlow(user);
-
-        setMsg(`✅ Створено: ${res.seasonId}. Реєстрацію відкриваємо на сторінці 2.`, true);
+        if (kind === "season") {
+          const seasonData = readSeason();
+          await createOrUpdateSeasonSeasonDoc(common, seasonData);
+          msg(`✅ Сезон створено/оновлено: ${common.seasonId} (auto e1..e${seasonData.numStages}${seasonData.hasFinal ? " + final" : ""})`, true);
+        } else {
+          const singleData = readSingle();
+          await createOrUpdateSingleCompetition(common, singleData);
+          msg(`✅ Змагання створено/оновлено: ${common.seasonId} (тип: ${singleData.singleType})`, true);
+        }
       } catch (e) {
         console.error(e);
-        setMsg(e.message || "Помилка створення.", false);
+        msg(e.message || "Помилка збереження", false);
       } finally {
-        setBusy(false, "");
+        saveBtn.disabled = false;
       }
     });
   }
-
-  boot();
 })();
