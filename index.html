@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STOLAR CARP • Адмінка</title>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0e1a;
+      color: #e5e7eb;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    /* Header */
+    .header {
+      background: rgba(15, 23, 42, 0.9);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      padding: 16px 0;
+      margin-bottom: 32px;
+    }
+    
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .logo-mark {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #f6c34c, #d4a017);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 20px;
+      color: #0a0e1a;
+    }
+    
+    .logo-text {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+    
+    .season-badge {
+      background: rgba(246, 195, 76, 0.15);
+      border: 1px solid rgba(246, 195, 76, 0.3);
+      color: #f6c34c;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    /* Login */
+    .login-box {
+      max-width: 400px;
+      margin: 100px auto;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 20px;
+      padding: 32px;
+    }
+    
+    .login-title {
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .field {
+      margin-bottom: 16px;
+    }
+    
+    .field label {
+      display: block;
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+    }
+    
+    .field input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(2, 6, 23, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 12px;
+      color: inherit;
+      font-size: 16px;
+    }
+    
+    .field input:focus {
+      outline: none;
+      border-color: #f6c34c;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 14px 24px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #f6c34c, #d4a017);
+      color: #0a0e1a;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(246, 195, 76, 0.3);
+    }
+    
+    .btn-menu {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 28px 32px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 16px;
+      color: inherit;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 700;
+      transition: all 0.2s;
+      margin-bottom: 16px;
+    }
+    
+    .btn-menu:hover {
+      background: rgba(15, 23, 42, 1);
+      border-color: rgba(246, 195, 76, 0.4);
+      transform: translateX(8px);
+    }
+    
+    .btn-menu-icon {
+      width: 56px;
+      height: 56px;
+      background: rgba(246, 195, 76, 0.1);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    
+    .btn-menu-info {
+      margin-left: auto;
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    
+    .hidden { display: none !important; }
+    
+    .status-bar {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .error-msg {
+      color: #ef4444;
+      text-align: center;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="container header-inner">
+    <a href="#" class="logo">
+      <div class="logo-mark">SC</div>
+      <div class="logo-text">STOLAR CARP</div>
+    </a>
+    <div class="season-badge" id="currentSeason">Сезон 2025</div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginSection" class="container">
+  <div class="login-box">
+    <div class="login-title">Вхід адміністратора</div>
+    
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@stolarcarp.com">
+    </div>
+    
+    <div class="field">
+      <label>Пароль</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
+    </div>
+    
+    <button class="btn btn-primary" id="btnLogin">Увійти</button>
+    <div class="error-msg" id="loginError"></div>
+  </div>
+</div>
+
+<!-- MAIN MENU -->
+<div id="mainSection" class="container hidden">
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <div>
+      <div style="font-weight: 600;">Система активна</div>
+      <div style="font-size: 14px; color: #64748b;" id="adminEmail">admin@stolarcarp.com</div>
+    </div>
+    <button onclick="logout()" style="margin-left: auto; background: transparent; border: 1px solid rgba(148,163,184,0.3); color: #94a3b8; padding: 8px 16px; border-radius: 8px; cursor: pointer;">Вийти</button>
+  </div>
+  
+  <a href="pages/tournament-create.html" class="btn-menu">
+    <div class="btn-menu-icon">🏆</div>
+    <div>
+      <div>Створити змагання</div>
+      <div style="font-size: 14px; color: #64748b; font-weight: 500; margin-top: 4px;">Вибір формату: етапи, Big Fish, Stalker, 3 таблиці</div>
+    </div>
+    <div class="btn-menu-info">→</div>
+  </a>
+  
+  <a href="pages/payments.html" class="btn-menu">
+    <div class="btn-menu-icon">💳</div>
+    <div>
+      <div>Підтвердження оплати</div>
+      <div style="font-size: 14px; color: #64748b; font-weight: 500; margin-top: 4px;">Заявки на змагання очікують підтвердження</div>
+    </div>
+    <div class="btn-menu-info" id="pendingCount">0 нових</div>
+  </a>
+  
+  <a href="pages/draw.html" class="btn-menu">
+    <div class="btn-menu-icon">🎲</div>
+    <div>
+      <div>Жеребкування</div>
+      <div style="font-size: 14px; color: #64748b; font-weight: 500; margin-top: 4px;">Розподіл секторів та зон (A, B, C)</div>
+    </div>
+    <div class="btn-menu-info">→</div>
+  </a>
+  
+  <a href="pages/weighing.html" class="btn-menu">
+    <div class="btn-menu-icon">⚖️</div>
+    <div>
+      <div>Зважування</div>
+      <div style="font-size: 14px; color: #64748b; font-weight: 500; margin-top: 4px;">Внесення результатів по зонах</div>
+    </div>
+    <div class="btn-menu-info">→</div>
+  </a>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+// ===== Firebase конфігурація =====
+const firebaseConfig = {
+  apiKey: "ВАШ_API_KEY",
+  authDomain: "ВАШ_PROJECT.firebaseapp.com",
+  projectId: "ВАШ_PROJECT",
+  storageBucket: "ВАШ_PROJECT.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef"
+};
+
+// Ініціалізація
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ===== Сезон =====
+const CURRENT_SEASON = '2025';
+const SEASON_PREFIX = `seasons_${CURRENT_SEASON}`;
+
+// ===== DOM елементи =====
+const loginSection = document.getElementById('loginSection');
+const mainSection = document.getElementById('mainSection');
+const loginError = document.getElementById('loginError');
+
+// ===== Авторизація =====
+document.getElementById('btnLogin').addEventListener('click', async () => {
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+  } catch (error) {
+    loginError.textContent = 'Невірний email або пароль';
+  }
+});
+
+function logout() {
+  auth.signOut();
+}
+
+// ===== Слідкування за станом =====
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    // Перевіряємо чи це адмін
+    const adminDoc = await db.collection(`${SEASON_PREFIX}/metadata/admins`).doc(user.uid).get();
+    
+    if (!adminDoc.exists) {
+      // Перевіряємо legacy спосіб (role в users)
+      const userDoc = await db.collection(`${SEASON_PREFIX}/users`).doc(user.uid).get();
+      const isAdmin = userDoc.exists && userDoc.data().role === 'admin';
+      
+      if (!isAdmin) {
+        await auth.signOut();
+        loginError.textContent = 'Доступ тільки для адміністраторів';
+        return;
+      }
+    }
+    
+    // Показуємо меню
+    loginSection.classList.add('hidden');
+    mainSection.classList.remove('hidden');
+    document.getElementById('adminEmail').textContent = user.email;
+    
+    // Завантажуємо кількість заявок
+    loadPendingCount();
+    
+  } else {
+    loginSection.classList.remove('hidden');
+    mainSection.classList.add('hidden');
+  }
+});
+
+// ===== Завантаження кількості заявок =====
+async function loadPendingCount() {
+  try {
+    const snapshot = await db
+      .collection(`${SEASON_PREFIX}/registrations`)
+      .where('status', '==', 'pending')
+      .get();
+    
+    const count = snapshot.size;
+    document.getElementById('pendingCount').textContent = 
+      count > 0 ? `${count} нових` : 'немає';
+  } catch (e) {
+    console.error('Помилка завантаження заявок:', e);
+  }
+}
+
+// Робимо функції глобальними
+window.logout = logout;
+window.db = db;
+window.auth = auth;
+window.CURRENT_SEASON = CURRENT_SEASON;
+window.SEASON_PREFIX = SEASON_PREFIX;
+</script>
+
+</body>
+</html>
