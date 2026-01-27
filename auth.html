@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Вхід / Реєстрація · STOLAR CARP</title>
 
-  <!-- Критичний CSS (без змін) -->
+  <!-- Критичний CSS з фіксом overlay -->
   <style>
     :root{
       --bg:#020617;
@@ -24,7 +24,7 @@
     *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
     body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
     
-    /* Header (як було) */
+    /* Header */
     .header{padding:16px 0;border-bottom:1px solid var(--border);background:var(--surface);}
     .header__row{display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;padding:0 20px;}
     .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.1rem;color:var(--text);text-decoration:none;}
@@ -39,8 +39,16 @@
     .main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
     .container{max-width:1200px;margin:0 auto;width:100%;}
     
-    /* Auth wrapper */
-    .auth-wrap{display:flex;flex-direction:column;gap:20px;max-width:480px;margin:0 auto;}
+    /* Auth wrapper - фікс для overlay */
+    .auth-wrap{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      max-width:480px;
+      margin:0 auto;
+      min-height:600px; /* Фікс висоти */
+    }
     
     /* Auth top */
     .auth-top{
@@ -49,6 +57,8 @@
       background:var(--surface);
       border:1px solid var(--border);
       box-shadow:0 10px 30px rgba(0,0,0,.4);
+      position:relative;
+      z-index:10;
     }
     .auth-top__title{font-size:1.5rem;font-weight:800;margin-bottom:16px;background:linear-gradient(135deg,var(--accent),var(--accent-hover));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
     
@@ -64,8 +74,6 @@
       font-weight:600;
       cursor:pointer;
       transition:var(--transition);
-      position:relative;
-      overflow:hidden;
     }
     .tab-btn.active{
       color:var(--bg);
@@ -73,16 +81,59 @@
       background:linear-gradient(135deg,var(--accent),var(--accent-hover));
     }
     
-    /* Auth card - точна логіка v2.0 */
+    /* ФОРМИ - ОДНА НА ОДНІЙ (overlay principle) */
+    .forms-container{
+      position:relative;
+      min-height:500px; /* Фіксована висота контейнера */
+    }
+    
     .auth-card{
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
       padding:24px;
       border-radius:var(--radius);
       background:var(--surface);
       border:1px solid var(--border);
       box-shadow:0 10px 30px rgba(0,0,0,.4);
-      transition:opacity .3s ease;
+      transition:opacity .3s ease, transform .3s ease;
+      backface-visibility:hidden;
     }
-    .auth-card.hidden{display:none;}
+    
+    /* Стани форм */
+    .auth-card.hidden{
+      opacity:0;
+      transform:translateX(-20px);
+      pointer-events:none;
+      z-index:1;
+    }
+    
+    .auth-card:not(.hidden){
+      opacity:1;
+      transform:translateX(0);
+      pointer-events:auto;
+      z-index:2;
+    }
+    
+    /* Анімація при перемиканні */
+    #panelSignup:not(.hidden){
+      animation:slideInRight .3s ease-out;
+    }
+    
+    #panelLogin:not(.hidden){
+      animation:slideInLeft .3s ease-out;
+    }
+    
+    @keyframes slideInRight{
+      from{opacity:0;transform:translateX(20px);}
+      to{opacity:1;transform:translateX(0);}
+    }
+    
+    @keyframes slideInLeft{
+      from{opacity:0;transform:translateX(-20px);}
+      to{opacity:1;transform:translateX(0);}
+    }
     
     /* Forms - як було */
     .grid{display:grid;gap:12px;margin-top:20px;}
@@ -167,6 +218,9 @@
     }
     .btn--primary:hover{background:rgba(148,163,184,.1);}
     
+    /* Logged state - як було */
+    #loggedBox.hidden{display:none;}
+    
     /* Responsive */
     @media(max-width:768px){
       .nav{display:none;}
@@ -174,6 +228,15 @@
       .auth-wrap{padding:16px;}
       .auth-card{padding:20px;}
       .tabs{flex-direction:column;}
+      .forms-container{min-height:550px;} /* Більше місця на мобільних */
+    }
+    
+    /* Accessibility */
+    .tab-btn:focus-visible,
+    .btn:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
   </style>
 </head>
@@ -222,79 +285,84 @@
       </div>
     </div>
 
-    <!-- Login Panel -->
-    <div class="auth-card" id="panelLogin">
-      <h2 class="section-title" style="margin:0 0 8px;">Увійти в акаунт</h2>
-      <p class="muted">Введіть свій email та пароль.</p>
+    <!-- ФОРМИ - ОДНА НА ОДНІЙ (контейнер) -->
+    <div class="forms-container">
 
-      <form id="loginForm" class="grid" autocomplete="on" novalidate>
-        <input id="loginEmail" type="email" placeholder="Email" required aria-label="Email" />
-        <input id="loginPassword" type="password" placeholder="Пароль" required aria-label="Пароль" minlength="6" />
-        
-        <div class="actions">
-          <button class="btn btn--accent" id="loginBtn" type="submit">
-            <span>Увійти</span>
-          </button>
-          <a class="btn btn--primary" href="index.html">
-            <span>На головну</span>
-          </a>
-        </div>
-        
-        <div class="msg" id="loginMsg" role="alert" aria-live="polite"></div>
-      </form>
-    </div>
+      <!-- Login Panel -->
+      <div class="auth-card" id="panelLogin">
+        <h2 class="section-title" style="margin:0 0 8px;">Увійти в акаунт</h2>
+        <p class="muted">Введіть свій email та пароль.</p>
 
-    <!-- Signup Panel -->
-    <div class="auth-card hidden" id="panelSignup">
-      <h2 class="section-title" style="margin:0 0 8px;">Створити акаунт</h2>
-      <p class="muted">Капітан створює команду, учасник приєднується по коду.</p>
+        <form id="loginForm" class="grid" autocomplete="on" novalidate>
+          <input id="loginEmail" type="email" placeholder="Email" required aria-label="Email" />
+          <input id="loginPassword" type="password" placeholder="Пароль" required aria-label="Пароль" minlength="6" />
+          
+          <div class="actions">
+            <button class="btn btn--accent" id="loginBtn" type="submit">
+              <span>Увійти</span>
+            </button>
+            <a class="btn btn--primary" href="index.html">
+              <span>На головну</span>
+            </a>
+          </div>
+          
+          <div class="msg" id="loginMsg" role="alert" aria-live="polite"></div>
+        </form>
+      </div>
 
-      <form id="signupForm" class="grid" autocomplete="on" novalidate>
-        <input id="signupEmail" type="email" placeholder="Email" required aria-label="Email" />
-        <input id="signupPassword" type="password" placeholder="Пароль (мін. 6 символів)" required aria-label="Пароль" minlength="6" />
-        <input id="signupFullName" type="text" placeholder="ПІБ" required aria-label="Повне ім'я" />
-        <input id="signupPhone" type="tel" placeholder="Телефон" required aria-label="Телефон" />
-        <input id="signupCity" type="text" placeholder="Місто" required aria-label="Місто" />
+      <!-- Signup Panel -->
+      <div class="auth-card hidden" id="panelSignup">
+        <h2 class="section-title" style="margin:0 0 8px;">Створити акаунт</h2>
+        <p class="muted">Капітан створює команду, учасник приєднується по коду.</p>
 
-        <div class="hr"></div>
+        <form id="signupForm" class="grid" autocomplete="on" novalidate>
+          <input id="signupEmail" type="email" placeholder="Email" required aria-label="Email" />
+          <input id="signupPassword" type="password" placeholder="Пароль (мін. 6 символів)" required aria-label="Пароль" minlength="6" />
+          <input id="signupFullName" type="text" placeholder="ПІБ" required aria-label="Повне ім'я" />
+          <input id="signupPhone" type="tel" placeholder="Телефон" required aria-label="Телефон" />
+          <input id="signupCity" type="text" placeholder="Місто" required aria-label="Місто" />
 
-        <!-- Role Selection -->
-        <div class="role-box">
-          <label>
-            <input type="radio" name="signupRole" value="captain" checked />
-            <span>Капітан</span>
-          </label>
-          <label>
-            <input type="radio" name="signupRole" value="member" />
-            <span>Учасник</span>
-          </label>
-        </div>
+          <div class="hr"></div>
 
-        <!-- Captain Fields -->
-        <div id="captainFields" class="dynamic-fields">
-          <input id="signupTeamName" type="text" placeholder="Назва команди" aria-label="Назва команди" />
-          <div class="hint">Після створення команди ти отримаєш <strong>joinCode</strong> для інших учасників.</div>
-          <div class="feedback" id="teamNameFeedback" role="status" aria-live="polite"></div>
-        </div>
+          <!-- Role Selection -->
+          <div class="role-box">
+            <label>
+              <input type="radio" name="signupRole" value="captain" checked />
+              <span>Капітан</span>
+            </label>
+            <label>
+              <input type="radio" name="signupRole" value="member" />
+              <span>Учасник</span>
+            </label>
+          </div>
 
-        <!-- Member Fields -->
-        <div id="memberFields" class="dynamic-fields hidden">
-          <input id="signupJoinCode" type="text" placeholder="Код команди (joinCode)" aria-label="Код команди" maxlength="6" />
-          <div class="hint">Код дає капітан команди (6 символів: літери та цифри).</div>
-        </div>
+          <!-- Captain Fields -->
+          <div id="captainFields" class="dynamic-fields">
+            <input id="signupTeamName" type="text" placeholder="Назва команди" aria-label="Назва команди" />
+            <div class="hint">Після створення команди ти отримаєш <strong>joinCode</strong> для інших учасників.</div>
+            <div class="feedback" id="teamNameFeedback" role="status" aria-live="polite"></div>
+          </div>
 
-        <div class="actions">
-          <button class="btn btn--accent" id="signupBtn" type="submit">
-            <span>Зареєструватись</span>
-          </button>
-          <a class="btn btn--primary" href="index.html">
-            <span>На головну</span>
-          </a>
-        </div>
-        
-        <div class="msg" id="signupMsg" role="alert" aria-live="polite"></div>
-      </form>
-    </div>
+          <!-- Member Fields -->
+          <div id="memberFields" class="dynamic-fields hidden">
+            <input id="signupJoinCode" type="text" placeholder="Код команди (joinCode)" aria-label="Код команди" maxlength="6" />
+            <div class="hint">Код дає капітан команди (6 символів: літери та цифри).</div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn--accent" id="signupBtn" type="submit">
+              <span>Зареєструватись</span>
+            </button>
+            <a class="btn btn--primary" href="index.html">
+              <span>На головну</span>
+            </a>
+          </div>
+          
+          <div class="msg" id="signupMsg" role="alert" aria-live="polite"></div>
+        </form>
+      </div>
+
+    </div> <!-- /forms-container -->
 
     <!-- Logged State -->
     <div class="auth-card hidden" id="loggedBox">
@@ -313,15 +381,7 @@
   </section>
 </main>
 
-<!-- Loading Overlay -->
-<div id="loadingOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(2,6,23,.9);z-index:9999;backdrop-filter:blur(4px);">
-  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
-    <div style="width:48px;height:48px;border:4px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>
-    <p style="margin-top:16px;color:var(--text);">Завантаження...</p>
-  </div>
-</div>
-
-<!-- Scripts -->
+<!-- Scripts (без змін) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -329,30 +389,6 @@
 
 <script src="assets/js/firebase-init.js"></script>
 <script src="assets/js/auth.js"></script>
-
-<!-- CSS animations -->
-<style>
-  @keyframes spin {
-    to { transform: rotate(360deg); }
-  }
-  
-  /* Smooth transitions */
-  .auth-card {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-  
-  .feedback {
-    transition: opacity 0.2s ease;
-  }
-  
-  /* Focus visible for accessibility */
-  .tab-btn:focus-visible,
-  .btn:focus-visible,
-  input:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-</style>
 
 </body>
 </html>
