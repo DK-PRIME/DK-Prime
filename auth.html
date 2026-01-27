@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Вхід / Реєстрація · STOLAR CARP</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/img/logo-mark.svg">
+
+  <!-- Critical CSS inline -->
+  <style>
+    :root{
+      --bg:#020617;
+      --surface:#0f172a;
+      --border:rgba(148,163,184,.35);
+      --accent:#facc15;
+      --accent-hover:#f97316;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --error:#ef4444;
+      --success:#22c55e;
+      --radius:14px;
+      --transition:.25s ease;
+    }
+    
+    *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+    body{background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+    
+    /* Header */
+    .header{padding:16px 0;border-bottom:1px solid var(--border);background:var(--surface);}
+    .header__row{display:flex;align-items:center;justify-content:space-between;max-width:1200px;margin:0 auto;padding:0 20px;}
+    .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:1.1rem;color:var(--text);text-decoration:none;}
+    .logo__mark{background:var(--accent);color:var(--bg);padding:4px 8px;border-radius:6px;font-size:.9rem;}
+    .nav{display:flex;gap:24px;flex-wrap:wrap;}
+    .nav__link{color:var(--muted);text-decoration:none;font-weight:500;transition:var(--transition);}
+    .nav__link:hover{color:var(--text);}
+    .burger{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;}
+    .burger span{width:24px;height:2px;background:var(--text);transition:var(--transition);}
+    
+    /* Main layout */
+    .main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+    .container{max-width:1200px;margin:0 auto;width:100%;}
+    
+    /* Auth wrapper */
+    .auth-wrap{display:flex;flex-direction:column;gap:20px;max-width:480px;margin:0 auto;}
+    
+    /* Auth top */
+    .auth-top{
+      padding:24px;
+      border-radius:var(--radius);
+      background:var(--surface);
+      border:1px solid var(--border);
+      box-shadow:0 10px 30px rgba(0,0,0,.4);
+    }
+    .auth-top__title{font-size:1.5rem;font-weight:800;margin-bottom:16px;background:linear-gradient(135deg,var(--accent),var(--accent-hover));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    
+    /* Tabs */
+    .tabs{display:flex;gap:8px;}
+    .tab-btn{
+      flex:1;
+      padding:12px 16px;
+      border:1px solid var(--border);
+      background:transparent;
+      color:var(--muted);
+      border-radius:999px;
+      font-weight:600;
+      cursor:pointer;
+      transition:var(--transition);
+      position:relative;
+      overflow:hidden;
+    }
+    .tab-btn::before{
+      content:"";
+      position:absolute;
+      top:0;left:0;right:0;bottom:0;
+      background:linear-gradient(135deg,var(--accent),var(--accent-hover));
+      opacity:0;
+      transition:var(--transition);
+      z-index:-1;
+    }
+    .tab-btn:hover{color:var(--text);}
+    .tab-btn.active{
+      color:var(--bg);
+      border-color:var(--accent);
+    }
+    .tab-btn.active::before{opacity:1;}
+    
+    /* Auth card */
+    .auth-card{
+      padding:24px;
+      border-radius:var(--radius);
+      background:var(--surface);
+      border:1px solid var(--border);
+      box-shadow:0 10px 30px rgba(0,0,0,.4);
+      transition:var(--transition);
+    }
+    .auth-card.hidden{opacity:0;transform:translateY(10px);pointer-events:none;}
+    
+    /* Forms */
+    .grid{display:grid;gap:12px;margin-top:20px;}
+    .grid input{
+      padding:14px 16px;
+      border:1px solid var(--border);
+      background:rgba(2,6,23,.6);
+      color:var(--text);
+      border-radius:var(--radius);
+      font-size:1rem;
+      transition:var(--transition);
+      outline:none;
+    }
+    .grid input::placeholder{color:var(--muted);}
+    .grid input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(250,204,21,.2);
+    }
+    
+    /* Role selection */
+    .role-box{display:flex;gap:16px;margin:16px 0;flex-wrap:wrap;}
+    .role-box label{
+      display:flex;align-items:center;gap:8px;
+      padding:10px 14px;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      cursor:pointer;
+      transition:var(--transition);
+    }
+    .role-box label:hover{border-color:var(--accent);}
+    .role-box input[type="radio"]{accent-color:var(--accent);}
+    .role-box input[type="radio"]:checked + label{border-color:var(--accent);background:rgba(250,204,21,.1);}
+    
+    /* Dynamic fields */
+    .dynamic-fields{margin-top:16px;}
+    .dynamic-fields .grid{gap:10px;}
+    .hint{font-size:.85rem;color:var(--muted);margin-top:6px;line-height:1.4;}
+    
+    /* Feedback */
+    .feedback{
+      font-size:.8rem;
+      margin-top:6px;
+      transition:var(--transition);
+    }
+    .feedback-free{color:var(--success);}
+    .feedback-taken{color:var(--error);}
+    
+    /* Messages */
+    .msg{
+      margin-top:16px;
+      font-size:.9rem;
+      padding:12px;
+      border-radius:8px;
+      transition:var(--transition);
+    }
+    .msg.ok{background:rgba(34,197,94,.15);color:var(--success);border:1px solid rgba(34,197,94,.3);}
+    .msg.err{background:rgba(239,68,68,.15);color:var(--error);border:1px solid rgba(239,68,68,.3);}
+    .msg.info{background:rgba(59,130,246,.15);color:#3b82f6;border:1px solid rgba(59,130,246,.3);}
+    
+    /* Actions */
+    .actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;}
+    .btn{
+      padding:14px 20px;
+      border:none;
+      border-radius:var(--radius);
+      font-weight:600;
+      cursor:pointer;
+      transition:var(--transition);
+      text-decoration:none;
+      text-align:center;
+      display:inline-flex;align-items:center;justify-content:center;
+      gap:8px;
+    }
+    .btn--accent{
+      background:linear-gradient(135deg,var(--accent),var(--accent-hover));
+      color:var(--bg);
+      box-shadow:0 4px 14px rgba(250,204,21,.4);
+    }
+    .btn--accent:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(250,204,21,.5);}
+    .btn--primary{
+      background:var(--surface);
+      color:var(--text);
+      border:1px solid var(--border);
+    }
+    .btn--primary:hover{background:rgba(148,163,184,.1);}
+    
+    /* Responsive */
+    @media(max-width:768px){
+      .nav{display:none;}
+      .burger{display:flex;}
+      .auth-wrap{padding:16px;}
+      .auth-card{padding:20px;}
+      .tabs{flex-direction:column;}
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="container header__row">
+    <a class="logo" href="index.html">
+      <span class="logo__mark">SC</span>
+      <span class="logo__text">STOLAR CARP</span>
+    </a>
+
+    <nav class="nav" id="nav">
+      <a href="index.html" class="nav__link">Головна</a>
+      <a href="rules.html" class="nav__link">Регламент</a>
+      <a href="register.html" class="nav__link">Реєстрація</a>
+      <a href="live.html" class="nav__link">Live</a>
+      <a href="rating.html" class="nav__link">Рейтинг</a>
+      <a href="lakes.html" class="nav__link">Водойми</a>
+      <a href="sponsors.html" class="nav__link">Спонсори</a>
+      <a href="events/index.html" class="nav__link">Архів</a>
+      <a href="cabinet.html" class="nav__link">Мій кабінет</a>
+    </nav>
+
+    <button class="burger" id="burger" type="button" aria-label="Меню">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="main">
+  <section class="container auth-wrap">
+
+    <!-- Auth Top Section -->
+    <div class="auth-top">
+      <h1 class="auth-top__title">Вхід / Реєстрація</h1>
+      <p class="muted">Увійдіть або створіть акаунт, щоб долучитися до змагань STOLAR CARP.</p>
+      
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-btn active" id="tabLogin" type="button" data-tab="login">
+          <span>Вхід</span>
+        </button>
+        <button class="tab-btn" id="tabSignup" type="button" data-tab="signup">
+          <span>Реєстрація</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Login Panel -->
+    <div class="auth-card" id="panelLogin">
+      <h2 class="section-title" style="margin:0 0 8px;">Увійти в акаунт</h2>
+      <p class="muted">Введіть свій email та пароль, щоб продовжити.</p>
+
+      <form id="loginForm" class="grid" autocomplete="on" novalidate>
+        <input id="loginEmail" type="email" placeholder="Email" required aria-label="Email" />
+        <input id="loginPassword" type="password" placeholder="Пароль" required aria-label="Пароль" minlength="6" />
+        
+        <div class="actions">
+          <button class="btn btn--accent" id="loginBtn" type="submit">
+            <span>Увійти</span>
+          </button>
+          <a class="btn btn--primary" href="index.html">
+            <span>На головну</span>
+          </a>
+        </div>
+        
+        <div class="msg" id="loginMsg" role="alert" aria-live="polite"></div>
+      </form>
+    </div>
+
+    <!-- Signup Panel -->
+    <div class="auth-card hidden" id="panelSignup">
+      <h2 class="section-title" style="margin:0 0 8px;">Створити акаунт</h2>
+      <p class="muted">Капітан створює команду, учасник приєднується за кодом.</p>
+
+      <form id="signupForm" class="grid" autocomplete="on" novalidate>
+        <input id="signupEmail" type="email" placeholder="Email" required aria-label="Email" />
+        <input id="signupPassword" type="password" placeholder="Пароль (мін. 6 символів)" required aria-label="Пароль" minlength="6" />
+        <input id="signupFullName" type="text" placeholder="ПІБ" required aria-label="Повне ім'я" />
+        <input id="signupPhone" type="tel" placeholder="Телефон" required aria-label="Телефон" />
+        <input id="signupCity" type="text" placeholder="Місто" required aria-label="Місто" />
+
+        <div class="hr"></div>
+
+        <!-- Role Selection -->
+        <div class="role-box">
+          <label>
+            <input type="radio" name="signupRole" value="captain" checked />
+            <span>Капітан</span>
+          </label>
+          <label>
+            <input type="radio" name="signupRole" value="member" />
+            <span>Учасник</span>
+          </label>
+        </div>
+
+        <!-- Captain Fields -->
+        <div id="captainFields" class="dynamic-fields">
+          <input id="signupTeamName" type="text" placeholder="Назва команди" aria-label="Назва команди" />
+          <div class="hint">Після створення команди ви отримаєте <strong>joinCode</strong> для інших учасників.</div>
+          <div class="feedback" id="teamNameFeedback" role="status" aria-live="polite"></div>
+        </div>
+
+        <!-- Member Fields -->
+        <div id="memberFields" class="dynamic-fields hidden">
+          <input id="signupJoinCode" type="text" placeholder="Код команди (joinCode)" aria-label="Код команди" maxlength="6" />
+          <div class="hint">Код дає капітан команди (6 символів: літери та цифри).</div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn--accent" id="signupBtn" type="submit">
+            <span>Зареєструватись</span>
+          </button>
+          <a class="btn btn--primary" href="index.html">
+            <span>На головну</span>
+          </a>
+        </div>
+        
+        <div class="msg" id="signupMsg" role="alert" aria-live="polite"></div>
+      </form>
+    </div>
+
+    <!-- Logged State -->
+    <div class="auth-card hidden" id="loggedBox">
+      <h2 class="section-title" style="margin:0 0 8px;">Ви вже увійшли</h2>
+      <p class="muted" id="loggedMsg"></p>
+      <div class="actions">
+        <button class="btn btn--accent" id="goCabinetBtn" type="button">
+          <span>Увійти в кабінет</span>
+        </button>
+        <button class="btn btn--primary" id="logoutBtn" type="button">
+          <span>Вийти</span>
+        </button>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- Loading State -->
+<div id="loadingOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(2,6,23,.9);z-index:9999;backdrop-filter:blur(4px);">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+    <div style="width:48px;height:48px;border:4px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>
+    <p style="margin-top:16px;color:var(--text);">Завантаження...</p>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script>
+  // Minimal tab switching (will be replaced by AuthApp)
+  document.getElementById('tabLogin')?.addEventListener('click', () => {
+    document.getElementById('panelLogin').classList.remove('hidden');
+    document.getElementById('panelSignup').classList.add('hidden');
+    document.getElementById('tabLogin').classList.add('active');
+    document.getElementById('tabSignup').classList.remove('active');
+  });
+
+  document.getElementById('tabSignup')?.addEventListener('click', () => {
+    document.getElementById('panelLogin').classList.add('hidden');
+    document.getElementById('panelSignup').classList.remove('hidden');
+    document.getElementById('tabLogin').classList.remove('active');
+    document.getElementById('tabSignup').classList.add('active');
+  });
+
+  // Role switching
+  document.querySelectorAll('input[name="signupRole"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const isCaptain = e.target.value === 'captain';
+      document.getElementById('captainFields').classList.toggle('hidden', !isCaptain);
+      document.getElementById('memberFields').classList.toggle('hidden', isCaptain);
+    });
+  });
+</script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+<!-- Application -->
+<script src="assets/js/firebase-init.js"></script>
+<script src="assets/js/auth.js"></script>
+
+<!-- CSS animations -->
+<style>
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Smooth transitions for dynamic content */
+  .auth-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .feedback {
+    transition: opacity 0.2s ease;
+  }
+  
+  /* Focus visible for accessibility */
+  .tab-btn:focus-visible,
+  .btn:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+</style>
+
+</body>
+</html>
